@@ -109,6 +109,40 @@ Distinguish validation scopes:
 - `fully-local`: do not use network tools or upload the paper; use only user-authorized local material, including an explicitly supplied Zotero main item, and explicitly downgrade unavailable checks.
 - `custom`: expand explicit permissions and exclusions into individual Run Contract fields.
 
+## External Dependency Preflight
+
+Before any live G0 action, run a read-only external-dependency preflight. When this Skill is installed as a directory, use the bundled script when available:
+
+```text
+python scripts/check_dependencies.py --mode <validation>
+```
+
+Use `--json` when the result will be merged with the agent's Skill and tool registry checks. For `main-paper-only` or `fully-local`, pass `--input-kind pdf` when the supplied main source is a PDF; use `--input-kind full-text` for a sufficiently complete non-PDF source. The default `unknown` keeps the parser route conditional in those two modes. After the agent confirms a capability, it may pass the corresponding repeated `--agent-check <name>` flag to merge that result, for example:
+
+```text
+python scripts/check_dependencies.py --mode standard --json --agent-check paper-lookup.skill --agent-check paper-lookup.http-fetch --agent-check sciverse-research.skill --agent-check sciverse.mcp-tools
+```
+
+Only pass `--agent-check` for capabilities actually present in the agent's Skill/tool catalog. The script must not install packages, access the network, upload files, modify environment variables, enable Zotero, or print secret values. API-key checks report presence only. The agent must supplement the script with its own available-Skill and MCP-tool catalog; a filesystem-only script cannot prove that an MCP server is exposed.
+
+Without the agent-side flags, `standard` intentionally leaves HTTP and MCP checks as `BLOCKED` and returns exit code `1`; this is a guard for incomplete preflight, not permission to skip the agent catalog check.
+
+Use these result states consistently: `PASS`, `MISSING`, `BLOCKED`, `OPTIONAL`, and `NOT-APPLICABLE`. Report the merged result to the user before starting G0, grouped as must-have, strongly recommended, and optional dependencies. Keep the complete maintenance table in [references/external-dependencies.md](references/external-dependencies.md).
+
+For `validation=standard`, the following are required before the standard workflow can start:
+
+- `paper-lookup` Skill and an available HTTP-fetch route for DOI, OA, citation, and candidate checks;
+- the `sciverse-research` Skill, the Sciverse MCP tools, and a non-empty `SCIVERSE_API_TOKEN`;
+- at least one usable PDF route: the preferred `mineru-pdf` route or the local `pdf` fallback route.
+
+The preferred MinerU route requires the `mineru-pdf` Skill, its wrapper, a usable Python runtime, and `MINERU_API_KEY`. The local fallback should expose `pdfinfo`, `pdftoppm`, `pypdf`, and preferably `PyMuPDF`/`fitz` for parsing, rendering, and visual QA. A missing preferred MinerU component is a downgrade rather than a blocker when the local PDF route is usable. If both routes are unavailable, block PDF-dependent work and explain the available remediation.
+
+`parallel-web` and `research-lookup` are conditional enhancements for open-ended web retrieval or deep research. Their absence must not block the basic DOI/OA/citation/candidate workflow or a standard single-paper reading run when the required routes above are available. `zotero:Zotero` is conditional on a user-authorized Zotero input and remains read-only.
+
+`main-paper-only`, `fully-local`, and `plan-only` must not be blocked by missing Sciverse, `paper-lookup`, `parallel-web`, or `research-lookup` dependencies. `main-paper-only` and `fully-local` still need a usable local or explicitly authorized parser route when the supplied main source is a PDF; `plan-only` does not need a parser route.
+
+If a required dependency is `MISSING` or `BLOCKED`, stop the standard workflow before G0 and offer the applicable narrower mode or user action. If only a strongly recommended dependency is missing, continue with an explicit downgrade in the Run Contract and report. Never silently install software, modify credentials or environment variables, configure MCP, enable Zotero, or upload a file. Never reveal any API-key value.
+
 ## Budget Semantics
 
 Use these defaults unless the user overrides them:

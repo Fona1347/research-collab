@@ -1,7 +1,7 @@
 interface:
   display_name: "Paper Deep Reading"
   short_description: "Evidence-grounded single-paper Chinese reports"
-  default_prompt: "Use $paper-deep-reading to create a Chinese view-report.md for this paper, resolve an approved output directory and deterministic task name, stage the main PDF as <task_name>.pdf without changing Zotero, and apply standard validation unless I narrow it."
+  default_prompt: "Use $paper-deep-reading to run the read-only external dependency preflight first, report must-have, strongly recommended, and optional dependencies, and explain available downgrade modes; do not silently install, upload files, modify credentials, or enable Zotero. Then create a Chinese view-report.md for this paper, resolve an approved output directory and deterministic task name, stage the main PDF as <task_name>.pdf without changing Zotero, and apply standard validation unless I narrow it."
 
 policy:
   allow_implicit_invocation: true
