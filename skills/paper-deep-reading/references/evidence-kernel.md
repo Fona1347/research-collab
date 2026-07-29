@@ -7,6 +7,7 @@ Use this reference when initializing or updating a deep-reading run's canonical 
 - [Contract principles](#contract-principles)
 - [Canonical ownership](#canonical-ownership)
 - [Identifiers, missing values, and locators](#identifiers-missing-values-and-locators)
+- [Bibliographic normalization and reader-facing keys](#bibliographic-normalization-and-reader-facing-keys)
 - [Run Contract](#run-contract)
 - [Output resolution and run-directory naming](#output-resolution-and-run-directory-naming)
 - [Main-PDF staging](#main-pdf-staging)
@@ -68,6 +69,32 @@ Record why no stronger locator is available. Evidence without a usable locator c
 
 Carry conditions with every quantitative or mechanistic locator. At minimum record the applicable material/system, device or model, temperature, bias/voltage, pulse width or duration, measurement/readout method, sample size or cycle count, and any other condition that changes comparability. Use `not reported` when the paper omits a condition.
 
+## Bibliographic normalization and reader-facing keys
+
+Use one bibliographic normalization method for automatic run names and reader-facing external footnotes. Do not create a second ad hoc citation-key convention in `view-report.md`.
+
+For an external journal article, establish the following canonical fields before assigning a reader-facing key:
+
+- `first_author_full_name`: the first author's complete given name followed by family name, such as `Yujian Hu`. Resolve it from the full text, publisher record, or another authoritative bibliographic record. Do not expand initials by guesswork. Preserve Unicode letters, diacritics, meaningful hyphens, apostrophes, and multi-token names; collapse whitespace to single spaces.
+- `standard_journal_abbreviation`: prefer a verified Zotero `journalAbbreviation`, then the publisher's official abbreviation, then an authoritative NLM/Index Medicus abbreviation. DOI metadata may establish article identity and may supply the abbreviation only when it explicitly does so. Never invent an abbreviation by manually shortening the title.
+- `publication_year`: the four-digit year for the cited article version. When online-first and issue years differ, use the canonical year of the version actually cited and record the date distinction in the complete definition when relevant.
+
+Normalize each key component by preserving Unicode letters, combining marks, numbers, meaningful hyphens, apostrophes, and single spaces; replace underscores, control characters, Windows-invalid characters, and other structural punctuation runs with one space; then collapse and trim whitespace. Reserve underscores for the key separators. The base reader-facing key is exactly:
+
+```text
+<first-author given name> <first-author family name>_<standard journal abbreviation>_<YYYY>
+```
+
+For example:
+
+```markdown
+[^Yujian Hu_Nat Med_2025]
+```
+
+If two or more distinct deduplicated sources cited in the same reader-facing report produce the same base key, sort that cited collision set by normalized DOI, then normalized title when DOI is absent, and append `_a`, `_b`, and so on. Use no suffix when only one member of a possible collision set is cited; whenever suffixes are present, the report must contain a contiguous set beginning with `_a` and `_b`. Reuse one key for every occurrence of the same source. A source with an unverified full name, unresolved official abbreviation, or unestablished year cannot receive a reader-facing key; either resolve the metadata or remove/downgrade the citation before G5.
+
+Derive hidden backlink IDs from the same key so that the first occurrence is `ref-<key-slug>-1`, the second is `ref-<key-slug>-2`, and so on. Create `<key-slug>` by case-folding the key and replacing every run of non-letter/non-number characters with one hyphen. Preserve Unicode letters and numbers, trim hyphens, and keep the occurrence suffix. This slug is an internal anchor only; it must not replace the semantic key shown in Markdown source.
+
 ## Run Contract
 
 Place a `Run Contract` table near the start of `paper-package.md`.
@@ -75,6 +102,7 @@ Place a `Run Contract` table near the start of `paper-package.md`.
 | Field | Allowed value or required content |
 | --- | --- |
 | `evidence_contract` | Exactly `v1.1` |
+| `reader_citation_contract` | Exactly `semantic-footnote-v1` for newly generated reader-facing reports; historical artifacts created before this contract may omit the field, and must not be retrofitted unless the report is regenerated |
 | `paper_identity` | Title plus DOI or another canonical identifier; record an identity limitation if none exists |
 | `task_name` | Derived run-directory basename, or the basename of an explicitly named run directory |
 | `output_directory` | User-approved run directory |
@@ -208,8 +236,8 @@ Claim status reflects the scoped evidence judgment, not author confidence or sou
 
 Maintain this normative table in `auxiliary-literature-table.md`:
 
-| Source ID | Canonical identifier | Title / year | Discovery route | Related Claim IDs | Evidence role | Relevance grade | Directness | Independence | Comparability | Counter-evidence value | Full-text status | PDF status | Parse status | Read status | Verification status | Citation status | Include/exclude reason |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Source ID | Canonical identifier | Title / year | Discovery route | Related Claim IDs | Evidence role | Relevance grade | Directness | Independence | Comparability | Counter-evidence value | Full-text status | PDF status | Parse status | Read status | Verification status | Citation status | Reader-facing footnote key | Backlink anchor IDs | Include/exclude reason |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 
 Use DOI as the preferred identifier; otherwise use a stable PMID, arXiv ID, publisher URL, or normalized title/year key. Deduplicate before assigning the Source ID.
 
@@ -239,6 +267,8 @@ Keep lifecycle statuses independent:
 | Citation status | `not-cited`, `planned`, `cited` |
 
 Publisher HTML or Zotero indexed full text may reach `Read status=full` and `Verification status=verified` without a materialized or parsed PDF, provided the relevant content and locator were actually checked. Metadata, an abstract, a search snippet, or a citation graph alone can never reach `verified`.
+
+For `Reader-facing footnote key`, use the exact semantic key or `not-cited`, `not-applicable`, `pending`, or `blocked: <reason>`. For `Backlink anchor IDs`, list the exact HTML IDs in first-appearance order separated by a comma and one space, or use the same controlled value when no reader-facing citation exists. A semantic key requires `Citation status=cited`; every cited semantic key and its ordered anchor list must match the generated report exactly, with no missing, reordered, or extra IDs.
 
 ## Evidence Ledger
 

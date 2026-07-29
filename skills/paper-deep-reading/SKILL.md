@@ -177,7 +177,7 @@ G0 Run Contract
 
 ### G0 Run Contract
 
-Create `paper-package.md` before live actions. Record main-paper identity, resolved output, `main_pdf_staging`, internal state, permission flags, budgets, explicit user overrides, and `evidence_contract: v1.1`. Stop if identity, output confirmation, or required permission is unresolved.
+Create `paper-package.md` before live actions. Record main-paper identity, resolved output, `main_pdf_staging`, internal state, permission flags, budgets, explicit user overrides, `evidence_contract: v1.1`, and `reader_citation_contract: semantic-footnote-v1` for newly generated reader-facing reports. Stop if identity, output confirmation, or required permission is unresolved.
 
 ### G1 Main Source
 
@@ -228,7 +228,13 @@ If a high-risk claim fails, perform the single allowed targeted closure pass if 
 
 ### G5 Delivery QA
 
-Assemble `view-report.md` only from eligible canonical records. Verify report-to-claim mapping, external footnotes, display assets, relative paths, figure completeness, equation status, placeholders, internal-path leakage, and protection of pre-existing outputs. A derived-view conflict must fail this gate until the canonical record is corrected and the view is regenerated.
+Assemble `view-report.md` only from eligible canonical records. Verify report-to-claim mapping, semantic external footnotes, display assets, relative paths, figure completeness, equation status, placeholders, internal-path leakage, and protection of pre-existing outputs. Run the bundled mechanical check from the resolved Skill root when the report contains external footnotes; the three artifact paths may be absolute:
+
+```text
+python <skill-root>/scripts/check_report_footnotes.py --report view-report.md --registry auxiliary-literature-table.md --audit view-report-audit.md
+```
+
+The script checks syntax, key normalization, definition completeness, anchors, backlinks, and registry/audit synchronization; it does not establish bibliographic authority, verify DOI-based collision ordering, replace full-text reading, or verify locators. A derived-view conflict or either failed G5 layer must fail this gate until the canonical record is corrected and the view is regenerated.
 
 Use gate states exactly as defined in `evidence-kernel.md`. Do not describe external validation as complete when G3 is `not-applicable`, downgraded, or blocked.
 
@@ -280,6 +286,8 @@ Follow `report-contract.md`. In particular:
 - never embed full-page renders from `assets/pages/`;
 - explain every visible panel or natural panel group using caption and body context;
 - preserve original equation numbers or mark an unavailable number explicitly;
+- use `reader_citation_contract: semantic-footnote-v1`: semantic Markdown footnote keys, superscript-only body markers, complete definitions under `外部核验文献`, and explicit `[回到正文]` links;
+- derive author, journal abbreviation, and year from the shared normalization rules in `references/evidence-kernel.md`;
 - cite only externally verified full text with reader-facing Markdown footnotes;
 - label `Internal Evidence`, `External Evidence`, `Inference`, and `User Assumption` where relevant;
 - retain `组会汇报建议` only as a handoff seed and do not generate slide sequence, action titles, or speaker notes.
@@ -294,7 +302,7 @@ Before completion:
 - confirm no unread or metadata-only source is presented as verified evidence;
 - confirm every strong external evidence row has a usable locator or is downgraded;
 - confirm unresolved scope is visible as `not established within scope`, `blocked`, or a report limitation;
-- confirm final images, footnotes, equations, relative paths, and reader-facing boundaries pass;
+- confirm final images, semantic footnotes, equations, relative paths, reader-facing boundaries, and the bundled G5 footnote check pass;
 - confirm an available main PDF is named `<task_name>.pdf`, its staged-copy hash is verified when applicable, and it did not consume an auxiliary-PDF budget;
 - confirm unauthorized Zotero, restricted-resource, supplementary, and sensitive-copy actions did not occur.
 

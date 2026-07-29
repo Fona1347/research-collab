@@ -186,28 +186,45 @@ When equation artwork is necessary, apply the same display-asset and manifest co
 
 ## External footnote contract
 
-Use Markdown footnotes for external-validation sources cited in prose. Number them by first appearance.
+New reports use `reader_citation_contract: semantic-footnote-v1`. Use Markdown footnotes for external-validation sources cited in prose, but do not number them by first appearance. The semantic key is defined in `evidence-kernel.md` and must use the exact form:
+
+```text
+<first-author given name> <first-author family name>_<standard journal abbreviation>_<YYYY>
+```
+
+For example:
+
+```markdown
+<a id="ref-yujian-hu-nat-med-2025-1"></a>
+该模型在外部队列中仍显示出明显的设备与协议迁移边界。[^Yujian Hu_Nat Med_2025]
+```
+
+The raw Markdown key is semantic, while the rendered body citation is only a superscript marker. Do not expose author-year text, numbered citations such as `[^1]`, temporary keys such as `[^Otani2021]`, or visible DOI/reference text in the body sentence. The invisible HTML anchor is permitted solely to support an explicit return link.
 
 An external source is footnote-eligible only when:
 
 - the source was actually read in full in this run;
 - the cited proposition and conditions were checked;
 - a page, section, figure/panel, table, equation, data point, stable HTML anchor, or justified fallback locator was verified;
-- its Source Registry and Evidence Ledger rows are in sync.
+- its Source Registry and Evidence Ledger rows are in sync;
+- its first-author full name, standard journal abbreviation, and four-digit publication year are authoritative and normalized;
+- its `Reader-facing footnote key` and `Backlink anchor IDs` are recorded in the Source Registry.
 
-Do not cite metadata, abstracts, search snippets, citation graphs, or an unread PDF as verified evidence. Such records may remain audit candidates.
+Do not cite metadata, abstracts, search snippets, citation graphs, or an unread PDF as verified evidence. Such records may remain audit candidates, but they cannot receive a reader-facing key.
 
-Use a definition containing title, year, DOI or stable URL, evidence role, and a useful pinpoint locator:
+Place all definitions at the end of the report under the exact heading `外部核验文献`. Each definition must contain author information, article title, journal, standard journal abbreviation, year, DOI or stable URL, evidence role, and a useful pinpoint locator. Italicize the article title and journal, and place the exact key abbreviation in brackets after the journal. Begin with the authoritative full first-author name; include the full author list when practical, while `et al.` is acceptable after that first author for a long list.
 
 ```markdown
-[^1]: Author(s), *Title*, Year. DOI/URL. Evidence role: boundary evidence for the retention claim. Locator: p. 6, Fig. 3b.
+## 外部核验文献
+
+[^Yujian Hu_Nat Med_2025]: Yujian Hu, et al. *AI-based diagnosis of acute aortic syndrome from noncontrast CT*. *Nature Medicine* [Nat Med], 2025. DOI: https://doi.org/xxx. Evidence role: 外部性能与迁移边界核验。 Locator: p. 8, Fig. 3. [回到正文](#ref-yujian-hu-nat-med-2025-1)
 ```
+
+Create `ref-<key-slug>-1`, `ref-<key-slug>-2`, and so on for each body occurrence of a source. Derive `<key-slug>` by case-folding the semantic key and replacing every run of non-letter/non-number characters with one hyphen. The definition must include one `[回到正文](#...)` link for every occurrence, in first-appearance order, and every target must exist in the body. Keep target-paper references distinct: preserve phrases such as `原文 refs. 3-8` when reporting the authors' citation chain, but do not convert those references into external-validation footnotes unless they were independently retrieved and read in this run.
 
 Tie each footnote to the exact sentence or clause it supports. An S-grade verified source used in the final judgment must appear in prose, not only in a table or the reference list. A-grade verified sources may support mechanism, material-system plausibility, context, or boundaries when their limitations are stated.
 
-Keep target-paper references distinct. Preserve phrases such as `原文 refs. 3-8` when reporting the authors' citation chain, but do not convert those references into external-validation footnotes unless they were independently retrieved and read in this run.
-
-End with `外部核验文献` and the footnote definitions when at least one external footnote is used. When external validation is out of scope, do not create decorative external citations; state the validation boundary instead.
+End with the `外部核验文献` definitions when at least one external footnote is used. When external validation is out of scope or no source is eligible, do not create a decorative or empty citation section; state the validation boundary instead.
 
 ## Derived-artifact contract
 
@@ -285,9 +302,17 @@ Pass G5 only when all applicable checks succeed:
 | Epistemic wording | Conditions and evidence modes remain distinct; every downgrade appears in reader-facing wording |
 | Figures | Dynamic selection, complete panel interpretation, relative display paths, readable assets, and synchronized manifest |
 | Equations | Correct meaning/numbering, variables and units, use, inference, assumptions, and boundaries |
-| Footnotes | First-appearance order, full-text and locator eligibility, complete definitions, no metadata-only evidence |
+| Footnotes | `semantic-footnote-v1`; semantic keys use normalized full author/journal/year fields; body markers are superscripts only; definitions are under `外部核验文献`; every definition has a locator and explicit `[回到正文]`; Source Registry and Evidence Ledger are synchronized; no metadata-only evidence |
 | Derived views | Generated views match canonical owners; untriggered conditional views are not required |
 | Handoff | No new claim or slide plan; `paper-presentation` owns `commitments.md` |
 | Filesystem | Every report-relative target exists; no unresolved placeholder; no pre-existing or legacy directory was overwritten or reorganized |
 
 G5 permits only `pass` or `blocked`. Repair broken links, stale derived state, missing citations, unreadable assets, and placeholder text before delivery; do not downgrade these mechanical failures into prose caveats.
+
+For a semantic-footnote report, the audit's structured Gate table must contain exactly one G5 row with `Status=pass`. The G5 portion of `view-report-audit.md` must also contain the exact line `reader_citation_contract: semantic-footnote-v1` and this structured Footnote Map. Separate anchor IDs with a comma and one space, in first-appearance order.
+
+| Reader-facing footnote key | Source ID | Backlink anchor IDs |
+| --- | --- | --- |
+| Yujian Hu_Nat Med_2025 | S1 | ref-yujian-hu-nat-med-2025-1 |
+
+The Footnote Map must match the report and Source Registry exactly, including the key set, Source IDs, anchor order, and absence of extra IDs. It is a derived audit view; the Source Registry remains the canonical owner of the key and anchor fields.

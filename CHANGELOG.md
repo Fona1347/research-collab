@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Formalized `semantic-footnote-v1` for `paper-deep-reading`: normalized full first-author names, standard journal abbreviations, four-digit years, superscript-only body markers, complete end-of-report definitions, explicit `回到正文` backlinks, Source Registry key fields, and mechanical G5 validation.
+
 ## V1.2.1 - 2026-07-13
 
 - Changed automatic run names to use the complete first-author name and a journal or publisher abbreviation, with distinct Zotero and non-Zotero separators.
