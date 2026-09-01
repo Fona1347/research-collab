@@ -1,6 +1,6 @@
 ---
 name: paper-deep-reading
-description: Deeply read, analyze, verify, or interpret one academic paper and produce traceable artifacts, especially a reader-facing Chinese view-report.md. Use for PDF-first technical explanation, figure/table/equation reading, claim and reliability assessment, complete external validation with public or authorized sources, research translation, or a group-meeting handoff; keep evidence, permissions, provenance, and report boundaries explicit.
+description: Deeply read, analyze, verify, or interpret one academic paper and produce traceable artifacts, especially a reader-facing Chinese view-report.md. Use for PDF-first technical explanation, figure/table/equation reading, claim and reliability assessment, originality and research-generativity judgment, design necessity/sufficiency and counterfactual alternatives, complete external validation with public or authorized sources, research translation, or a group-meeting handoff; keep evidence, permissions, provenance, and report boundaries explicit.
 ---
 
 # Paper Deep Reading
@@ -12,6 +12,7 @@ Treat `view-report.md` as the final reader-facing Chinese report. Build it from 
 Read the bundled references as follows:
 
 - Read [references/evidence-kernel.md](references/evidence-kernel.md) before creating the Run Contract, claims, candidates, external evidence, or gate judgments.
+- Read [references/research-judgment.md](references/research-judgment.md) when originality, transferable ideas, perspective shifts, design necessity/sufficiency, baselines, or alternative mechanisms are requested or materially implicated.
 - Read [references/report-contract.md](references/report-contract.md) before staging figures, writing `view-report.md`, creating its audit, or preparing a presentation handoff.
 
 Keep these boundaries:
@@ -197,6 +198,8 @@ Do not claim parser evidence merely because files exist.
 
 Perform a structure scan, technical deconstruction, and research judgment. Create the canonical Claim/Condition Registry in `reading-report.md`. Make each important claim atomic and record its conditions, main-paper locator, evidence mode, joint-demonstration status, supplementary dependency, validation role, and closure status.
 
+For every full report, run the compact research-judgment trigger scan in `research-judgment.md`. When triggered, add the canonical `N-*` Novelty-Generativity-Perspective Registry and/or `D-*` Design Necessity and Counterfactual Registry to `reading-report.md`. Link each judgment to atomic `C-*` claims, state the nearest baseline or required function, and record missing discriminating controls rather than relying on evaluative prose.
+
 Build a Figure Reading Packet before writing every displayed figure section. Use the caption, surrounding full-text context (`full.md` when MinerU is used or verified local PDF context otherwise), later figure references, visible panels, linked claims, conditions, and boundaries. Do not interpret a multi-panel figure from its caption alone.
 
 ### G3 Sources And Evidence
@@ -216,7 +219,7 @@ When external validation is authorized:
 9. run at most one targeted closure search for unresolved high-risk roles;
 10. close, downgrade, or record a blocker without forcing certainty.
 
-Use `not established within scope` as a valid conclusion. Do not require a supporting and opposing paper for every claim, but actively seek independent or boundary evidence for novelty, performance records, causal mechanisms, and high-risk extrapolations.
+Use `not established within scope` as a valid conclusion. Do not require a supporting and opposing paper for every claim, but actively seek independent or boundary evidence for novelty, performance records, causal mechanisms, and high-risk extrapolations. For open `N-*` or `D-*` rows, search by target function and derive explicit roles for nearest prior art, functionally equivalent alternatives, counterexamples, discriminating controls, and matched comparisons. Do not treat the main paper's reference list as verified priority evidence or convert an unsuccessful search into proof that no alternative exists.
 
 For high-risk claims, separate extraction, locator verification, challenge, and editing roles when subagents are available. Give reviewers raw or narrowly scoped evidence where practical. Label same-model, same-context agreement as `correlated cross-check`; never raise evidence strength because several such agents agree.
 
@@ -226,9 +229,11 @@ Run every epistemic check in `evidence-kernel.md` before report prose. In partic
 
 If a high-risk claim fails, perform the single allowed targeted closure pass if unused, narrow the wording, or mark it `blocked`. Do not use “first,” “fastest,” “highest,” “proves,” or equivalent strong language without the required evidence and conditions.
 
+Apply the research-judgment checks as logical constraints: feasibility does not prove necessity; joint sufficiency does not prove component sufficiency; failure of one baseline under the paper's conditions does not prove principle-level impossibility; an unmatched comparison does not prove superiority; and a future direction is not research-generative unless it states a falsifiable hypothesis, minimum decisive test, failure observable, and boundary.
+
 ### G5 Delivery QA
 
-Assemble `view-report.md` only from eligible canonical records. Verify report-to-claim mapping, semantic external footnotes, display assets, relative paths, figure completeness, equation status, placeholders, internal-path leakage, and protection of pre-existing outputs. Run the bundled mechanical check from the resolved Skill root when the report contains external footnotes; the three artifact paths may be absolute:
+Assemble `view-report.md` only from eligible canonical records. Verify report-to-claim-and-judgment mapping, semantic external footnotes, display assets, relative paths, figure completeness, equation status, placeholders, internal-path leakage, and protection of pre-existing outputs. Map every strong originality, perspective, necessity, sufficiency, alternative, and superiority statement to canonical `C-*`, `N-*`, `D-*`, and applicable `E-*` records. Run the bundled mechanical check from the resolved Skill root when the report contains external footnotes; the three artifact paths may be absolute:
 
 ```text
 python <skill-root>/scripts/check_report_footnotes.py --report view-report.md --registry auxiliary-literature-table.md --audit view-report-audit.md
@@ -263,7 +268,7 @@ Use these canonical owners:
 | Artifact | Canonical responsibility |
 | --- | --- |
 | `paper-package.md` | Run Contract and main-source identity |
-| `reading-report.md` | Claim/Condition Registry and structured analysis |
+| `reading-report.md` | Claim/Condition Registry plus triggered `N-*` and `D-*` research-judgment registries |
 | `auxiliary-literature-table.md` | Source Registry whenever any external source is considered or evaluated |
 | `external-evidence-matrix.md` | Evidence Ledger when external evidence evaluation runs, including a no-decisive-evidence result |
 | `assets/_manifest.md` | Asset Registry |
@@ -272,7 +277,7 @@ Use these canonical owners:
 
 Keep raw operational records such as `sources/`, `download-manifest`, `auxiliary-pdfs/`, and `auxiliary-mineru/` when the corresponding actions occur.
 
-Treat `auxiliary-paper-brief.md`, `auxiliary-evidence-cards.md`, `review-matrix.md`, and `research-translation-matrix.md` as conditional derived views. Create them only when the task benefits from the view. They must cite canonical IDs, must not introduce a new final judgment, and must be regenerated after canonical corrections. Their absence must not fail an otherwise complete core run.
+Treat `auxiliary-paper-brief.md`, `auxiliary-evidence-cards.md`, `review-matrix.md`, and `research-translation-matrix.md` as conditional derived views. Create them only when the task benefits from the view. They must cite applicable canonical `C-*`, `N-*`, `D-*`, or `E-*` IDs, must not introduce a new final judgment, and must be regenerated after canonical corrections. Their absence must not fail an otherwise complete core run.
 
 ## Reader-Facing Report Boundary
 
@@ -286,6 +291,8 @@ Follow `report-contract.md`. In particular:
 - never embed full-page renders from `assets/pages/`;
 - explain every visible panel or natural panel group using caption and body context;
 - preserve original equation numbers or mark an unavailable number explicitly;
+- include paper-appropriate sections equivalent to `原创性、研究生成力与关键视角` and `核心设计选择：必要性、充分性与替代机制` when their trigger scan is positive;
+- present follow-up directions as bounded, falsifiable report inferences with a minimum decisive test, not as generic application or material-substitution lists;
 - use `reader_citation_contract: semantic-footnote-v1`: semantic Markdown footnote keys, superscript-only body markers, complete definitions under `外部核验文献`, and explicit `[回到正文]` links;
 - derive author, journal abbreviation, and year from the shared normalization rules in `references/evidence-kernel.md`;
 - cite only externally verified full text with reader-facing Markdown footnotes;

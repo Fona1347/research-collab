@@ -13,6 +13,7 @@ Use this reference when initializing or updating a deep-reading run's canonical 
 - [Main-PDF staging](#main-pdf-staging)
 - [Main-paper identity](#main-paper-identity)
 - [Claim and Condition Registry](#claim-and-condition-registry)
+- [Research judgment registries](#research-judgment-registries)
 - [Source Registry](#source-registry)
 - [Evidence Ledger](#evidence-ledger)
 - [Authorization resolution](#authorization-resolution)
@@ -37,14 +38,14 @@ Use this reference when initializing or updating a deep-reading run's canonical 
 | Artifact | Canonical entity or field family | May derive, but must not redefine |
 | --- | --- | --- |
 | `paper-package.md` | Run Contract and main-paper identity | Gate summaries, report scope labels |
-| `reading-report.md` | Claim and Condition Registry | Reader-facing claims, review summaries |
+| `reading-report.md` | Claim and Condition Registry plus triggered Novelty-Generativity-Perspective and Design Necessity/Counterfactual registries | Reader-facing claims, research judgments, review summaries |
 | `auxiliary-literature-table.md` | Source Registry | Evidence cards, auxiliary briefs, reference lists |
 | `external-evidence-matrix.md` | Evidence Ledger | External-validation prose, confidence summaries |
 | `assets/_manifest.md` | Asset Registry | Figure embeds and exhibit lists |
 | `view-report-audit.md` | Gate results and Report Claim Map | Delivery summary |
 | `view-report.md` | Derived reader-facing report only | Presentation handoff |
 
-Do not copy a final assessment into a derived table and later edit it there. Link the derived row to its canonical `Claim ID` or `Evidence ID` and apply any correction upstream.
+Do not copy a final assessment into a derived table and later edit it there. Link the derived row to its canonical `Claim ID`, `Idea ID`, `Design ID`, or `Evidence ID` and apply any correction upstream.
 
 ## Identifiers, missing values, and locators
 
@@ -53,6 +54,8 @@ Use stable, zero-padded identifiers within one run:
 | Entity | Format | Rule |
 | --- | --- | --- |
 | Claim | `C-001` | Assign once; do not renumber after exclusion or weakening |
+| Research idea | `N-001` | Assign when the Novelty-Generativity-Perspective trigger is positive |
+| Design choice | `D-001` | Assign when the Design Necessity and Counterfactual trigger is positive |
 | Source | `S-001` | Assign after metadata deduplication |
 | Evidence | `E-001` | One source-to-claim relation per row; split materially different conditions or relations |
 
@@ -232,6 +235,12 @@ Apply these field rules:
 
 Claim status reflects the scoped evidence judgment, not author confidence or source relevance grade.
 
+## Research judgment registries
+
+When triggered, keep the `N-*` Novelty-Generativity-Perspective Registry and `D-*` Design Necessity and Counterfactual Registry in `reading-report.md` after the Claim and Condition Registry. Follow [research-judgment.md](research-judgment.md) for their normative schemas, controlled verdicts, function-first decomposition, external-validation roles, and reader-facing boundaries.
+
+These registries canonically own report-side originality, transferability, perspective, necessity, sufficiency, alternative, and superiority judgments. Link them to `C-*` claims and applicable `E-*` evidence rather than copying source lifecycle fields. If the trigger scan is negative, record `not-applicable` in the structured analysis and do not create empty tables.
+
 ## Source Registry
 
 Maintain this normative table in `auxiliary-literature-table.md`:
@@ -241,7 +250,7 @@ Maintain this normative table in `auxiliary-literature-table.md`:
 
 Use DOI as the preferred identifier; otherwise use a stable PMID, arXiv ID, publisher URL, or normalized title/year key. Deduplicate before assigning the Source ID.
 
-Use evidence roles that answer a claim-specific need, such as `priority/novelty`, `quantitative benchmark`, `mechanism`, `boundary/contradiction`, `method/provenance`, or `context`. Add a narrower role when needed; do not replace a missing decisive role with repeated context papers.
+Use evidence roles that answer a claim- or judgment-specific need, such as `priority/novelty`, `nearest-prior-art`, `quantitative benchmark`, `matched-comparison`, `mechanism`, `alternative-mechanism`, `counterexample`, `discriminating-control`, `boundary/contradiction`, `method/provenance`, or `context`. Add a narrower role when needed; do not replace a missing decisive role with repeated context papers.
 
 Use S/A/B/C/D only for relevance and selection priority:
 
@@ -434,6 +443,11 @@ Apply these rules before reader-facing assembly:
 5. If a claim depends on unread supplementary material, lower its strength and state the dependency. Do not infer that the main text fully demonstrates it.
 6. Preserve conflicting evidence, circular citation, shared datasets, overlapping authorship, and incomparable benchmarks through the final assessment.
 7. Do not expand “not detected” or “no evidence observed” into “completely excluded.” State the detection limit, tested scope, or missing sensitivity when available.
+8. A successful implementation establishes feasibility under its stated joint conditions, not the necessity of the named component or mechanism.
+9. Do not promote joint sufficiency to component sufficiency; preserve interfaces, contacts, bias history, preprocessing, model components, measurement choices, and other dependencies.
+10. Failure of one baseline under the paper's settings does not establish principle-level impossibility. Identify whether the limit is physical, architectural, parametric, implementation-specific, unmatched, or unresolved.
+11. Do not infer broad superiority from an unmatched comparison, or non-existence from an unsuccessful search. State the comparison and search boundaries.
+12. Treat a follow-up direction as research-generative only when it has an evidence-grounded premise, falsifiable hypothesis, minimum decisive test, failure observable, and applicability boundary.
 
 Treat claims using `first`, `fastest`, `highest`, `proves`, `completely excludes`, or an equivalent superlative/causal absolute as high risk. If the epistemic check fails, do one permitted targeted search, narrow the wording, downgrade the claim, or record a blocker. Never pass G4 by stylistic substitution while leaving the unsupported meaning intact.
 
@@ -445,10 +459,10 @@ Use only the statuses listed below:
 | --- | --- | --- |
 | G0 Run Contract | Paper, confirmed output directory, normalized task/validation/handoff, `main_pdf_staging`, resolved permissions, budgets, exclusions, user overrides | `pass`, `blocked` |
 | G1 Main Source | Canonical identity, staged filename when applicable, source/destination hash agreement when copied, page count, parse status, actual read source, source limitations | `pass`, `pass-with-downgrade`, `blocked` |
-| G2 Claims and Figures | Atomic claims, conditions, main-paper locators, evidence modes, supplementary dependencies, Figure Reading Packets for report exhibits | `pass`, `pass-with-downgrade`, `blocked` |
-| G3 Sources and Evidence | Deduplication, independent lifecycle states, role coverage, external locators, conditions, conflicts, ledger linkage | `pass`, `pass-with-downgrade`, `blocked`, `not-applicable` |
-| G4 Epistemic Pre-report | No condition splicing, mode inflation, nominal-bit inflation, hidden supplementary dependence/conflict, or unsupported strong wording | `pass`, `pass-with-downgrade`, `blocked` |
-| G5 Delivery QA | Report Claim Map, canonical/derived synchronization, main-PDF naming, images and manifest, footnotes, relative paths, placeholders, protection of pre-existing directories | `pass`, `blocked` |
+| G2 Claims and Figures | Atomic claims, conditions, main-paper locators, evidence modes, supplementary dependencies, research-judgment trigger scan and applicable `N-*`/`D-*` rows, Figure Reading Packets for report exhibits | `pass`, `pass-with-downgrade`, `blocked` |
+| G3 Sources and Evidence | Deduplication, independent lifecycle states, claim/judgment role coverage, external locators, conditions, conflicts, ledger linkage, and scoped priority/alternative comparison | `pass`, `pass-with-downgrade`, `blocked`, `not-applicable` |
+| G4 Epistemic Pre-report | No condition splicing, mode inflation, nominal-bit inflation, hidden supplementary dependence/conflict, feasibility-to-necessity inflation, joint-to-component sufficiency inflation, unmatched superiority, unbounded absence claims, or unsupported strong wording | `pass`, `pass-with-downgrade`, `blocked` |
+| G5 Delivery QA | Report Claim/Judgment Map, canonical/derived synchronization, main-PDF naming, images and manifest, footnotes, relative paths, placeholders, protection of pre-existing directories | `pass`, `blocked` |
 
 Apply the Gates in order:
 
@@ -459,13 +473,13 @@ Apply the Gates in order:
 5. Resolve G4 before drafting strong reader-facing conclusions.
 6. Pass G5 before delivery. G5 has no downgrade state because broken provenance, links, or synchronization must be repaired or delivery must stop.
 
-Every `pass-with-downgrade` must identify the affected Claim IDs, the missing or weak evidence, the reader-facing limitation, and wording that is prohibited as a result. Use `blocked` when the requested outcome cannot be produced responsibly within authorization and evidence limits.
+Every `pass-with-downgrade` must identify the affected Claim IDs and applicable `N-*`/`D-*` IDs, the missing or weak evidence, the reader-facing limitation, and wording that is prohibited as a result. Use `blocked` when the requested outcome cannot be produced responsibly within authorization and evidence limits.
 
 ## Gate recording and correction order
 
 For a full `view-report.md`, keep the Gate table in required internal `view-report-audit.md`:
 
-| Gate | Status | Checked canonical artifacts | Affected Claim IDs | Missing/weak evidence or blocker | Reader-facing limit and prohibited wording | Required action |
+| Gate | Status | Checked canonical artifacts | Affected Claim/Judgment IDs | Missing/weak evidence or blocker | Reader-facing limit and prohibited wording | Required action |
 | --- | --- | --- | --- | --- | --- | --- |
 
 Focused or fully local tasks may use a compact audit, but must still record every applicable Gate. `view-report-audit.md` is internal and is not the primary presentation input.

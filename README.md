@@ -8,7 +8,7 @@ Current package version: `V1.2.1`
 
 ## Included Skills
 
-- `paper-deep-reading` coordinates PDF-first reading, evidence tracking, validation boundaries, reader-facing Chinese reports, deterministic run naming, and canonical main-PDF staging.
+- `paper-deep-reading` coordinates PDF-first reading, evidence tracking, validation boundaries, originality and research-generativity judgment, function-first design-choice analysis, reader-facing Chinese reports, deterministic run naming, and canonical main-PDF staging.
 - `paper-presentation` converts bounded deep-reading artifacts into a traceable presentation plan, speaker notes, or paper card without rerunning retrieval.
 
 The presentation skill is intentionally paired with the deep-reading skill, so installing both is recommended.
