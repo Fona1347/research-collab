@@ -1,6 +1,6 @@
 ---
 name: paper-deep-reading
-description: Deeply read, analyze, verify, or interpret one academic paper and produce traceable artifacts, especially a reader-facing Chinese view-report.md. Use for PDF-first technical explanation, figure/table/equation reading, claim and reliability assessment, complete external validation with public or authorized sources, research translation, or a group-meeting handoff; keep evidence, permissions, provenance, and report boundaries explicit.
+description: Deeply read, analyze, verify, or interpret one academic paper and produce traceable artifacts, especially a reader-facing Chinese view-report.md. Use for PDF-first technical explanation, figure/table/equation reading, claim and reliability assessment, originality and research-generativity judgment, design necessity/sufficiency and counterfactual alternatives, complete external validation with public or authorized sources, research translation, or a group-meeting handoff; keep evidence, permissions, provenance, and report boundaries explicit.
 ---
 
 # Paper Deep Reading
@@ -12,6 +12,7 @@ Treat `view-report.md` as the final reader-facing Chinese report. Build it from 
 Read the bundled references as follows:
 
 - Read [references/evidence-kernel.md](references/evidence-kernel.md) before creating the Run Contract, claims, candidates, external evidence, or gate judgments.
+- Read [references/research-judgment.md](references/research-judgment.md) when originality, transferable ideas, perspective shifts, design necessity/sufficiency, baselines, or alternative mechanisms are requested or materially implicated.
 - Read [references/report-contract.md](references/report-contract.md) before staging figures, writing `view-report.md`, creating its audit, or preparing a presentation handoff.
 
 Keep these boundaries:
@@ -120,28 +121,33 @@ python scripts/check_dependencies.py --mode <validation>
 Use `--json` when the result will be merged with the agent's Skill and tool registry checks. For `main-paper-only` or `fully-local`, pass `--input-kind pdf` when the supplied main source is a PDF; use `--input-kind full-text` for a sufficiently complete non-PDF source. The default `unknown` keeps the parser route conditional in those two modes. After the agent confirms a capability, it may pass the corresponding repeated `--agent-check <name>` flag to merge that result, for example:
 
 ```text
-python scripts/check_dependencies.py --mode standard --json --agent-check paper-lookup.skill --agent-check paper-lookup.http-fetch --agent-check sciverse-research.skill --agent-check sciverse.mcp-tools
+python scripts/check_dependencies.py --mode standard --json --agent-check research-lookup-enhanced.skill --agent-check research-lookup-enhanced.http-fetch --agent-check sciverse-research.skill --agent-check sciverse.mcp-tools
 ```
 
 Only pass `--agent-check` for capabilities actually present in the agent's Skill/tool catalog. The script must not install packages, access the network, upload files, modify environment variables, enable Zotero, or print secret values. API-key checks report presence only. The agent must supplement the script with its own available-Skill and MCP-tool catalog; a filesystem-only script cannot prove that an MCP server is exposed.
 
-Without the agent-side flags, `standard` intentionally leaves HTTP and MCP checks as `BLOCKED` and returns exit code `1`; this is a guard for incomplete preflight, not permission to skip the agent catalog check.
+Without an agent-confirmed discovery and readable-full-text route, `standard` leaves those capability checks `BLOCKED` and returns exit code `1`. Existing Lookup/HTTP or Sciverse checks can establish a route; an equivalent authorized route may instead use `--agent-check external-discovery.route --agent-check external-fulltext.route`. A missing provider is not itself a scientific evidence downgrade.
+
+For `custom`, project the already resolved permissions with `--mode custom --custom-scope standard|main-paper-only|fully-local|plan-only`. Use `standard` only if external discovery and verification are authorized; otherwise select the narrower scope. Custom preflight leaves remote parsing off unless `--allow-remote-parsing` confirms an existing explicit allowance. This projection never changes the Run Contract's `validation=custom`, expands a budget, or grants network, download, upload, SI or Zotero access.
 
 Use these result states consistently: `PASS`, `MISSING`, `BLOCKED`, `OPTIONAL`, and `NOT-APPLICABLE`. Report the merged result to the user before starting G0, grouped as must-have, strongly recommended, and optional dependencies. Keep the complete maintenance table in [references/external-dependencies.md](references/external-dependencies.md).
 
 For `validation=standard`, the following are required before the standard workflow can start:
 
-- `paper-lookup` Skill and an available HTTP-fetch route for DOI, OA, citation, and candidate checks;
-- the `sciverse-research` Skill, the Sciverse MCP tools, and a non-empty `SCIVERSE_API_TOKEN`;
-- at least one usable PDF route: the preferred `mineru-pdf` route or the local `pdf` fallback route.
+- an available, authorized discovery/identity route and a readable-full-text verification route; prefer `research-lookup-enhanced` for ordinary discovery, while Sciverse or platform scholarly/Web tools can supply equivalent capability;
+- for PDF input, at least one usable PDF route: the preferred `mineru-pdf` route or the local `pdf` fallback route. Sufficient complete non-PDF full text does not require a PDF parser.
+
+`sciverse-research`, its MCP tools and token are optional provenance-preserving enhancements. If Sciverse is unavailable, use verified publisher HTML, an authorized PDF route or another usable evidence source. Retain the same evidence grade when the content, identity, conditions and locator checks are equivalent; downgrade only the specific claim/check whose evidence is actually missing.
 
 The preferred MinerU route requires the `mineru-pdf` Skill, its wrapper, a usable Python runtime, and `MINERU_API_KEY`. The local fallback should expose `pdfinfo`, `pdftoppm`, `pypdf`, and preferably `PyMuPDF`/`fitz` for parsing, rendering, and visual QA. A missing preferred MinerU component is a downgrade rather than a blocker when the local PDF route is usable. If both routes are unavailable, block PDF-dependent work and explain the available remediation.
 
 `parallel-web` and `research-lookup` are conditional enhancements for open-ended web retrieval or deep research. Their absence must not block the basic DOI/OA/citation/candidate workflow or a standard single-paper reading run when the required routes above are available. `zotero:Zotero` is conditional on a user-authorized Zotero input and remains read-only.
 
-`main-paper-only`, `fully-local`, and `plan-only` must not be blocked by missing Sciverse, `paper-lookup`, `parallel-web`, or `research-lookup` dependencies. `main-paper-only` and `fully-local` still need a usable local or explicitly authorized parser route when the supplied main source is a PDF; `plan-only` does not need a parser route.
+`paper-fetch-skill` is conditional: use it when a known paper needs identity resolution or legal full-text retrieval and the user has not supplied an acceptable source. It is not an unconditional blocker for every standard run.
 
-If a required dependency is `MISSING` or `BLOCKED`, stop the standard workflow before G0 and offer the applicable narrower mode or user action. If only a strongly recommended dependency is missing, continue with an explicit downgrade in the Run Contract and report. Never silently install software, modify credentials or environment variables, configure MCP, enable Zotero, or upload a file. Never reveal any API-key value.
+`main-paper-only`, `fully-local`, and `plan-only` must not be blocked by missing Sciverse, `research-lookup-enhanced`, `paper-fetch-skill`, `parallel-web`, or `research-lookup` dependencies. `main-paper-only` and `fully-local` still need a usable local or explicitly authorized parser route when the supplied main source is a PDF; `plan-only` does not need a parser route.
+
+If a required capability is `MISSING` or `BLOCKED`, record which requested action cannot run and offer the applicable narrower mode or user action. When an equivalent authorized route exists, continue and record the selected route; missing optional software alone does not lower scientific confidence. Never silently install software, modify credentials or environment variables, configure MCP, enable Zotero, or upload a file. Never reveal any API-key value.
 
 ## Budget Semantics
 
@@ -177,7 +183,7 @@ G0 Run Contract
 
 ### G0 Run Contract
 
-Create `paper-package.md` before live actions. Record main-paper identity, resolved output, `main_pdf_staging`, internal state, permission flags, budgets, explicit user overrides, and `evidence_contract: v1.1`. Stop if identity, output confirmation, or required permission is unresolved.
+Create `paper-package.md` before live actions. Record main-paper identity, resolved output, `main_pdf_staging`, internal state, permission flags, budgets, explicit user overrides, `evidence_contract: v1.1`, and `reader_citation_contract: semantic-footnote-v1` for newly generated reader-facing reports. Stop if identity, output confirmation, or required permission is unresolved.
 
 ### G1 Main Source
 
@@ -196,6 +202,8 @@ Do not claim parser evidence merely because files exist.
 ### G2 Claims And Figures
 
 Perform a structure scan, technical deconstruction, and research judgment. Create the canonical Claim/Condition Registry in `reading-report.md`. Make each important claim atomic and record its conditions, main-paper locator, evidence mode, joint-demonstration status, supplementary dependency, validation role, and closure status.
+
+For every full report, run the compact research-judgment trigger scan in `research-judgment.md`. When triggered, add the canonical `N-*` Novelty-Generativity-Perspective Registry and/or `D-*` Design Necessity and Counterfactual Registry to `reading-report.md`. Link each judgment to atomic `C-*` claims, state the nearest baseline or required function, and record missing discriminating controls rather than relying on evaluative prose.
 
 Build a Figure Reading Packet before writing every displayed figure section. Use the caption, surrounding full-text context (`full.md` when MinerU is used or verified local PDF context otherwise), later figure references, visible panels, linked claims, conditions, and boundaries. Do not interpret a multi-panel figure from its caption alone.
 
@@ -216,7 +224,7 @@ When external validation is authorized:
 9. run at most one targeted closure search for unresolved high-risk roles;
 10. close, downgrade, or record a blocker without forcing certainty.
 
-Use `not established within scope` as a valid conclusion. Do not require a supporting and opposing paper for every claim, but actively seek independent or boundary evidence for novelty, performance records, causal mechanisms, and high-risk extrapolations.
+Use `not established within scope` as a valid conclusion. Do not require a supporting and opposing paper for every claim, but actively seek independent or boundary evidence for novelty, performance records, causal mechanisms, and high-risk extrapolations. For open `N-*` or `D-*` rows, search by target function and derive explicit roles for nearest prior art, functionally equivalent alternatives, counterexamples, discriminating controls, and matched comparisons. Do not treat the main paper's reference list as verified priority evidence or convert an unsuccessful search into proof that no alternative exists.
 
 For high-risk claims, separate extraction, locator verification, challenge, and editing roles when subagents are available. Give reviewers raw or narrowly scoped evidence where practical. Label same-model, same-context agreement as `correlated cross-check`; never raise evidence strength because several such agents agree.
 
@@ -226,9 +234,25 @@ Run every epistemic check in `evidence-kernel.md` before report prose. In partic
 
 If a high-risk claim fails, perform the single allowed targeted closure pass if unused, narrow the wording, or mark it `blocked`. Do not use “first,” “fastest,” “highest,” “proves,” or equivalent strong language without the required evidence and conditions.
 
+Apply the research-judgment checks as logical constraints: feasibility does not prove necessity; joint sufficiency does not prove component sufficiency; failure of one baseline under the paper's conditions does not prove principle-level impossibility; an unmatched comparison does not prove superiority; and a future direction is not research-generative unless it states a falsifiable hypothesis, minimum decisive test, failure observable, and boundary.
+
 ### G5 Delivery QA
 
-Assemble `view-report.md` only from eligible canonical records. Verify report-to-claim mapping, external footnotes, display assets, relative paths, figure completeness, equation status, placeholders, internal-path leakage, and protection of pre-existing outputs. A derived-view conflict must fail this gate until the canonical record is corrected and the view is regenerated.
+Run the independent canonical integrity check before assembling or delivering the reader view, and before handing its records to Mapper:
+
+```text
+python <skill-root>/scripts/check_canonical.py --run-dir <approved-run-directory> --json
+```
+
+It validates controlled values, IDs, source/claim/evidence links, role states and deduplicated source counters. It does not establish scientific truth, actual reading, locator authority or semantic atomicity; those remain G2–G4 checks. Canonical failures block G5 until corrected upstream. A successful footnote check cannot replace this check. See the API and correction guidance in `evidence-kernel.md`.
+
+Assemble `view-report.md` only from eligible canonical records. Verify report-to-claim-and-judgment mapping, semantic external footnotes, display assets, relative paths, figure completeness, equation status, placeholders, internal-path leakage, and protection of pre-existing outputs. Map every strong originality, perspective, necessity, sufficiency, alternative, and superiority statement to canonical `C-*`, `N-*`, `D-*`, and applicable `E-*` records. Run the bundled mechanical check from the resolved Skill root when the report contains external footnotes; the three artifact paths may be absolute:
+
+```text
+python <skill-root>/scripts/check_report_footnotes.py --report view-report.md --registry auxiliary-literature-table.md --audit view-report-audit.md
+```
+
+The script checks syntax, key normalization, definition completeness, anchors, backlinks, and registry/audit synchronization; it does not establish bibliographic authority, verify DOI-based collision ordering, replace full-text reading, or verify locators. A derived-view conflict or either failed G5 layer must fail this gate until the canonical record is corrected and the view is regenerated.
 
 Use gate states exactly as defined in `evidence-kernel.md`. Do not describe external validation as complete when G3 is `not-applicable`, downgraded, or blocked.
 
@@ -240,7 +264,8 @@ Use the narrowest available capability and its own Skill instructions:
 | --- | --- |
 | Main or auxiliary PDF parsing | `mineru-pdf` |
 | Local PDF fallback, rendering, crop, visual QA | `pdf` |
-| DOI, OA, citation graph, OpenAlex/Crossref/Semantic Scholar | `paper-lookup` |
+| Discovery, DOI/metadata, OA, citation graph, OpenAlex/Crossref/Semantic Scholar | `research-lookup-enhanced` |
+| Known-paper identity resolution and legal full-text retrieval | `paper-fetch-skill` |
 | Academic web and official/publisher page retrieval | `parallel-web` or `research-lookup` |
 | Provenance-preserving evidence chunks | `sciverse-research` |
 | Citation metadata cleanup | `citation-management` |
@@ -257,7 +282,7 @@ Use these canonical owners:
 | Artifact | Canonical responsibility |
 | --- | --- |
 | `paper-package.md` | Run Contract and main-source identity |
-| `reading-report.md` | Claim/Condition Registry and structured analysis |
+| `reading-report.md` | Claim/Condition Registry plus triggered `N-*` and `D-*` research-judgment registries |
 | `auxiliary-literature-table.md` | Source Registry whenever any external source is considered or evaluated |
 | `external-evidence-matrix.md` | Evidence Ledger when external evidence evaluation runs, including a no-decisive-evidence result |
 | `assets/_manifest.md` | Asset Registry |
@@ -266,7 +291,7 @@ Use these canonical owners:
 
 Keep raw operational records such as `sources/`, `download-manifest`, `auxiliary-pdfs/`, and `auxiliary-mineru/` when the corresponding actions occur.
 
-Treat `auxiliary-paper-brief.md`, `auxiliary-evidence-cards.md`, `review-matrix.md`, and `research-translation-matrix.md` as conditional derived views. Create them only when the task benefits from the view. They must cite canonical IDs, must not introduce a new final judgment, and must be regenerated after canonical corrections. Their absence must not fail an otherwise complete core run.
+Treat `auxiliary-paper-brief.md`, `auxiliary-evidence-cards.md`, `review-matrix.md`, and `research-translation-matrix.md` as conditional derived views. Create them only when the task benefits from the view. They must cite applicable canonical `C-*`, `N-*`, `D-*`, or `E-*` IDs, must not introduce a new final judgment, and must be regenerated after canonical corrections. Their absence must not fail an otherwise complete core run.
 
 ## Reader-Facing Report Boundary
 
@@ -280,6 +305,10 @@ Follow `report-contract.md`. In particular:
 - never embed full-page renders from `assets/pages/`;
 - explain every visible panel or natural panel group using caption and body context;
 - preserve original equation numbers or mark an unavailable number explicitly;
+- include paper-appropriate sections equivalent to `原创性、研究生成力与关键视角` and `核心设计选择：必要性、充分性与替代机制` when their trigger scan is positive;
+- present follow-up directions as bounded, falsifiable report inferences with a minimum decisive test, not as generic application or material-substitution lists;
+- use `reader_citation_contract: semantic-footnote-v1`: semantic Markdown footnote keys, superscript-only body markers, complete definitions under `外部核验文献`, and explicit `[回到正文]` links;
+- derive author, journal abbreviation, and year from the shared normalization rules in `references/evidence-kernel.md`;
 - cite only externally verified full text with reader-facing Markdown footnotes;
 - label `Internal Evidence`, `External Evidence`, `Inference`, and `User Assumption` where relevant;
 - retain `组会汇报建议` only as a handoff seed and do not generate slide sequence, action titles, or speaker notes.
@@ -294,7 +323,7 @@ Before completion:
 - confirm no unread or metadata-only source is presented as verified evidence;
 - confirm every strong external evidence row has a usable locator or is downgraded;
 - confirm unresolved scope is visible as `not established within scope`, `blocked`, or a report limitation;
-- confirm final images, footnotes, equations, relative paths, and reader-facing boundaries pass;
+- confirm canonical integrity, final images, semantic footnotes, equations, relative paths, reader-facing boundaries, and the separate bundled G5 footnote check pass;
 - confirm an available main PDF is named `<task_name>.pdf`, its staged-copy hash is verified when applicable, and it did not consume an auxiliary-PDF budget;
 - confirm unauthorized Zotero, restricted-resource, supplementary, and sensitive-copy actions did not occur.
 

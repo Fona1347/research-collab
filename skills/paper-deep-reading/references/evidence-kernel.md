@@ -7,11 +7,13 @@ Use this reference when initializing or updating a deep-reading run's canonical 
 - [Contract principles](#contract-principles)
 - [Canonical ownership](#canonical-ownership)
 - [Identifiers, missing values, and locators](#identifiers-missing-values-and-locators)
+- [Bibliographic normalization and reader-facing keys](#bibliographic-normalization-and-reader-facing-keys)
 - [Run Contract](#run-contract)
 - [Output resolution and run-directory naming](#output-resolution-and-run-directory-naming)
 - [Main-PDF staging](#main-pdf-staging)
 - [Main-paper identity](#main-paper-identity)
 - [Claim and Condition Registry](#claim-and-condition-registry)
+- [Research judgment registries](#research-judgment-registries)
 - [Source Registry](#source-registry)
 - [Evidence Ledger](#evidence-ledger)
 - [Authorization resolution](#authorization-resolution)
@@ -36,14 +38,14 @@ Use this reference when initializing or updating a deep-reading run's canonical 
 | Artifact | Canonical entity or field family | May derive, but must not redefine |
 | --- | --- | --- |
 | `paper-package.md` | Run Contract and main-paper identity | Gate summaries, report scope labels |
-| `reading-report.md` | Claim and Condition Registry | Reader-facing claims, review summaries |
+| `reading-report.md` | Claim and Condition Registry plus triggered Novelty-Generativity-Perspective and Design Necessity/Counterfactual registries | Reader-facing claims, research judgments, review summaries |
 | `auxiliary-literature-table.md` | Source Registry | Evidence cards, auxiliary briefs, reference lists |
 | `external-evidence-matrix.md` | Evidence Ledger | External-validation prose, confidence summaries |
 | `assets/_manifest.md` | Asset Registry | Figure embeds and exhibit lists |
 | `view-report-audit.md` | Gate results and Report Claim Map | Delivery summary |
 | `view-report.md` | Derived reader-facing report only | Presentation handoff |
 
-Do not copy a final assessment into a derived table and later edit it there. Link the derived row to its canonical `Claim ID` or `Evidence ID` and apply any correction upstream.
+Do not copy a final assessment into a derived table and later edit it there. Link the derived row to its canonical `Claim ID`, `Idea ID`, `Design ID`, or `Evidence ID` and apply any correction upstream.
 
 ## Identifiers, missing values, and locators
 
@@ -52,6 +54,8 @@ Use stable, zero-padded identifiers within one run:
 | Entity | Format | Rule |
 | --- | --- | --- |
 | Claim | `C-001` | Assign once; do not renumber after exclusion or weakening |
+| Research idea | `N-001` | Assign when the Novelty-Generativity-Perspective trigger is positive |
+| Design choice | `D-001` | Assign when the Design Necessity and Counterfactual trigger is positive |
 | Source | `S-001` | Assign after metadata deduplication |
 | Evidence | `E-001` | One source-to-claim relation per row; split materially different conditions or relations |
 
@@ -68,6 +72,32 @@ Record why no stronger locator is available. Evidence without a usable locator c
 
 Carry conditions with every quantitative or mechanistic locator. At minimum record the applicable material/system, device or model, temperature, bias/voltage, pulse width or duration, measurement/readout method, sample size or cycle count, and any other condition that changes comparability. Use `not reported` when the paper omits a condition.
 
+## Bibliographic normalization and reader-facing keys
+
+Use one bibliographic normalization method for automatic run names and reader-facing external footnotes. Do not create a second ad hoc citation-key convention in `view-report.md`.
+
+For an external journal article, establish the following canonical fields before assigning a reader-facing key:
+
+- `first_author_full_name`: the first author's complete given name followed by family name, such as `Yujian Hu`. Resolve it from the full text, publisher record, or another authoritative bibliographic record. Do not expand initials by guesswork. Preserve Unicode letters, diacritics, meaningful hyphens, apostrophes, and multi-token names; collapse whitespace to single spaces.
+- `standard_journal_abbreviation`: prefer a verified Zotero `journalAbbreviation`, then the publisher's official abbreviation, then an authoritative NLM/Index Medicus abbreviation. DOI metadata may establish article identity and may supply the abbreviation only when it explicitly does so. Never invent an abbreviation by manually shortening the title.
+- `publication_year`: the four-digit year for the cited article version. When online-first and issue years differ, use the canonical year of the version actually cited and record the date distinction in the complete definition when relevant.
+
+Normalize each key component by preserving Unicode letters, combining marks, numbers, meaningful hyphens, apostrophes, and single spaces; replace underscores, control characters, Windows-invalid characters, and other structural punctuation runs with one space; then collapse and trim whitespace. Reserve underscores for the key separators. The base reader-facing key is exactly:
+
+```text
+<first-author given name> <first-author family name>_<standard journal abbreviation>_<YYYY>
+```
+
+For example:
+
+```markdown
+[^Yujian Hu_Nat Med_2025]
+```
+
+If two or more distinct deduplicated sources cited in the same reader-facing report produce the same base key, sort that cited collision set by normalized DOI, then normalized title when DOI is absent, and append `_a`, `_b`, and so on. Use no suffix when only one member of a possible collision set is cited; whenever suffixes are present, the report must contain a contiguous set beginning with `_a` and `_b`. Reuse one key for every occurrence of the same source. A source with an unverified full name, unresolved official abbreviation, or unestablished year cannot receive a reader-facing key; either resolve the metadata or remove/downgrade the citation before G5.
+
+Derive hidden backlink IDs from the same key so that the first occurrence is `ref-<key-slug>-1`, the second is `ref-<key-slug>-2`, and so on. Create `<key-slug>` by case-folding the key and replacing every run of non-letter/non-number characters with one hyphen. Preserve Unicode letters and numbers, trim hyphens, and keep the occurrence suffix. This slug is an internal anchor only; it must not replace the semantic key shown in Markdown source.
+
 ## Run Contract
 
 Place a `Run Contract` table near the start of `paper-package.md`.
@@ -75,6 +105,7 @@ Place a `Run Contract` table near the start of `paper-package.md`.
 | Field | Allowed value or required content |
 | --- | --- |
 | `evidence_contract` | Exactly `v1.1` |
+| `reader_citation_contract` | Exactly `semantic-footnote-v1` for newly generated reader-facing reports; historical artifacts created before this contract may omit the field, and must not be retrofitted unless the report is regenerated |
 | `paper_identity` | Title plus DOI or another canonical identifier; record an identity limitation if none exists |
 | `task_name` | Derived run-directory basename, or the basename of an explicitly named run directory |
 | `output_directory` | User-approved run directory |
@@ -202,18 +233,26 @@ Apply these field rules:
 - In Validation roles, record each required evidence role and its state: `open`, `closed`, `downgraded`, `blocked`, or `not-applicable`.
 - Use exactly one Status: `supported`, `weakened`, `contradicted`, `not established within scope`, or `blocked`.
 
+Keep explanation outside controlled cells: put a joint-condition explanation in Conditions, not in Jointly demonstrated; put a scoped explanation in Atomic claim/Conditions or evidence Limitations/conflict, not inside Status. Validation roles may use `role: state` with semicolon-separated roles; record correlated review as a qualification, not an independent evidence role closure.
+
 Claim status reflects the scoped evidence judgment, not author confidence or source relevance grade.
+
+## Research judgment registries
+
+When triggered, keep the `N-*` Novelty-Generativity-Perspective Registry and `D-*` Design Necessity and Counterfactual Registry in `reading-report.md` after the Claim and Condition Registry. Follow [research-judgment.md](research-judgment.md) for their normative schemas, controlled verdicts, function-first decomposition, external-validation roles, and reader-facing boundaries.
+
+These registries canonically own report-side originality, transferability, perspective, necessity, sufficiency, alternative, and superiority judgments. Link them to `C-*` claims and applicable `E-*` evidence rather than copying source lifecycle fields. If the trigger scan is negative, record `not-applicable` in the structured analysis and do not create empty tables.
 
 ## Source Registry
 
 Maintain this normative table in `auxiliary-literature-table.md`:
 
-| Source ID | Canonical identifier | Title / year | Discovery route | Related Claim IDs | Evidence role | Relevance grade | Directness | Independence | Comparability | Counter-evidence value | Full-text status | PDF status | Parse status | Read status | Verification status | Citation status | Include/exclude reason |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Source ID | Canonical identifier | Title / year | Discovery route | Related Claim IDs | Evidence role | Relevance grade | Directness | Independence | Comparability | Counter-evidence value | Full-text status | PDF status | Parse status | Read status | Verification status | Citation status | Reader-facing footnote key | Backlink anchor IDs | Include/exclude reason |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 
 Use DOI as the preferred identifier; otherwise use a stable PMID, arXiv ID, publisher URL, or normalized title/year key. Deduplicate before assigning the Source ID.
 
-Use evidence roles that answer a claim-specific need, such as `priority/novelty`, `quantitative benchmark`, `mechanism`, `boundary/contradiction`, `method/provenance`, or `context`. Add a narrower role when needed; do not replace a missing decisive role with repeated context papers.
+Use evidence roles that answer a claim- or judgment-specific need, such as `priority/novelty`, `nearest-prior-art`, `quantitative benchmark`, `matched-comparison`, `mechanism`, `alternative-mechanism`, `counterexample`, `discriminating-control`, `boundary/contradiction`, `method/provenance`, or `context`. Add a narrower role when needed; do not replace a missing decisive role with repeated context papers.
 
 Use S/A/B/C/D only for relevance and selection priority:
 
@@ -239,6 +278,8 @@ Keep lifecycle statuses independent:
 | Citation status | `not-cited`, `planned`, `cited` |
 
 Publisher HTML or Zotero indexed full text may reach `Read status=full` and `Verification status=verified` without a materialized or parsed PDF, provided the relevant content and locator were actually checked. Metadata, an abstract, a search snippet, or a citation graph alone can never reach `verified`.
+
+For `Reader-facing footnote key`, use the exact semantic key or `not-cited`, `not-applicable`, `pending`, or `blocked: <reason>`. For `Backlink anchor IDs`, list the exact HTML IDs in first-appearance order separated by a comma and one space, or use the same controlled value when no reader-facing citation exists. A semantic key requires `Citation status=cited`; every cited semantic key and its ordered anchor list must match the generated report exactly, with no missing, reordered, or extra IDs.
 
 ## Evidence Ledger
 
@@ -404,6 +445,11 @@ Apply these rules before reader-facing assembly:
 5. If a claim depends on unread supplementary material, lower its strength and state the dependency. Do not infer that the main text fully demonstrates it.
 6. Preserve conflicting evidence, circular citation, shared datasets, overlapping authorship, and incomparable benchmarks through the final assessment.
 7. Do not expand “not detected” or “no evidence observed” into “completely excluded.” State the detection limit, tested scope, or missing sensitivity when available.
+8. A successful implementation establishes feasibility under its stated joint conditions, not the necessity of the named component or mechanism.
+9. Do not promote joint sufficiency to component sufficiency; preserve interfaces, contacts, bias history, preprocessing, model components, measurement choices, and other dependencies.
+10. Failure of one baseline under the paper's settings does not establish principle-level impossibility. Identify whether the limit is physical, architectural, parametric, implementation-specific, unmatched, or unresolved.
+11. Do not infer broad superiority from an unmatched comparison, or non-existence from an unsuccessful search. State the comparison and search boundaries.
+12. Treat a follow-up direction as research-generative only when it has an evidence-grounded premise, falsifiable hypothesis, minimum decisive test, failure observable, and applicability boundary.
 
 Treat claims using `first`, `fastest`, `highest`, `proves`, `completely excludes`, or an equivalent superlative/causal absolute as high risk. If the epistemic check fails, do one permitted targeted search, narrow the wording, downgrade the claim, or record a blocker. Never pass G4 by stylistic substitution while leaving the unsupported meaning intact.
 
@@ -415,10 +461,10 @@ Use only the statuses listed below:
 | --- | --- | --- |
 | G0 Run Contract | Paper, confirmed output directory, normalized task/validation/handoff, `main_pdf_staging`, resolved permissions, budgets, exclusions, user overrides | `pass`, `blocked` |
 | G1 Main Source | Canonical identity, staged filename when applicable, source/destination hash agreement when copied, page count, parse status, actual read source, source limitations | `pass`, `pass-with-downgrade`, `blocked` |
-| G2 Claims and Figures | Atomic claims, conditions, main-paper locators, evidence modes, supplementary dependencies, Figure Reading Packets for report exhibits | `pass`, `pass-with-downgrade`, `blocked` |
-| G3 Sources and Evidence | Deduplication, independent lifecycle states, role coverage, external locators, conditions, conflicts, ledger linkage | `pass`, `pass-with-downgrade`, `blocked`, `not-applicable` |
-| G4 Epistemic Pre-report | No condition splicing, mode inflation, nominal-bit inflation, hidden supplementary dependence/conflict, or unsupported strong wording | `pass`, `pass-with-downgrade`, `blocked` |
-| G5 Delivery QA | Report Claim Map, canonical/derived synchronization, main-PDF naming, images and manifest, footnotes, relative paths, placeholders, protection of pre-existing directories | `pass`, `blocked` |
+| G2 Claims and Figures | Atomic claims, conditions, main-paper locators, evidence modes, supplementary dependencies, research-judgment trigger scan and applicable `N-*`/`D-*` rows, Figure Reading Packets for report exhibits | `pass`, `pass-with-downgrade`, `blocked` |
+| G3 Sources and Evidence | Deduplication, independent lifecycle states, claim/judgment role coverage, external locators, conditions, conflicts, ledger linkage, and scoped priority/alternative comparison | `pass`, `pass-with-downgrade`, `blocked`, `not-applicable` |
+| G4 Epistemic Pre-report | No condition splicing, mode inflation, nominal-bit inflation, hidden supplementary dependence/conflict, feasibility-to-necessity inflation, joint-to-component sufficiency inflation, unmatched superiority, unbounded absence claims, or unsupported strong wording | `pass`, `pass-with-downgrade`, `blocked` |
+| G5 Delivery QA | Report Claim/Judgment Map, canonical/derived synchronization, main-PDF naming, images and manifest, footnotes, relative paths, placeholders, protection of pre-existing directories | `pass`, `blocked` |
 
 Apply the Gates in order:
 
@@ -429,13 +475,13 @@ Apply the Gates in order:
 5. Resolve G4 before drafting strong reader-facing conclusions.
 6. Pass G5 before delivery. G5 has no downgrade state because broken provenance, links, or synchronization must be repaired or delivery must stop.
 
-Every `pass-with-downgrade` must identify the affected Claim IDs, the missing or weak evidence, the reader-facing limitation, and wording that is prohibited as a result. Use `blocked` when the requested outcome cannot be produced responsibly within authorization and evidence limits.
+Every `pass-with-downgrade` must identify the affected Claim IDs and applicable `N-*`/`D-*` IDs, the missing or weak evidence, the reader-facing limitation, and wording that is prohibited as a result. Use `blocked` when the requested outcome cannot be produced responsibly within authorization and evidence limits.
 
 ## Gate recording and correction order
 
 For a full `view-report.md`, keep the Gate table in required internal `view-report-audit.md`:
 
-| Gate | Status | Checked canonical artifacts | Affected Claim IDs | Missing/weak evidence or blocker | Reader-facing limit and prohibited wording | Required action |
+| Gate | Status | Checked canonical artifacts | Affected Claim/Judgment IDs | Missing/weak evidence or blocker | Reader-facing limit and prohibited wording | Required action |
 | --- | --- | --- | --- | --- | --- | --- |
 
 Focused or fully local tasks may use a compact audit, but must still record every applicable Gate. `view-report-audit.md` is internal and is not the primary presentation input.
@@ -452,3 +498,15 @@ canonical owner
 ```
 
 Do not repair a reader-facing sentence alone when its canonical claim, source, evidence, or asset record remains wrong.
+
+## Mechanical canonical integrity and reuse
+
+Run `scripts/check_canonical.py --run-dir <actual-run-directory> --json` independently of the footnote checker. Exit 0 means the canonical record checks passed, 1 means data errors, and 2 means an invocation/runtime failure. The Python entrypoint is `validate_run(run_dir)` and performs no network or writes. It returns `valid`, structured `errors`/`warnings` (`code`, owner `file`, `line`, `record_id`, `message`), `main_identity`, indexed `claims`/`sources`/`evidence`/`ideas`/`designs`, `counts`, `run_contract`, and SHA256 `artifacts`. Source rows also expose `normalized_identifier`; DOI identifiers use `doi:<normalized DOI>`.
+
+The actual run directory is the lookup root. A historical `output_directory` records provenance and does not redirect file access. Mapper may consume these records through the pure API, but it still must check its handoff's target paper and selected record, actual scientific conditions, and the allowed source scope.
+
+One Evidence row links exactly one Claim ID to one Source ID; split multi-claim rows, retaining the original ID for its first relation and allocating new stable IDs for the others. Update linked N/D/audit records in the same revision. Keep the original relation, conditions, mode, uncertainty and scoped assessment. Do not copy a broad summary to claim rows it does not support. Preserve old/new ID mapping in a revision note when correcting a frozen artifact copy.
+
+Count distinct sources by normalized identity, excluding the main paper even if it has an S row (such as S-000). Multiple claims, locators or reviewers using one paper never increase its source count. These are deduplicated identity counts, not a proof of scientific independence: shared authors, datasets, citation chains and conditions still require review. Source status must justify full-read/verified/cited counters; a main-only run may omit external registries, while an evaluated but empty external ledger uses its canonical header and records the scoped no-evidence outcome.
+
+Mechanical validation checks field vocabularies, IDs, cardinality, role states, lifecycle consistency and source counters. It does not prove sentence-level atomicity, actual reading, correct figures/locators, independent replication, threshold validity or scientific truth. G2–G4 retain those responsibilities; a green footnote or canonical check cannot replace them.

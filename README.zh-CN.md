@@ -8,7 +8,7 @@ Paper Collab 是一个仅包含源码的 Agent Skills 小型套件，用于可�
 
 ## 包含的 Skill
 
-- `paper-deep-reading`：协调 PDF 优先的论文阅读、证据记录、核验边界、中文读者报告、确定性运行目录命名和主 PDF 归档。
+- `paper-deep-reading`：协调 PDF 优先的论文阅读、证据记录、核验边界、原创性与研究生成力研判、功能优先的核心设计选择分析、中文读者报告、确定性运行目录命名和主 PDF 归档。
 - `paper-presentation`：把边界明确的深读产物转换为可追溯的演示方案、讲者备注或论文卡片，不重新执行检索。
 
 演示 Skill 有意与深读 Skill 配套，建议同时安装。
