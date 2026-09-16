@@ -233,6 +233,8 @@ Apply these field rules:
 - In Validation roles, record each required evidence role and its state: `open`, `closed`, `downgraded`, `blocked`, or `not-applicable`.
 - Use exactly one Status: `supported`, `weakened`, `contradicted`, `not established within scope`, or `blocked`.
 
+Keep explanation outside controlled cells: put a joint-condition explanation in Conditions, not in Jointly demonstrated; put a scoped explanation in Atomic claim/Conditions or evidence Limitations/conflict, not inside Status. Validation roles may use `role: state` with semicolon-separated roles; record correlated review as a qualification, not an independent evidence role closure.
+
 Claim status reflects the scoped evidence judgment, not author confidence or source relevance grade.
 
 ## Research judgment registries
@@ -496,3 +498,15 @@ canonical owner
 ```
 
 Do not repair a reader-facing sentence alone when its canonical claim, source, evidence, or asset record remains wrong.
+
+## Mechanical canonical integrity and reuse
+
+Run `scripts/check_canonical.py --run-dir <actual-run-directory> --json` independently of the footnote checker. Exit 0 means the canonical record checks passed, 1 means data errors, and 2 means an invocation/runtime failure. The Python entrypoint is `validate_run(run_dir)` and performs no network or writes. It returns `valid`, structured `errors`/`warnings` (`code`, owner `file`, `line`, `record_id`, `message`), `main_identity`, indexed `claims`/`sources`/`evidence`/`ideas`/`designs`, `counts`, `run_contract`, and SHA256 `artifacts`. Source rows also expose `normalized_identifier`; DOI identifiers use `doi:<normalized DOI>`.
+
+The actual run directory is the lookup root. A historical `output_directory` records provenance and does not redirect file access. Mapper may consume these records through the pure API, but it still must check its handoff's target paper and selected record, actual scientific conditions, and the allowed source scope.
+
+One Evidence row links exactly one Claim ID to one Source ID; split multi-claim rows, retaining the original ID for its first relation and allocating new stable IDs for the others. Update linked N/D/audit records in the same revision. Keep the original relation, conditions, mode, uncertainty and scoped assessment. Do not copy a broad summary to claim rows it does not support. Preserve old/new ID mapping in a revision note when correcting a frozen artifact copy.
+
+Count distinct sources by normalized identity, excluding the main paper even if it has an S row (such as S-000). Multiple claims, locators or reviewers using one paper never increase its source count. These are deduplicated identity counts, not a proof of scientific independence: shared authors, datasets, citation chains and conditions still require review. Source status must justify full-read/verified/cited counters; a main-only run may omit external registries, while an evaluated but empty external ledger uses its canonical header and records the scoped no-evidence outcome.
+
+Mechanical validation checks field vocabularies, IDs, cardinality, role states, lifecycle consistency and source counters. It does not prove sentence-level atomicity, actual reading, correct figures/locators, independent replication, threshold validity or scientific truth. G2–G4 retain those responsibilities; a green footnote or canonical check cannot replace them.

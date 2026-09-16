@@ -326,6 +326,7 @@ Pass G5 only when all applicable checks succeed:
 | Area | Pass condition |
 | --- | --- |
 | Claim and judgment mapping | Every strong report claim or research judgment maps to canonical support and all map rows are `in-sync` |
+| Canonical integrity | `check_canonical.py --run-dir <actual-run-directory>` passes separately from footnotes; linked IDs, controlled states, one-source/one-claim evidence rows and distinct-source counters are valid |
 | Reader boundary | No modes, workflow names, internal IDs, raw paths, hashes, logs, or QA narration leak into the report |
 | Epistemic wording | Conditions and evidence modes remain distinct; every downgrade appears in reader-facing wording |
 | Research judgment | Triggered originality/design sections preserve baselines, functions, necessity/sufficiency scope, alternatives, decisive tests, and unresolved boundaries without logical inflation |

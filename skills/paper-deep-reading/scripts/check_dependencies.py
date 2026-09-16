@@ -18,16 +18,19 @@ from pathlib import Path
 from typing import Any, List, Optional, Tuple
 
 
-MODES = ("standard", "fully-local", "main-paper-only", "plan-only")
+MODES = ("standard", "fully-local", "main-paper-only", "plan-only", "custom")
 INPUT_KINDS = ("unknown", "pdf", "full-text")
 STATUS = ("PASS", "MISSING", "BLOCKED", "OPTIONAL", "NOT-APPLICABLE")
 AGENT_CHECKS = (
-    "paper-lookup.skill",
-    "paper-lookup.http-fetch",
+    "external-discovery.route",
+    "external-fulltext.route",
+    "research-lookup-enhanced.skill",
+    "research-lookup-enhanced.http-fetch",
     "sciverse-research.skill",
     "sciverse.mcp-tools",
     "mineru-pdf.skill",
     "pdf.skill",
+    "skill.paper-fetch-skill",
     "skill.parallel-web",
     "skill.research-lookup",
     "skill.paper-presentation",
@@ -117,7 +120,8 @@ def resolve_skill_roots(skill_root: Path, explicit_roots: List[str]) -> List[Pat
 
 SKILL_ALIASES = {
     "paper-deep-reading": ("paper-deep-reading",),
-    "paper-lookup": ("paper-lookup", "sa.paper-lookup"),
+    "research-lookup-enhanced": ("research-lookup-enhanced",),
+    "paper-fetch-skill": ("paper-fetch-skill",),
     "sciverse-research": ("sciverse-research",),
     "mineru-pdf": ("mineru-pdf",),
     "pdf": ("pdf",),
@@ -200,7 +204,10 @@ def local_component_status(ok: bool, applicable: bool, required: bool) -> str:
 
 
 def build_report(args: argparse.Namespace) -> dict[str, Any]:
-    mode = args.mode
+    requested_mode = args.mode
+    mode = getattr(args, "custom_scope", None) if requested_mode == "custom" else requested_mode
+    if mode not in MODES or mode == "custom":
+        raise ValueError("custom requires --custom-scope matching the already authorized capabilities")
     input_kind = args.input_kind
     skill_root = Path(args.skill_root).expanduser().resolve() if args.skill_root else infer_skill_root()
     roots = resolve_skill_roots(skill_root, args.skills_root)
@@ -217,51 +224,54 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
     )
 
     external_mode = mode == "standard"
-    pdf_checks_applicable = mode == "standard" or (
+    pdf_checks_applicable = (mode == "standard" and input_kind != "full-text") or (
         mode in ("main-paper-only", "fully-local") and input_kind != "full-text"
     )
-    pdf_route_required = mode == "standard" or (
+    pdf_route_required = (mode == "standard" and input_kind != "full-text") or (
         mode in ("main-paper-only", "fully-local") and input_kind == "pdf"
     )
-    paper_lookup_status, paper_lookup_details = skill_status(
-        "paper-lookup", roots, applicable=external_mode
+    research_lookup_status, research_lookup_details = skill_status(
+        "research-lookup-enhanced", roots, applicable=external_mode
     )
-    paper_lookup_status, paper_lookup_details = agent_skill_override(
-        args, "paper-lookup.skill", paper_lookup_status, paper_lookup_details
+    research_lookup_status, research_lookup_details = agent_skill_override(
+        args,
+        "research-lookup-enhanced.skill",
+        research_lookup_status,
+        research_lookup_details,
     )
     add_result(
         results,
-        name="paper-lookup.skill",
-        category="required" if external_mode else "conditional",
-        status=paper_lookup_status,
-        details=paper_lookup_details,
-        required=external_mode,
+        name="research-lookup-enhanced.skill",
+        category="preferred-discovery" if external_mode else "conditional",
+        status="OPTIONAL" if external_mode and research_lookup_status in ("MISSING", "BLOCKED") else research_lookup_status,
+        details=research_lookup_details,
+        required=False,
     )
 
     if external_mode:
-        http_confirmed = agent_confirmed(args, "paper-lookup.http-fetch")
+        http_confirmed = agent_confirmed(
+            args, "research-lookup-enhanced.http-fetch"
+        )
         add_result(
             results,
-            name="paper-lookup.http-fetch",
-            category="required",
-            status="PASS" if http_confirmed else "BLOCKED",
+            name="research-lookup-enhanced.http-fetch",
+            category="preferred-discovery",
+            status="PASS" if http_confirmed else "OPTIONAL",
             details=(
                 "confirmed by the agent HTTP/tool catalog"
                 if http_confirmed
                 else "HTTP capability must be confirmed from the agent tool catalog; this script does not access the network"
             ),
-            required=True,
+            required=False,
             source="agent",
         )
-        if not http_confirmed:
-            agent_checks_required.append("paper-lookup.http-fetch")
     else:
         add_result(
             results,
-            name="paper-lookup.http-fetch",
+            name="research-lookup-enhanced.http-fetch",
             category="conditional",
             status="NOT-APPLICABLE",
-            details="external paper lookup is disabled by the selected validation mode",
+            details="external scholarly lookup is disabled by the selected validation mode",
             source="agent",
         )
 
@@ -274,19 +284,19 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
     add_result(
         results,
         name="sciverse-research.skill",
-        category="required" if external_mode else "conditional",
-        status=sciverse_status,
+        category="optional-enhancement" if external_mode else "conditional",
+        status="OPTIONAL" if external_mode and sciverse_status in ("MISSING", "BLOCKED") else sciverse_status,
         details=sciverse_details,
-        required=external_mode,
+        required=False,
     )
     add_result(
         results,
         name="SCIVERSE_API_TOKEN",
-        category="required" if external_mode else "conditional",
+        category="optional-enhancement" if external_mode else "conditional",
         status=(
             "PASS"
             if external_mode and env_present("SCIVERSE_API_TOKEN")
-            else "MISSING"
+            else "OPTIONAL"
             if external_mode
             else "NOT-APPLICABLE"
         ),
@@ -297,25 +307,23 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
             if external_mode
             else "Sciverse is not used by the selected validation mode"
         ),
-        required=external_mode,
+        required=False,
     )
     if external_mode:
         mcp_confirmed = agent_confirmed(args, "sciverse.mcp-tools")
         add_result(
             results,
             name="sciverse.mcp-tools",
-            category="required",
-            status="PASS" if mcp_confirmed else "BLOCKED",
+            category="optional-enhancement",
+            status="PASS" if mcp_confirmed else "OPTIONAL",
             details=(
-                "required Sciverse MCP tools confirmed by the agent tool catalog"
+                "Sciverse MCP tools confirmed by the agent tool catalog"
                 if mcp_confirmed
                 else "MCP exposure must be confirmed from the agent tool catalog; filesystem checks cannot prove server availability"
             ),
-            required=True,
+            required=False,
             source="agent",
         )
-        if not mcp_confirmed:
-            agent_checks_required.append("sciverse.mcp-tools")
     else:
         add_result(
             results,
@@ -325,6 +333,28 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
             details="Sciverse is not required by the selected validation mode",
             source="agent",
         )
+
+    lookup_ready = external_mode and research_lookup_status == "PASS" and agent_confirmed(args, "research-lookup-enhanced.http-fetch")
+    sciverse_ready = external_mode and sciverse_status == "PASS" and agent_confirmed(args, "sciverse.mcp-tools") and env_present("SCIVERSE_API_TOKEN")
+    for capability in ("external-discovery.route", "external-fulltext.route"):
+        ready = lookup_ready or sciverse_ready or agent_confirmed(args, capability)
+        add_result(
+            results,
+            name=capability,
+            category="required-capability" if external_mode else "conditional",
+            status="PASS" if external_mode and ready else "BLOCKED" if external_mode else "NOT-APPLICABLE",
+            details=(
+                "Agent-confirmed authorized discovery/identity or readable-text route is available; actual source evidence is checked at G3"
+                if external_mode and ready
+                else "Confirm a usable, already authorized route from the agent catalog; no particular provider is mandatory"
+                if external_mode
+                else "External validation is disabled by the selected scope"
+            ),
+            required=external_mode,
+            source="agent",
+        )
+        if external_mode and not ready:
+            agent_checks_required.append(capability)
 
     python_ok = bool(sys.executable) and sys.version_info >= (3, 9)
     add_result(
@@ -336,9 +366,11 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         required=pdf_route_required,
     )
 
-    mineru_applicable = mode == "standard" or (
+    mineru_applicable = (mode == "standard" and input_kind != "full-text") or (
         mode == "main-paper-only" and input_kind != "full-text"
     )
+    if requested_mode == "custom" and not getattr(args, "allow_remote_parsing", False):
+        mineru_applicable = False
     mineru_skill_status, mineru_skill_details = skill_status(
         "mineru-pdf", roots, applicable=mineru_applicable
     )
@@ -571,8 +603,8 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
     )
 
     # These are useful to the agent but are not runtime checks performed here.
-    for name in ("paper-lookup", "sciverse-research", "mineru-pdf", "pdf", "parallel-web", "research-lookup", "paper-presentation"):
-        if name in ("paper-lookup", "sciverse-research", "mineru-pdf", "pdf"):
+    for name in ("research-lookup-enhanced", "paper-fetch-skill", "sciverse-research", "mineru-pdf", "pdf", "parallel-web", "research-lookup", "paper-presentation"):
+        if name in ("research-lookup-enhanced", "sciverse-research", "mineru-pdf", "pdf"):
             continue
         status, details = skill_status(name, roots, applicable=parallel_applicable if name in ("parallel-web", "research-lookup") else mode != "plan-only")
         status, details = agent_skill_override(args, f"skill.{name}", status, details)
@@ -592,8 +624,11 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         if item["required"] and item["status"] in ("MISSING", "BLOCKED")
     ]
     return {
-        "schema_version": "1",
-        "mode": mode,
+        "schema_version": "2",
+        "mode": requested_mode,
+        "effective_mode": mode,
+        "permissions_granted_by_preflight": False,
+        "remote_parsing_applicable": mineru_applicable,
         "input_kind": input_kind,
         "script": "check_dependencies.py",
         "read_only": True,
@@ -614,6 +649,14 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
 def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mode", choices=MODES, default="standard")
+    parser.add_argument(
+        "--custom-scope", choices=("standard", "main-paper-only", "fully-local", "plan-only"),
+        help="required for custom: projection of capabilities already allowed in the Run Contract; grants no permissions",
+    )
+    parser.add_argument(
+        "--allow-remote-parsing", action="store_true",
+        help="custom only: confirm remote parsing was separately allowed; does not authorize upload or grant permission",
+    )
     parser.add_argument(
         "--input-kind",
         choices=INPUT_KINDS,
@@ -640,7 +683,14 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         metavar="NAME",
         help="repeat for capabilities already confirmed by the agent Skill/tool catalog",
     )
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    if args.mode == "custom" and args.custom_scope is None:
+        parser.error("--mode custom requires --custom-scope from the resolved permission contract")
+    if args.mode != "custom" and (args.custom_scope or args.allow_remote_parsing):
+        parser.error("--custom-scope/--allow-remote-parsing apply only to --mode custom")
+    if args.allow_remote_parsing and args.custom_scope in ("fully-local", "plan-only"):
+        parser.error("remote parsing conflicts with fully-local/plan-only scope")
+    return args
 
 
 def main(argv: Optional[List[str]] = None) -> int:

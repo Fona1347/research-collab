@@ -121,28 +121,33 @@ python scripts/check_dependencies.py --mode <validation>
 Use `--json` when the result will be merged with the agent's Skill and tool registry checks. For `main-paper-only` or `fully-local`, pass `--input-kind pdf` when the supplied main source is a PDF; use `--input-kind full-text` for a sufficiently complete non-PDF source. The default `unknown` keeps the parser route conditional in those two modes. After the agent confirms a capability, it may pass the corresponding repeated `--agent-check <name>` flag to merge that result, for example:
 
 ```text
-python scripts/check_dependencies.py --mode standard --json --agent-check paper-lookup.skill --agent-check paper-lookup.http-fetch --agent-check sciverse-research.skill --agent-check sciverse.mcp-tools
+python scripts/check_dependencies.py --mode standard --json --agent-check research-lookup-enhanced.skill --agent-check research-lookup-enhanced.http-fetch --agent-check sciverse-research.skill --agent-check sciverse.mcp-tools
 ```
 
 Only pass `--agent-check` for capabilities actually present in the agent's Skill/tool catalog. The script must not install packages, access the network, upload files, modify environment variables, enable Zotero, or print secret values. API-key checks report presence only. The agent must supplement the script with its own available-Skill and MCP-tool catalog; a filesystem-only script cannot prove that an MCP server is exposed.
 
-Without the agent-side flags, `standard` intentionally leaves HTTP and MCP checks as `BLOCKED` and returns exit code `1`; this is a guard for incomplete preflight, not permission to skip the agent catalog check.
+Without an agent-confirmed discovery and readable-full-text route, `standard` leaves those capability checks `BLOCKED` and returns exit code `1`. Existing Lookup/HTTP or Sciverse checks can establish a route; an equivalent authorized route may instead use `--agent-check external-discovery.route --agent-check external-fulltext.route`. A missing provider is not itself a scientific evidence downgrade.
+
+For `custom`, project the already resolved permissions with `--mode custom --custom-scope standard|main-paper-only|fully-local|plan-only`. Use `standard` only if external discovery and verification are authorized; otherwise select the narrower scope. Custom preflight leaves remote parsing off unless `--allow-remote-parsing` confirms an existing explicit allowance. This projection never changes the Run Contract's `validation=custom`, expands a budget, or grants network, download, upload, SI or Zotero access.
 
 Use these result states consistently: `PASS`, `MISSING`, `BLOCKED`, `OPTIONAL`, and `NOT-APPLICABLE`. Report the merged result to the user before starting G0, grouped as must-have, strongly recommended, and optional dependencies. Keep the complete maintenance table in [references/external-dependencies.md](references/external-dependencies.md).
 
 For `validation=standard`, the following are required before the standard workflow can start:
 
-- `paper-lookup` Skill and an available HTTP-fetch route for DOI, OA, citation, and candidate checks;
-- the `sciverse-research` Skill, the Sciverse MCP tools, and a non-empty `SCIVERSE_API_TOKEN`;
-- at least one usable PDF route: the preferred `mineru-pdf` route or the local `pdf` fallback route.
+- an available, authorized discovery/identity route and a readable-full-text verification route; prefer `research-lookup-enhanced` for ordinary discovery, while Sciverse or platform scholarly/Web tools can supply equivalent capability;
+- for PDF input, at least one usable PDF route: the preferred `mineru-pdf` route or the local `pdf` fallback route. Sufficient complete non-PDF full text does not require a PDF parser.
+
+`sciverse-research`, its MCP tools and token are optional provenance-preserving enhancements. If Sciverse is unavailable, use verified publisher HTML, an authorized PDF route or another usable evidence source. Retain the same evidence grade when the content, identity, conditions and locator checks are equivalent; downgrade only the specific claim/check whose evidence is actually missing.
 
 The preferred MinerU route requires the `mineru-pdf` Skill, its wrapper, a usable Python runtime, and `MINERU_API_KEY`. The local fallback should expose `pdfinfo`, `pdftoppm`, `pypdf`, and preferably `PyMuPDF`/`fitz` for parsing, rendering, and visual QA. A missing preferred MinerU component is a downgrade rather than a blocker when the local PDF route is usable. If both routes are unavailable, block PDF-dependent work and explain the available remediation.
 
 `parallel-web` and `research-lookup` are conditional enhancements for open-ended web retrieval or deep research. Their absence must not block the basic DOI/OA/citation/candidate workflow or a standard single-paper reading run when the required routes above are available. `zotero:Zotero` is conditional on a user-authorized Zotero input and remains read-only.
 
-`main-paper-only`, `fully-local`, and `plan-only` must not be blocked by missing Sciverse, `paper-lookup`, `parallel-web`, or `research-lookup` dependencies. `main-paper-only` and `fully-local` still need a usable local or explicitly authorized parser route when the supplied main source is a PDF; `plan-only` does not need a parser route.
+`paper-fetch-skill` is conditional: use it when a known paper needs identity resolution or legal full-text retrieval and the user has not supplied an acceptable source. It is not an unconditional blocker for every standard run.
 
-If a required dependency is `MISSING` or `BLOCKED`, stop the standard workflow before G0 and offer the applicable narrower mode or user action. If only a strongly recommended dependency is missing, continue with an explicit downgrade in the Run Contract and report. Never silently install software, modify credentials or environment variables, configure MCP, enable Zotero, or upload a file. Never reveal any API-key value.
+`main-paper-only`, `fully-local`, and `plan-only` must not be blocked by missing Sciverse, `research-lookup-enhanced`, `paper-fetch-skill`, `parallel-web`, or `research-lookup` dependencies. `main-paper-only` and `fully-local` still need a usable local or explicitly authorized parser route when the supplied main source is a PDF; `plan-only` does not need a parser route.
+
+If a required capability is `MISSING` or `BLOCKED`, record which requested action cannot run and offer the applicable narrower mode or user action. When an equivalent authorized route exists, continue and record the selected route; missing optional software alone does not lower scientific confidence. Never silently install software, modify credentials or environment variables, configure MCP, enable Zotero, or upload a file. Never reveal any API-key value.
 
 ## Budget Semantics
 
@@ -233,6 +238,14 @@ Apply the research-judgment checks as logical constraints: feasibility does not 
 
 ### G5 Delivery QA
 
+Run the independent canonical integrity check before assembling or delivering the reader view, and before handing its records to Mapper:
+
+```text
+python <skill-root>/scripts/check_canonical.py --run-dir <approved-run-directory> --json
+```
+
+It validates controlled values, IDs, source/claim/evidence links, role states and deduplicated source counters. It does not establish scientific truth, actual reading, locator authority or semantic atomicity; those remain G2–G4 checks. Canonical failures block G5 until corrected upstream. A successful footnote check cannot replace this check. See the API and correction guidance in `evidence-kernel.md`.
+
 Assemble `view-report.md` only from eligible canonical records. Verify report-to-claim-and-judgment mapping, semantic external footnotes, display assets, relative paths, figure completeness, equation status, placeholders, internal-path leakage, and protection of pre-existing outputs. Map every strong originality, perspective, necessity, sufficiency, alternative, and superiority statement to canonical `C-*`, `N-*`, `D-*`, and applicable `E-*` records. Run the bundled mechanical check from the resolved Skill root when the report contains external footnotes; the three artifact paths may be absolute:
 
 ```text
@@ -251,7 +264,8 @@ Use the narrowest available capability and its own Skill instructions:
 | --- | --- |
 | Main or auxiliary PDF parsing | `mineru-pdf` |
 | Local PDF fallback, rendering, crop, visual QA | `pdf` |
-| DOI, OA, citation graph, OpenAlex/Crossref/Semantic Scholar | `paper-lookup` |
+| Discovery, DOI/metadata, OA, citation graph, OpenAlex/Crossref/Semantic Scholar | `research-lookup-enhanced` |
+| Known-paper identity resolution and legal full-text retrieval | `paper-fetch-skill` |
 | Academic web and official/publisher page retrieval | `parallel-web` or `research-lookup` |
 | Provenance-preserving evidence chunks | `sciverse-research` |
 | Citation metadata cleanup | `citation-management` |
@@ -309,7 +323,7 @@ Before completion:
 - confirm no unread or metadata-only source is presented as verified evidence;
 - confirm every strong external evidence row has a usable locator or is downgraded;
 - confirm unresolved scope is visible as `not established within scope`, `blocked`, or a report limitation;
-- confirm final images, semantic footnotes, equations, relative paths, reader-facing boundaries, and the bundled G5 footnote check pass;
+- confirm canonical integrity, final images, semantic footnotes, equations, relative paths, reader-facing boundaries, and the separate bundled G5 footnote check pass;
 - confirm an available main PDF is named `<task_name>.pdf`, its staged-copy hash is verified when applicable, and it did not consume an auxiliary-PDF budget;
 - confirm unauthorized Zotero, restricted-resource, supplementary, and sensitive-copy actions did not occur.
 
