@@ -394,7 +394,7 @@ class RenderKindTests(unittest.TestCase):
             with project_style(root) as style:
                 figure = plt.figure()
                 figure.add_subplot(projection="3d")
-                self.assertEqual(style.config_path, root / "sci-plot.toml")
+                self.assertEqual(style.config_path, (root / "sci-plot.toml").resolve())
                 self.assertEqual(style.palette, ("#112233", "#445566"))
                 self.assertEqual(style.formats, ("svg", "png"))
                 self.assertEqual(style.dpi, 420)
