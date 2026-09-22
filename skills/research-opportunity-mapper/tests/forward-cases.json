@@ -1,0 +1,200 @@
+{
+  "cases": [
+    {
+      "id": "ai-hardware-landscape",
+      "request": "Map broad AI-hardware bottlenecks and device opportunities.",
+      "task_mode": "landscape",
+      "discovery_lens": "balanced",
+      "domain": "reconfigurable ferroelectric AI hardware",
+      "primary_domain_lens": "neuromorphic-system",
+      "secondary_domain_lenses": ["semiconductor-device", "integrated-circuit"],
+      "capability_state": "Reported",
+      "scenario_summary": "Compare persistent AI-hardware bottlenecks across device, circuit, and workload layers; retain frontier and gray-space branches and select distinct low-, medium-, and high-risk routes on one shared experimental platform.",
+      "required_behavior": [
+        {"id": "global-breadth", "checks": [
+          {"kind": "markers", "value": ["rom-table: breadth-branches", "rom-table: candidate-routes"]},
+          {"kind": "text-all", "value": ["device", "circuit", "workload"]}
+        ]},
+        {"id": "low-medium-high-shared-platform", "checks": [
+          {"kind": "markers", "value": ["rom-section: shared-platform"]},
+          {"kind": "text-all", "value": ["low", "medium", "high", "shared"]}
+        ]},
+        {"id": "frontier-and-gray-space-coverage", "checks": [
+          {"kind": "markers", "value": ["rom-section: frontier-radar", "rom-section: gray-space-mismatch"]},
+          {"kind": "manifest-equals", "path": "discovery_lens", "value": "balanced"}
+        ]}
+      ]
+    },
+    {
+      "id": "pto-sto-ftj-focus",
+      "request": "Deepen PTO/STO phase-boundary control into an FTJ readout experiment.",
+      "task_mode": "focus",
+      "discovery_lens": "balanced",
+      "domain": "PTO/STO phase-boundary control to FTJ readout",
+      "primary_domain_lens": "materials-ferroelectric",
+      "secondary_domain_lenses": ["multiphysics-modeling", "semiconductor-device"],
+      "capability_state": "Reported",
+      "parent": {"kind": "generated-landscape", "run_id": "forward-mother-landscape"},
+      "scenario_summary": "Test whether controlled PTO/STO phase-boundary states produce an FTJ readout distinguishable from mean-polarization, trapping, leakage, and thermal alternatives, with a primary route, strongest comparator, fallback, threshold, and three-way outcome tree.",
+      "required_behavior": [
+        {"id": "parent-lineage", "checks": [
+          {"kind": "lineage", "selected_branch": true, "inherited_ids": true},
+          {"kind": "parent-immutable"}
+        ]},
+        {"id": "primary-comparator-fallback", "checks": [
+          {"kind": "markers", "value": ["rom-table: focus-routes"]},
+          {"kind": "text-all", "value": ["primary", "comparator", "fallback"]}
+        ]},
+        {"id": "claim-null-test-threshold", "checks": [
+          {"kind": "markers", "value": ["rom-table: claim-null-test-threshold"]},
+          {"kind": "text-all", "value": ["PTO/STO", "FTJ", "phase-boundary"]}
+        ]},
+        {"id": "positive-negative-ambiguous-outcomes", "checks": [
+          {"kind": "markers", "value": ["rom-table: outcome-interpretation"]},
+          {"kind": "text-all", "value": ["positive", "negative", "ambiguous"]}
+        ]}
+      ]
+    },
+    {
+      "id": "critical-claims-evidence-audit",
+      "request": "Complete the evidence chain and audit credibility for decision-critical claims.",
+      "task_mode": "evidence-audit",
+      "discovery_lens": "frontier-led",
+      "domain": "decision-critical physical-dynamics claims",
+      "primary_domain_lens": "neuromorphic-system",
+      "secondary_domain_lenses": ["semiconductor-device"],
+      "capability_state": "Reported",
+      "parent": {"kind": "generated-landscape", "run_id": "forward-mother-landscape"},
+      "scenario_summary": "Audit atomic claims about controllable physical dynamics using independent supporting, limiting, and contradicting evidence; report confidence caps, allowed wording, upgrade evidence, overturn conditions, and supplement-only parent impact.",
+      "required_behavior": [
+        {"id": "claim-confidence", "checks": [
+          {"kind": "markers", "value": ["rom-table: confidence-assessment"]},
+          {"kind": "text-all", "value": ["confidence", "cap"]}
+        ]},
+        {"id": "allowed-wording", "checks": [{"kind": "markers", "value": ["rom-table: allowed-wording"]}]},
+        {"id": "upgrade-and-overturn-evidence", "checks": [
+          {"kind": "markers", "value": ["rom-table: evidence-gaps"]},
+          {"kind": "text-all", "value": ["upgrade", "overturn"]}
+        ]},
+        {"id": "supplement-only-parent-policy", "checks": [
+          {"kind": "manifest-equals", "path": "parent_mutation_policy", "value": "supplement-only"},
+          {"kind": "parent-immutable"}
+        ]}
+      ]
+    },
+    {
+      "id": "tunable-metasurface-landscape",
+      "request": "Map tunable metasurface opportunities without assuming local fabrication capability.",
+      "task_mode": "landscape",
+      "discovery_lens": "frontier-led",
+      "domain": "broad tunable wave and metasurface systems",
+      "primary_domain_lens": "wave-metasurface",
+      "secondary_domain_lenses": ["integrated-circuit"],
+      "capability_state": "Unknown",
+      "scenario_summary": "Map tunable metasurface opportunities under matched loss, bandwidth, efficiency, aperture, and control-power budgets; require a unit-cell-to-finite-array bridge and keep local fabrication and calibrated wave-measurement capability Unknown.",
+      "required_behavior": [
+        {"id": "wave-metasurface-lens", "checks": [{"kind": "manifest-equals", "path": "primary_domain_lens", "value": "wave-metasurface"}]},
+        {"id": "loss-bandwidth-efficiency", "checks": [{"kind": "text-all", "value": ["loss", "bandwidth", "efficiency"]}]},
+        {"id": "unit-cell-to-finite-array-bridge", "checks": [{"kind": "text-all", "value": ["unit-cell", "finite-array"]}]},
+        {"id": "capability-unknown", "checks": [
+          {"kind": "manifest-equals", "path": "primary_domain_lens", "value": "wave-metasurface"},
+          {"kind": "text-all", "value": ["Unknown", "fabrication", "measurement"]}
+        ]}
+      ]
+    },
+    {
+      "id": "bio-inspired-continual-learning-focus",
+      "request": "Develop a bio-inspired continual-learning hardware route.",
+      "task_mode": "focus",
+      "discovery_lens": "balanced",
+      "domain": "bio-inspired continual-learning hardware",
+      "primary_domain_lens": "neuromorphic-system",
+      "secondary_domain_lenses": ["semiconductor-device"],
+      "capability_state": "Reported",
+      "bio": true,
+      "scenario_summary": "Translate adaptive forgetting into an abstract error-gated state-update principle, algorithm, and hardware primitive; compare a same-budget non-biological baseline, ablate the principle, and bound any intrinsic gain to the tested drift regime.",
+      "required_behavior": [
+        {"id": "biological-observation-to-abstract-principle", "checks": [
+          {"kind": "markers", "value": ["rom-section: bio-inspired-translation"]},
+          {"kind": "text-all", "value": ["Biological observation", "Abstract computational principle", "Mathematical operator/state-update rule"]}
+        ]},
+        {"id": "non-biological-baseline", "checks": [{"kind": "text-all", "value": ["Non-biological strong baseline", "same-budget"]}]},
+        {"id": "principle-specific-ablation", "checks": [{"kind": "text-all", "value": ["Principle-specific ablation", "disable"]}]},
+        {"id": "intrinsic-gain-boundary", "checks": [{"kind": "text-all", "value": ["intrinsic gain", "tested drift regime"]}]}
+      ]
+    },
+    {
+      "id": "sparse-search-no-novelty",
+      "request": "Assess an exact-query sparse interface.",
+      "task_mode": "evidence-audit",
+      "discovery_lens": "gray-space-led",
+      "domain": "sparse exact-query physical interface",
+      "primary_domain_lens": "generic-physical-engineering",
+      "secondary_domain_lenses": [],
+      "capability_state": "Unknown",
+      "scenario_summary": "Treat a zero-hit exact query only as a bounded corpus observation; require positive evidence on both sides of the mismatch, adjacent terminology, and a bounded direct-neighbor miss without claiming nobody studied it, absolute novelty, or priority.",
+      "required_behavior": [
+        {"id": "two-sided-positive-evidence", "checks": [{"kind": "text-all", "value": ["positive evidence", "both sides"]}]},
+        {"id": "bounded-neighbor-miss", "checks": [
+          {"kind": "markers", "value": ["rom-section: bounded-negative-evidence"]},
+          {"kind": "text-all", "value": ["bounded", "neighbor"]}
+        ]},
+        {"id": "no-zero-hit-novelty-claim", "checks": [
+          {"kind": "text-all", "value": ["zero-hit", "bounded corpus observation"]},
+          {"kind": "text-none", "value": ["zero proves novelty", "zero proves priority", "no one has studied"]}
+        ]}
+      ]
+    },
+    {
+      "id": "landscape-child-focus-lineage",
+      "request": "Select a branch from a mother landscape and create a focus child run.",
+      "task_mode": "focus",
+      "discovery_lens": "frontier-led",
+      "domain": "selected AI-hardware branch focus child",
+      "primary_domain_lens": "semiconductor-device",
+      "secondary_domain_lenses": ["integrated-circuit"],
+      "capability_state": "Reported",
+      "parent": {"kind": "generated-landscape", "run_id": "forward-mother-landscape"},
+      "scenario_summary": "Create a focus child from BR-001 of the immutable mother landscape, record the workspace-relative parent, exact source manifest SHA-256, selected branch, and only declared inherited claim, evidence, and capability IDs.",
+      "required_behavior": [
+        {"id": "workspace-relative-parent", "checks": [{"kind": "lineage", "workspace_relative": true}]},
+        {"id": "manifest-sha-256", "checks": [{"kind": "lineage", "manifest_sha256": true}]},
+        {"id": "declared-inherited-ids", "checks": [{"kind": "lineage", "selected_branch": true, "inherited_ids": true}]},
+        {"id": "parent-immutability", "checks": [{"kind": "parent-immutable"}]}
+      ]
+    },
+    {
+      "id": "existing-run-adversarial-audit",
+      "request": "Audit the existing self-regulating-learning-hardware run and propagate material adversarial findings.",
+      "task_mode": "run-audit",
+      "discovery_lens": "balanced",
+      "domain": "adversarial audit of self-regulating-learning-hardware",
+      "primary_domain_lens": "neuromorphic-system",
+      "secondary_domain_lenses": ["semiconductor-device", "integrated-circuit"],
+      "capability_state": "Reported",
+      "audit_target": "C-L01",
+      "parent": {
+        "kind": "workspace-legacy",
+        "workspace_relpath": "legacy-runs/self-regulating-learning-hardware",
+        "run_id": "self-regulating-learning-hardware",
+        "schema_version": "1.2"
+      },
+      "scenario_summary": "Audit the immutable schema-1.2 self-regulating-learning-hardware run with C-L01 as the parent-backed route target, recompute artifact and citation integrity, issue at least one non-Keep verdict, propagate it through the decision log, and provide exact remediation and re-entry gates.",
+      "required_behavior": [
+        {"id": "artifact-and-citation-integrity", "checks": [
+          {"kind": "real-legacy-parent", "run_id": "self-regulating-learning-hardware", "schema_version": "1.2"},
+          {"kind": "markers", "value": ["rom-table: artifact-inventory", "rom-table: citation-closure"]}
+        ]},
+        {"id": "non-keep-verdict", "checks": [
+          {"kind": "non-keep-decision"},
+          {"kind": "text-all", "value": ["C-L01"]}
+        ]},
+        {"id": "decision-log-propagation", "checks": [
+          {"kind": "markers", "value": ["rom-table: route-verdicts", "rom-table: decisions"]},
+          {"kind": "parent-immutable"}
+        ]},
+        {"id": "exact-remediation", "checks": [{"kind": "markers", "value": ["rom-table: remediation-plan"]}]}
+      ]
+    }
+  ]
+}

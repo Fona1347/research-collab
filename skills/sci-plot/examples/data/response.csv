@@ -1,0 +1,9 @@
+time,response,condition
+0,0.12,Control
+1,0.18,Control
+2,0.25,Control
+3,0.31,Control
+0,0.11,Treatment
+1,0.29,Treatment
+2,0.48,Treatment
+3,0.63,Treatment

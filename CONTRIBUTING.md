@@ -1,20 +1,16 @@
 # Contributing
 
-Small, focused improvements are welcome.
+Edit the canonical skills/<skill-name> source, retain its behavioral contract and
+external authorization boundaries, and describe the user-visible effect.
 
-## Scope
+Run scripts/skills.py validate and the affected scripts/validate.py component group.
+Use synthetic/publicly distributable fixtures. Include installation or packaging
+tests when those interfaces change. Preserve versions and source provenance.
 
-- Keep `paper-deep-reading` focused on one-paper evidence-grounded reading.
-- Keep `paper-presentation` focused on consuming approved reading artifacts without rerunning retrieval.
-- Preserve explicit permission, provenance, and Zotero read-only boundaries.
-- Avoid new runtime dependencies unless the maintenance benefit is clear.
+Keep papers, real reports, private profiles, API keys, browser state, environments,
+and host-specific runtime settings out of public commits. Do not update installed
+copies first, add automatic dependency installation, or trigger research while
+testing maintenance changes.
 
-## Before Submitting
-
-1. Keep changes limited to the relevant Skill or repository documentation.
-2. Validate each changed Skill with the Agent Skills validator available in your environment.
-3. Check Markdown fences and relative links.
-4. Confirm that no PDF, report, local path, credential, cache, or Zotero data is included.
-5. Explain behavior and compatibility changes in the pull request.
-
-Do not use private or copyrighted paper content as a public test fixture.
+Collection changes are reviewed by pull request. A Skill's version, the collection
+release and its evidence schema are separate concepts.

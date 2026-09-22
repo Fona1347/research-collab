@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Opportunity Mapper — Quick"
+  short_description: "Run the original streamlined mapper workflow quickly"
+  default_prompt: "Use $research-opportunity-mapper-quick to create a quick research-opportunity map with a reader-ready report and auditable supporting artifacts."

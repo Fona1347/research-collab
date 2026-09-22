@@ -1,0 +1,23 @@
+{
+  "snapshot_at": "2026-07-31T13:16:49+08:00",
+  "scope": "pre-upgrade project source and installed skill",
+  "normalized_noncache_tree": {
+    "file_count": 23,
+    "byte_count": 118251,
+    "sha256": "ccb2a5d5896adaae5c5689e0773d1b9459655608f45c00b619a2161330014e72",
+    "project_source_equals_installed_copy": true
+  },
+  "project_source_with_generated_cache": {
+    "file_count": 25,
+    "byte_count": 153563,
+    "sha256": "bfec161837f28a0b4c3aa557261e813b35dfd027e958d15d457f09dd226912c0"
+  },
+  "generated_cache_excluded_from_sync": [
+    "scripts/__pycache__/init_run.cpython-314.pyc",
+    "scripts/__pycache__/validate_run.cpython-314.pyc"
+  ],
+  "known_document_drift": [
+    "references/validation-report.md described ai-hardware-session-case as schema 1.2/81 in one paragraph, but the authoritative manifest is schema 1.0 and strict validation is 53 passed checks.",
+    "The same report later recorded the correct 53-check result and used an incomplete reader-report path."
+  ]
+}

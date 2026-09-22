@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sci Plot"
+  short_description: "Create publication-ready scientific plots"
+  default_prompt: "Use $sci-plot to turn tabular research data into a safe, publication-ready figure."

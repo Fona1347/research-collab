@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Rewrite the English and Chinese READMEs with a minimal local-reading quickstart and task-specific configuration guidance.
+- Use a portable legacy-fixture layout in public Mapper tests while retaining historical hashes and validation assertions; keep original notebook locations private.
+- Consolidate nine maintained research Skills under a single editable source tree.
+- Add portable packaging, reviewed installation adoption, drift protection and rollback.
+- Preserve existing Skill identifiers, evidence schemas and independent version history.
+- Keep private research context and external runtimes outside public distributions.
+- Preserve the newer Sciverse selection boundary from the active installation.
 - Formalized `semantic-footnote-v1` for `paper-deep-reading`: normalized full first-author names, standard journal abbreviations, four-digit years, superscript-only body markers, complete end-of-report definitions, explicit `回到正文` backlinks, Source Registry key fields, and mechanical G5 validation.
 - Added a backward-compatible Research Judgment Contract with triggered canonical `N-*` and `D-*` registries for originality, research generativity, perspective shifts, and function-first analysis of design necessity, sufficiency, baselines, counterfactual alternatives, discriminating controls, and matched comparisons.
 

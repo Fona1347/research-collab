@@ -1,0 +1,13 @@
+{
+  "project_name": "sciverse_skill",
+  "version": "0.1.1",
+  "skill_name": "sciverse-research",
+  "source_directory": "skills/sciverse-research",
+  "publish_target": ".agents/skills/sciverse-research",
+  "contracts": [
+    "contracts/sciverse-research/evidence-record.schema.json"
+  ],
+  "tests": [
+    "tests/sciverse-research/routing-cases.json"
+  ]
+}

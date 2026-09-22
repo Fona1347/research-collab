@@ -1,0 +1,4 @@
+{
+  "mineru_python": "<absolute-python-executable>",
+  "mineru_wrapper": "<absolute-mineru-wrapper-script>"
+}
