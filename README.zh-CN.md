@@ -4,6 +4,18 @@
 
 [English](README.md) · [维护与安装](docs/maintenance.md) · [来源与依赖](docs/sources.md)
 
+## 让你的 agent 帮你配置
+
+在你准备开展研究的项目中，把这段提示词发给具备终端与文件操作能力的 agent：
+
+```text
+请阅读 https://github.com/Fona1347/research-collab 的 README 和维护指南，
+检查当前 agent、操作系统、工作区及 Skills 支持方式，推荐并安装适用的科研 Skills，
+保留已有配置并完成可用的本地配置与安装验证；只对影响结果的缺失信息、
+依赖安装或外部服务接入向我确认，凭据通过本地密钥存储或环境变量配置，
+最后列出已就绪和待配置能力，并给我一个最简调用示例。
+```
+
 ## 最简上手
 
 需要 Git、Python 3.11+，以及能加载本地 Skill 的宿主。以下以 Codex 和 PowerShell 为例；macOS/Linux 可使用相同的 Python 命令，将目标参数换成自己的绝对路径。
