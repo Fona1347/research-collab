@@ -4,7 +4,7 @@
   "runs": [
     {
       "name": "ai-hardware-session-case",
-      "workspace_relpath": "Projects/research_map/validation-runs/ai-hardware-session-case",
+      "workspace_relpath": "legacy-runs/ai-hardware-session-case",
       "schema_version": "1.0",
       "manifest_sha256": "a1255ab41a79f5247a855247ecb8a5270e6daad8e25aafbb654f5d7088893505",
       "tree_sha256": "f69c62ea723f181038b6e7e950470e46252bb39936df063384652f68b663afb3",
@@ -14,7 +14,7 @@
     },
     {
       "name": "self-regulating-learning-hardware",
-      "workspace_relpath": "Doc/Typora/note_2025_S2SPR/周工作/W22/sciver mapper/self-regulating-learning-hardware",
+      "workspace_relpath": "legacy-runs/self-regulating-learning-hardware",
       "schema_version": "1.2",
       "manifest_sha256": "0d56c21c5f4c6d8c0c42e84323d2bbc982170ab8ab929d3c21d0a2d479f87309",
       "tree_sha256": "d22c0078e2f0a453f1e0388ccb3bdda16885422a48a11752a17c07f2bb62dbc9",

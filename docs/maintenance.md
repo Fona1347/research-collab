@@ -74,8 +74,11 @@ install packages, register servers, alter user-level junctions or update plugins
 
 By default the Mapper suite creates synthetic legacy inputs. It does not discover
 history by walking to an ancestor AGENTS.md. Set MAPPER_LEGACY_WORKSPACE to an
-explicit local material root to exercise the original historical assertions and
-hash checks. History-specific cases are skipped when those inputs are not supplied;
+explicit local material root containing legacy-runs/<run-id>/ to exercise the
+original historical assertions and hash checks. The two fixture IDs are listed in
+the Mapper baseline. Prepare unchanged local copies under that layout; keep their
+original locations and the copies outside public commits. History-specific cases
+are skipped when those inputs are not supplied;
 other compatibility checks use the synthetic fixtures. Keep --output-dir inside
 the explicit workspace when exercising local history, in a separate test directory.
 Logs distinguish synthetic coverage from actual historical verification.

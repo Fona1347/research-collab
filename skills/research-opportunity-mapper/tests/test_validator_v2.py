@@ -1530,9 +1530,7 @@ class ValidatorV2Tests(unittest.TestCase):
 
         legacy_parent = (
             self.workspace
-            / "Projects"
-            / "research_map"
-            / "validation-runs"
+            / "legacy-runs"
             / "ai-hardware-session-case"
         )
         legacy_route = make_run(
@@ -2093,7 +2091,7 @@ class ValidatorV2Tests(unittest.TestCase):
     def test_run_audit_projects_legal_schema_11_without_primary_artifact(self) -> None:
         legacy_12 = (
             self.workspace
-            / "Doc/Typora/note_2025_S2SPR/周工作/W22/sciver mapper/"
+            / "legacy-runs/"
             "self-regulating-learning-hardware"
         )
         parent = self.work / "legal-schema-1.1-parent"

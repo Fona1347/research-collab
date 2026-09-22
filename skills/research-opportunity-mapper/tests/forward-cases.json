@@ -175,7 +175,7 @@
       "audit_target": "C-L01",
       "parent": {
         "kind": "workspace-legacy",
-        "workspace_relpath": "Doc/Typora/note_2025_S2SPR/周工作/W22/sciver mapper/self-regulating-learning-hardware",
+        "workspace_relpath": "legacy-runs/self-regulating-learning-hardware",
         "run_id": "self-regulating-learning-hardware",
         "schema_version": "1.2"
       },

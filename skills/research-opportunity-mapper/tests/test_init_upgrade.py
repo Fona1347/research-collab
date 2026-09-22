@@ -425,7 +425,7 @@ class InitUpgradeTests(unittest.TestCase):
     def test_schema_11_is_read_only_compatible_and_copy_upgradeable(self) -> None:
         legacy_12 = (
             self.workspace
-            / "Doc/Typora/note_2025_S2SPR/周工作/W22/sciver mapper/"
+            / "legacy-runs/"
             "self-regulating-learning-hardware"
         )
         source = self.work / "synthetic-legacy-1.1"
@@ -467,8 +467,8 @@ class InitUpgradeTests(unittest.TestCase):
 
     def test_upgrade_legacy_10_and_12_is_copy_only_and_marks_review_required(self) -> None:
         sources = [
-            self.workspace / "Projects/research_map/validation-runs/ai-hardware-session-case",
-            self.workspace / "Doc/Typora/note_2025_S2SPR/周工作/W22/sciver mapper/self-regulating-learning-hardware",
+            self.workspace / "legacy-runs/ai-hardware-session-case",
+            self.workspace / "legacy-runs/self-regulating-learning-hardware",
         ]
         for index, source in enumerate(sources):
             with self.subTest(schema=("1.0", "1.2")[index]):
@@ -553,7 +553,7 @@ class InitUpgradeTests(unittest.TestCase):
         self.assertIn("contain", help_text)
 
     def test_upgrade_persists_custom_domain_lens_without_mutating_legacy(self) -> None:
-        source = self.workspace / "Projects/research_map/validation-runs/ai-hardware-session-case"
+        source = self.workspace / "legacy-runs/ai-hardware-session-case"
         before = tree_snapshot(source)
         target = self.work / "upgrade-custom-domain"
         completed = self.run_script(

@@ -2,7 +2,7 @@
 
 ## 0.1.1 - 2026-08-25
 
-- Recorded the workspace Stock archive move from `Doc/Stock/sciverse/` to `Stock/sciverse/`.
+- Updated archive-location guidance; machine-specific archive records remain local.
 - Updated the Skill's published-relative reference routes and the project architecture documentation.
 
 ## 0.1.0 - 2026-07-30

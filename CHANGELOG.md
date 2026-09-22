@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Rewrite the English and Chinese READMEs with a minimal local-reading quickstart and task-specific configuration guidance.
+- Use a portable legacy-fixture layout in public Mapper tests while retaining historical hashes and validation assertions; keep original notebook locations private.
 - Consolidate nine maintained research Skills under a single editable source tree.
 - Add portable packaging, reviewed installation adoption, drift protection and rollback.
 - Preserve existing Skill identifiers, evidence schemas and independent version history.

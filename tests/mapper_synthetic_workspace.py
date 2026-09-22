@@ -12,8 +12,8 @@ def seed(workspace: Path, mapper: Path) -> None:
     sys.path[:0] = [str(mapper / "scripts"), str(mapper / "tests")]
     from fixture_factory import make_run
     cases = [
-        ("Projects/research_map/validation-runs", "ai-hardware-session-case", "1.0"),
-        ("Doc/Typora/note_2025_S2SPR/周工作/W22/sciver mapper", "self-regulating-learning-hardware", "1.2"),
+        ("legacy-runs", "ai-hardware-session-case", "1.0"),
+        ("legacy-runs", "self-regulating-learning-hardware", "1.2"),
     ]
     for parent, name, version in cases:
         run = make_run(workspace / parent, run_id=name, enhanced_contracts=False)
