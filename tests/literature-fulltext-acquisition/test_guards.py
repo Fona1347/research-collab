@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -54,7 +55,11 @@ class PortableGuardTests(unittest.TestCase):
             with self.subTest(args=args):
                 result=self.run_wrapper(*args)
                 self.assertNotEqual(result.returncode,0)
-                self.assertIn(message,result.stdout+result.stderr)
+                # PowerShell's concise view may color and wrap the same exception
+                # over decorated lines. Compare its text, retaining all guard checks.
+                diagnostic=re.sub(r"\x1b\[[0-?]*[ -/]*[@-~]","",result.stdout+result.stderr)
+                diagnostic=re.sub(r"(?m)^\s*(?:\d+\s*)?\|\s?","",diagnostic)
+                self.assertIn(message," ".join(diagnostic.split()))
                 self.assertNotIn("not a valid",result.stderr)
         self.assertFalse(Path(out).exists())
         self.assertFalse((self.protected/"downloads").exists())

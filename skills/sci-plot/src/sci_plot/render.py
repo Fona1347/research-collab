@@ -11,10 +11,10 @@ from pathlib import Path
 from typing import Any
 
 from .backends import Backend, resolve_backend
-from .config import load_effective_config
+from .config import load_effective_config, panel_config
 from .data import load_plot_data
 from .errors import ConfigurationError, DataError, DependencyError
-from .spec import iter_plot_specs
+from .spec import iter_plot_specs, validate_spec
 
 DEFAULT_PALETTE = [
     "#0072B2",
@@ -175,6 +175,15 @@ def _style_context(
     _validate_matplotlib_settings(matplotlib, rc, palette)
     rc["axes.prop_cycle"] = matplotlib.cycler(color=palette)
     _validate_requested_font(config)
+    if "font.family" not in render.get("rcparams", {}):
+        # Store installed fallback families on artists. A later draw/export
+        # must not resolve a panel font through global rcParams or warn for
+        # optional fallback families absent on this machine.
+        from matplotlib import font_manager
+        installed = {font.name.casefold() for font in font_manager.fontManager.ttflist}
+        families = [name for name in rc["font.sans-serif"] if name.casefold() in installed]
+        if families:
+            rc["font.family"] = families
 
     if render.get("scienceplots"):
         try:
@@ -332,11 +341,7 @@ def _plot_bar(ax: Any, frame: Any, mapping: dict[str, str], labels: dict[str, An
     x_column, y_column = mapping["x"], mapping["y"]
     group = mapping.get("group")
     if group:
-        if frame.duplicated([x_column, group]).any():
-            raise DataError("Bar data contains duplicate x/group combinations; aggregate explicitly")
         pivot = frame.pivot(index=x_column, columns=group, values=y_column)
-        if pivot.isna().any().any():
-            raise DataError("Grouped bar data has incomplete x/group combinations")
         positions = np.arange(len(pivot.index), dtype=float)
         width = 0.8 / max(len(pivot.columns), 1)
         for index, column in enumerate(pivot.columns):
@@ -350,8 +355,6 @@ def _plot_bar(ax: Any, frame: Any, mapping: dict[str, str], labels: dict[str, An
             )
         ax.set_xticks(positions, [str(value) for value in pivot.index])
     else:
-        if frame.duplicated([x_column]).any():
-            raise DataError("Bar data contains duplicate x values; aggregate explicitly")
         ax.bar(
             [str(value) for value in frame[x_column]],
             frame[y_column],
@@ -362,11 +365,7 @@ def _plot_bar(ax: Any, frame: Any, mapping: dict[str, str], labels: dict[str, An
 
 def _plot_heatmap(ax: Any, frame: Any, mapping: dict[str, str], labels: dict[str, Any], figure: Any) -> None:
     x_column, y_column, value_column = mapping["x"], mapping["y"], mapping["value"]
-    if frame.duplicated([x_column, y_column]).any():
-        raise DataError("Heatmap data contains duplicate x/y cells; aggregate explicitly")
     pivot = frame.pivot(index=y_column, columns=x_column, values=value_column)
-    if pivot.isna().any().any():
-        raise DataError("Heatmap data does not form a complete rectangular matrix")
     image = ax.imshow(pivot.to_numpy(), aspect="auto", cmap="viridis")
     ax.set_xticks(range(len(pivot.columns)), [str(value) for value in pivot.columns])
     ax.set_yticks(range(len(pivot.index)), [str(value) for value in pivot.index])
@@ -400,6 +399,7 @@ def _plot_on_axis(
 
 
 def render_figure(spec: dict[str, Any], spec_path: Path, config: dict[str, Any]) -> RenderedFigure:
+    spec = validate_spec(spec)
     matplotlib, plt, np = _matplotlib()
     backend = resolve_backend(config["render"]["backend"])
     warnings = [backend.warning] if backend.warning else []
@@ -413,35 +413,30 @@ def render_figure(spec: dict[str, Any], spec_path: Path, config: dict[str, Any])
         plots = list(iter_plot_specs(spec))
         if spec["kind"] == "multi_panel":
             layout = spec.get("layout", {})
-            count = len(plots)
-            cols = int(layout.get("cols", min(2, count)))
-            rows = int(layout.get("rows", math.ceil(count / cols)))
-            if rows * cols < count:
-                raise DataError("layout.rows * layout.cols is smaller than the panel count")
-            figure, axes = plt.subplots(
-                rows,
-                cols,
-                figsize=(width, height),
-                squeeze=False,
-                constrained_layout=True,
-            )
-            flat_axes = list(axes.flat)
+            cols = layout.get("cols", min(2, len(plots)))
+            rows = layout.get("rows", math.ceil(len(plots) / cols))
         else:
-            figure, axis = plt.subplots(figsize=(width, height), constrained_layout=True)
-            flat_axes = [axis]
-
-        try:
-            for index, plot in enumerate(plots):
-                frame, path, data_format = load_plot_data(plot, spec_path)
-                if path not in input_files:
-                    input_files.append(path)
-                    formats.append(data_format)
-                _plot_on_axis(flat_axes[index], figure, plot, frame, palette, np)
-            for axis in flat_axes[len(plots) :]:
-                axis.set_visible(False)
-        except Exception:
-            plt.close(figure)
-            raise
+            rows = cols = 1
+        figure = plt.figure(figsize=(width, height), constrained_layout=True)
+        grid = figure.add_gridspec(rows, cols)
+    try:
+        for index, plot in enumerate(plots):
+            frame, path, data_format = load_plot_data(plot, spec_path)
+            if path not in input_files:
+                input_files.append(path)
+                formats.append(data_format)
+            local_style = spec["panels"][index].get("style", {}) if spec["kind"] == "multi_panel" else {}
+            local_config = panel_config(config, local_style)
+            # Axes must be created inside the panel context: changing rcParams
+            # after creation would silently miss spines, grid and label fonts.
+            with _style_context(matplotlib, plt, local_config) as (_panel_rc, panel_palette):
+                axis = figure.add_subplot(grid[index // cols, index % cols])
+                _plot_on_axis(axis, figure, plot, frame, panel_palette, np)
+        for index in range(len(plots), rows * cols):
+            figure.add_subplot(grid[index // cols, index % cols]).set_visible(False)
+    except Exception:
+        plt.close(figure)
+        raise
 
     return RenderedFigure(
         figure=figure,

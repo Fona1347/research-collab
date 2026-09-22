@@ -2,7 +2,7 @@
 
 **Nine research Skills** for literature discovery, paper reading, research-route decisions, scientific plotting and presentation planning. Use each independently or combine them around a task, with traceable sources, reasoning and outputs.
 
-[简体中文](README.zh-CN.md) · [Maintenance and installation](docs/maintenance.md) · [Sources and dependencies](docs/sources.md)
+[简体中文](README.zh-CN.md) · [Maintenance and installation](docs/maintenance.md) · [Sources and dependencies](docs/sources.md) · [Compatibility and verification scope](docs/compatibility.md)
 
 ## Let your agent set it up
 
@@ -74,6 +74,8 @@ Codex loads project Skills from `.agents/skills`. In the CLI/IDE, use `$skill-na
 | Orchestrate authorized full-text acquisition | [literature-fulltext-acquisition](skills/literature-fulltext-acquisition/SKILL.md) | Acquisition records and explicit failure states; **experimental** |
 
 Ordinary discovery does not automatically start Mapper. For a formal route decision, the full Mapper recommends configuration from your decision needs; include any chosen interface, available resources and excluded directions. Presentation planning consumes existing reading artifacts; producing a final PPTX requires a separately selected presentation tool.
+
+`精读` and `standard` retain complete reading and external-validation goals. Remote PDF transmission, Zotero notes and broader library access require a matching grant. Reuse existing explicit authorization; resolve only missing or expanded scope. Unknown sharing status is not public.
 
 ## Recommended setup
 
@@ -159,8 +161,10 @@ For updates, pull the desired revision into a clean maintenance clone, preview c
 
 `scripts/validate.py` runs component regressions; use `--component` to select scope and `--plot-python` for an existing plotting environment. Actual Mapper history requires an explicit `MAPPER_LEGACY_WORKSPACE`; otherwise tests use public synthetic material and report history-specific skips. The tests do not conduct formal research or real paper downloads.
 
+New sources use each Skill's explicit `distribution.json` inventory; review added files before listing them. Restore now requires the original `--skills-root` to verify target ownership. CI and local regressions check offline engineering behavior; small [synthetic semantic cases](docs/evaluation/README.md) separately exercise evidence and authorization judgment.
+
 ## Status and license
 
-The collection consolidation is **Unreleased**. The previous Paper Collab package release is V1.2.1; Skill and evidence-schema versions remain independent. Full-text acquisition remains experimental. Offline checks do not establish live-service or real-download success.
+The first Research Collab collection release is **[v2.0.0](https://github.com/Fona1347/research-collab/releases/tag/v2.0.0)**, following the Paper Collab V1.2.1 lineage. Skill and evidence-schema versions remain independent. Full-text acquisition remains experimental. Offline checks do not establish live-service or real-download success.
 
 [MIT](LICENSE), with component copyright notices and [third-party attribution](docs/sources.md) retained. Papers, real research reports, personal profiles, credentials and external runtimes are outside public distributions.

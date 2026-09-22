@@ -1,0 +1,17 @@
+{
+  "format": 1,
+  "files": [
+    "LICENSE",
+    "SKILL.md",
+    "agents/openai.yaml",
+    "references/evidence-kernel.md",
+    "references/external-dependencies.md",
+    "references/report-contract.md",
+    "references/research-judgment.md",
+    "scripts/check_canonical.py",
+    "scripts/check_dependencies.py",
+    "scripts/check_report_footnotes.py",
+    "scripts/test_canonical_and_dependencies.py",
+    "scripts/test_canonical_io.py"
+  ]
+}

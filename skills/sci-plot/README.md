@@ -61,7 +61,7 @@ python -m sci_plot inspect-data examples/data/response.csv
 }
 ```
 
-数据和输出的相对路径都以 figure spec 所在目录为基准。先验证文件、列映射和配置：
+figure spec 内的数据路径和 `export.path` 相对路径都以该 spec 所在目录为基准；命令行 `--output` 相对路径以当前工作目录为基准，跨目录调用时宜给绝对输出路径。`--project-root` 仍限定允许写入的范围。先验证文件、列映射和配置：
 
 ```powershell
 python -m sci_plot validate examples/figure.spec.json --project-root .
@@ -109,6 +109,18 @@ python -m sci_plot render examples/figure.spec.json --project-root . `
 ```powershell
 python -m sci_plot list-templates
 ```
+
+## 多子图样式
+
+每个 panels 条目可以用 style 覆盖 theme、style、palette、font_size、chinese_font、
+grid、scienceplots 和适用于子图的 rcparams。子图会在自己的样式上下文中创建，
+因此配色、网格、边框和字体能够一起生效。显式 CLI 配置仍具有最高优先级。
+backend、width_mm、height_mm、dpi、formats 以及 figure/savefig rcparams 属于整张图，
+放在顶层配置；放入子图时会明确报错。palette 用于折线、散点、柱形和误差图；
+热图使用 viridis 数值色图，不能通过子图的 palette 改变其含义。
+
+validate 与 render 共用数据几何检查：重复的柱形类别、缺少的分组组合、
+重复/不完整热图网格和过小的子图布局都会在绘图前报告，不会自动聚合或填补。
 
 ## 显式误差图
 

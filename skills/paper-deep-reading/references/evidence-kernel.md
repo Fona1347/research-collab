@@ -300,7 +300,7 @@ Write a quote-free, claim-specific Evidence summary. Put incomparable conditions
 
 Delivery intent alone grants no external capability. A request for `view-report.md`, a report, or a summary does not by itself authorize networking, Zotero, downloads, uploads, or parsing.
 
-Exception: an unqualified user request containing `精读` invokes the project-defined standard-validation preset and is treated as explicit permission for the capabilities covered by that preset.
+An unqualified `精读` selects the standard quality and external-validation scope. It does not itself authorize remote file transmission or wider Zotero/library access. Apply the bounded preset below.
 
 Resolve every capability in this precedence order:
 
@@ -313,12 +313,12 @@ Record the result in `paper-package.md`:
 | Capability | Decision | Basis | Scope, limit, or exclusion |
 | --- | --- | --- | --- |
 | Main-PDF staging | `allowed`, `denied`, or `ask-before-use` | explicit input, user, preset, or default | One identified main source and approved run directory |
-| Main-paper upload/remote parsing | `allowed`, `denied`, or `ask-before-use` | user, preset, or default | Service and file scope |
+| Main-paper upload/remote parsing | `allowed`, `denied`, or `ask-before-use` | explicit user grant/denial or unresolved | Named service and selected file scope; no grant from standard alone |
 | Public network search | same | same | Query/topic scope |
-| Zotero read-only access | same | same | Trigger and library scope |
+| Zotero read-only access | same | selected main input or explicit grant | Selected item/content/library scope; no blanket library grant |
 | OA download | same | same | Allowed source classes |
 | Auxiliary PDF materialization | same | same | Count limit and destination |
-| Auxiliary PDF parsing/upload | same | same | Count limit and service |
+| Auxiliary PDF parsing/upload | same | local route or explicit remote grant | Count limit, service and selected files; budget is not permission |
 | Supplementary material access | same | same | File scope |
 | Restricted/paid/login resources | same | same | Resource scope |
 | Zotero or library writes | same | same | Normally excluded; requires separate permission |
@@ -333,20 +333,13 @@ Apply `validation=standard` when either:
 1. the user explicitly requests or permits standard validation; or
 2. the user gives the unqualified command `精读`.
 
-The standard preset is a permission ceiling, not a mandatory action list. It permits:
+The standard preset permits staging the explicitly identified main PDF, public scholarly search, metadata/OA lookup, and downloading/materializing at most 10 distinct OA auxiliary PDFs in the approved run directory. It is a bounded ceiling, not a mandatory action list.
 
-- staging the explicitly identified main PDF in the approved run directory;
-- main-paper MinerU upload and remote parsing;
-- public scholarly search;
-- metadata and OA lookup;
-- OA auxiliary-PDF download;
-- materialization of at most 10 distinct auxiliary PDFs;
-- remote parsing of at most 10 distinct auxiliary PDFs;
-- Zotero read-only lookup when useful.
+Remote main-paper or auxiliary-PDF parsing/upload is `allowed` only when an explicit grant already covers the service and selected files. Otherwise record `ask-before-use` and ask once if that route is needed. A generic standard-validation approval is not an upload grant unless its approved scope explicitly includes remote file transmission. Reuse existing grants; do not repeat confirmation for the same service, material and purpose. A parser-submission limit of 10 never grants permission.
 
-The standard preset always denies Zotero or library writes. Read-only Zotero access includes searching items, collections, tags, indexed full text, notes, annotations, and existing attachment metadata/content when the available Zotero capability supports them. Copying one explicitly selected main attachment to the approved run directory is governed by `main_pdf_staging`; it never includes creating, updating, tagging, importing, deleting, moving, renaming, or uploading any Zotero object.
+Zotero access is limited to the explicitly supplied main-item route above or an already authorized item/content/library scope. Standard alone does not permit searching the library, reading notes or annotations, or accessing unrelated attachments. Zotero/library writes, SI, paid/login-only/private/confidential resources and unrelated local copying remain excluded unless separately authorized. Explicit denials override the preset.
 
-Explicit user denial overrides the preset. The preset excludes paid/login-only resources, supplementary material, restricted resources, and sensitive-file copying beyond the selected main paper unless separately authorized.
+Keep `task=full-report` / `validation=standard` and all applicable G0–G5 quality requirements when using an authorized local parser. If evidence checks cannot be completed, record the missing check and its effect, and resolve only the needed scope or route; do not silently downgrade the requested workflow or manufacture a pass.
 
 Interpret other scopes as follows:
 

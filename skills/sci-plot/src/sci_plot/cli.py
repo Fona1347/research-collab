@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from . import __version__
-from .config import ALLOWED_STYLES, ALLOWED_THEMES, load_effective_config
+from .config import ALLOWED_STYLES, ALLOWED_THEMES, load_effective_config, panel_config
 from .data import SUPPORTED_FORMATS, inspect_table, load_plot_data
 from .errors import DataError, SciPlotError, SourceError
 from .export import choose_output_paths, export_figure
@@ -125,6 +125,9 @@ def _cmd_validate(args: argparse.Namespace) -> int:
         project_root=project_root,
         figure_spec=spec,
     )
+    if spec["kind"] == "multi_panel":
+        for panel in spec["panels"]:
+            panel_config(config, panel.get("style", {}))
     inputs: list[str] = []
     if not args.schema_only:
         for plot in iter_plot_specs(spec):

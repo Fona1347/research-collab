@@ -18,7 +18,8 @@ from pathlib import Path
 from typing import Any, Callable, Mapping
 from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
-from urllib.request import Request, urlopen
+from urllib.request import Request
+from .public_http import public_urlopen as urlopen
 
 
 RETRYABLE_STATUS = {429, 500, 502, 503, 504}

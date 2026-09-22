@@ -158,6 +158,20 @@ def validate_plot_data(frame: Any, plot: dict[str, Any]) -> None:
                 raise DataError("Errorbar bounds must satisfy ymin <= y <= ymax")
     if len(frame.index) < 1:
         raise DataError("Plot data must contain at least one row")
+    if kind == "bar":
+        group = mapping.get("group")
+        if group:
+            if frame.duplicated([x_column, group]).any():
+                raise DataError("Bar data contains duplicate x/group combinations; aggregate explicitly")
+            if frame.pivot(index=x_column, columns=group, values=mapping["y"]).isna().any().any():
+                raise DataError("Grouped bar data has incomplete x/group combinations")
+        elif frame.duplicated([x_column]).any():
+            raise DataError("Bar data contains duplicate x values; aggregate explicitly")
+    if kind == "heatmap":
+        if frame.duplicated([x_column, mapping["y"]]).any():
+            raise DataError("Heatmap data contains duplicate x/y cells; aggregate explicitly")
+        if frame.pivot(index=mapping["y"], columns=x_column, values=mapping["value"]).isna().any().any():
+            raise DataError("Heatmap data does not form a complete rectangular matrix")
 
 
 def load_plot_data(plot: dict[str, Any], spec_path: Path):

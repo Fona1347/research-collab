@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 from importlib import metadata
-import ipaddress
 import json
 import os
 import sys
@@ -19,6 +18,7 @@ from urllib.robotparser import RobotFileParser
 from xml.etree import ElementTree
 
 from .http_client import HttpClient, HttpRequestError
+from .public_http import validate_public_url
 from .models import EvidenceChunk, FullTextLocation, PaperRecord, Provenance, utc_now
 from .providers import unique_locations
 
@@ -297,6 +297,15 @@ class MinerUParser:
                 "MinerU output is incomplete; manifest.json and full.md are required."
             )
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        source_record = manifest.get("source") if isinstance(manifest, dict) else None
+        recorded_hash = source_record.get("input_sha256") if isinstance(source_record, dict) else None
+        current_hash = _file_hash(source)
+        if (not isinstance(recorded_hash, str) or not re.fullmatch(r"[0-9a-fA-F]{64}", recorded_hash)
+                or recorded_hash.casefold() != current_hash):
+            raise RuntimeError(
+                "MinerU input hash is missing or differs from the current source. "
+                "Preserve this output and use a new output directory for an authorized reparse."
+            )
         markdown = markdown_path.read_text(encoding="utf-8", errors="replace")
         content_items: list[dict[str, Any]] = []
         warnings = [str(value) for value in manifest.get("notes") or []]
@@ -357,10 +366,10 @@ class MinerUParser:
                 if value:
                     references.append(value)
 
-        source_hash = str(
-            (manifest.get("source") or {}).get("input_sha256")
-            or _file_hash(source)
-        )
+        # Detect replacement during output normalization as well as stale cache.
+        if _file_hash(source) != current_hash:
+            raise RuntimeError("MinerU input hash changed while reading parser output.")
+        source_hash = current_hash
         mineru = manifest.get("mineru") or {}
         local_paths = {
             "manifest": str(manifest_path),
@@ -393,6 +402,7 @@ class MinerUParser:
                 {
                     "parser": self.name,
                     "status": "reused" if reused else "ok",
+                    "input_hash_verified": True,
                     "remote": True,
                     "model": mineru.get("model") or self.model,
                     "manifest_schema": manifest.get("schema_version"),
@@ -1238,18 +1248,7 @@ def extract_pdf(
 
 
 def _safe_remote_url(url: str) -> None:
-    parts = urlsplit(url)
-    if parts.scheme not in {"http", "https"} or not parts.hostname:
-        raise ValueError("Only absolute HTTP(S) URLs are supported.")
-    hostname = parts.hostname.casefold()
-    if hostname in {"localhost", "localhost.localdomain"}:
-        raise ValueError("Localhost URLs are disabled.")
-    try:
-        address = ipaddress.ip_address(hostname)
-    except ValueError:
-        return
-    if address.is_private or address.is_loopback or address.is_link_local:
-        raise ValueError("Private and link-local IP URLs are disabled.")
+    validate_public_url(url)
 
 
 class WebExtractor:

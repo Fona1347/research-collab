@@ -315,7 +315,7 @@ class ExportIntegrationTests(unittest.TestCase):
                 ]
             )
             self.assertEqual((code, error), (0, ""))
-            self.assertEqual(payload["outputs"], [str(external)])
+            self.assertEqual(payload["outputs"], [str(external.resolve())])
             self.assertTrue(external.is_file())
 
 

@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+No changes yet.
+
+## v2.0.0 - 2026-09-23
+
+First Research Collab collection release, following the Paper Collab V1.2.1 lineage.
+Includes nine independently versioned Skills; evidence schemas remain unchanged.
+
+- Bind new distributions to explicit per-Skill inventories and require an explicit original restore target with receipt ownership checks; retain legitimate old backups/archive reads.
+- Reject stale or unverifiable MinerU input caches; check public HTTP destinations and DNS before connections and every redirect, including robots, and strip cross-origin credentials.
+- Apply Sci-Plot panel styles at axes creation, retain fonts at export, and share bar/heatmap data guards between validation and rendering (0.2.1).
+- Capture Quick's run date once and add an optional deterministic --date without changing schema 1.2.
+- Separate standard reading quality from remote-upload/wider-library authorization, reuse existing grants, and make source-content trust and outgoing-material boundaries explicit across all nine Skills.
+- Add read-only Presentation handoff checks and Quick behavior coverage; enable same-repository canonical integration by default and add offline CI with actionable missing-PowerShell diagnostics.
+- Document capability/compatibility limits and add bounded synthetic scientific-semantic evaluation cases, separate from structural tests.
+
 - Rewrite the English and Chinese READMEs with a minimal local-reading quickstart and task-specific configuration guidance.
 - Use a portable legacy-fixture layout in public Mapper tests while retaining historical hashes and validation assertions; keep original notebook locations private.
 - Consolidate nine maintained research Skills under a single editable source tree.

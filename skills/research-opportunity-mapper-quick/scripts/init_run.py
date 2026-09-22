@@ -43,6 +43,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--language", default="zh-CN", help="Working language metadata (default: zh-CN)."
     )
+    parser.add_argument("--date", dest="run_date", type=date.fromisoformat,
+                        help="Run date in YYYY-MM-DD; defaults to the local date read once.")
     return parser.parse_args()
 
 
@@ -52,11 +54,12 @@ def main() -> int:
         print(f"Template directory not found: {TEMPLATE_DIR}", file=sys.stderr)
         return 2
 
-    run_name = slugify(args.run_name or f"{date.today().isoformat()}-{args.domain}")
+    run_date = args.run_date or date.today()
+    run_name = slugify(args.run_name or f"{run_date.isoformat()}-{args.domain}")
     short_task_name = slugify(args.short_task_name or args.domain)[:48].rstrip("-._")
     short_task_name = short_task_name or "research-map"
     report_filename = (
-        f"map_report_{short_task_name}_{date.today().isoformat()}.md"
+        f"map_report_{short_task_name}_{run_date.isoformat()}.md"
     )
     target = args.output.expanduser().resolve() / run_name
 
@@ -66,11 +69,9 @@ def main() -> int:
         )
         return 2
 
-    target.mkdir(parents=True)
-
     replacements = {
         "{{DOMAIN}}": args.domain.strip(),
-        "{{DATE}}": date.today().isoformat(),
+        "{{DATE}}": run_date.isoformat(),
         "{{LANGUAGE}}": args.language.strip(),
         "{{RUN_ID}}": run_name,
         "{{SHORT_TASK_NAME}}": short_task_name,
@@ -80,6 +81,8 @@ def main() -> int:
     if not template_files:
         print(f"No Markdown templates found in: {TEMPLATE_DIR}", file=sys.stderr)
         return 2
+
+    target.mkdir(parents=True)
 
     artifact_files: list[str] = []
     for source in template_files:
