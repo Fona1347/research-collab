@@ -4,6 +4,20 @@
 
 [简体中文](README.zh-CN.md) · [Maintenance and installation](docs/maintenance.md) · [Sources and dependencies](docs/sources.md)
 
+## Let your agent set it up
+
+Open your research project and paste this one-shot prompt into an agent with terminal and file access:
+
+```text
+Read the README and maintenance guide at https://github.com/Fona1347/research-collab, inspect
+the current agent, OS, workspace and Skills support, then recommend and install suitable
+research Skills while preserving existing settings, applying available local configuration and
+verifying the installation; ask only about missing information that changes the result,
+dependency installation or external-service connections, keep credentials in a local secret
+store or environment variables, and finish with ready/pending capabilities and one minimal
+invocation example.
+```
+
 ## Quickstart
 
 You need Git, Python 3.11+ and a host that loads local Skills. The examples use Codex and PowerShell. On macOS/Linux, use the same Python commands with your own absolute target path.
