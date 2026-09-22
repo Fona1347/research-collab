@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Opportunity Mapper"
+  short_description: "Route research questions into auditable plans"
+  default_prompt: "Use $research-opportunity-mapper to recommend a task mode, discovery lens, and domain lens from my context, briefly explain each choice, and ask me to confirm before research."

@@ -32,3 +32,18 @@ __pycache__/
 Thumbs.db
 .idea/
 .vscode/
+
+# Collection build and local deployment state
+.local/
+dist/
+.venv/
+.pytest_cache/
+*.egg-info/
+**/config/local.json
+**/profiles/local-capability-profile.md
+**/.research-collab-install.json
+**/.work/
+
+# Reader templates are source resources, not generated research reports.
+!skills/research-opportunity-mapper/assets/templates/reports/
+!skills/research-opportunity-mapper/assets/templates/reports/**

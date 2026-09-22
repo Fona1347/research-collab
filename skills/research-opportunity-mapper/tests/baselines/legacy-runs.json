@@ -1,0 +1,26 @@
+{
+  "snapshot_at": "2026-07-31T13:16:49+08:00",
+  "tree_hash_algorithm": "sha256 of UTF-8 rows relative_path<TAB>file_sha256<TAB>byte_length<LF>, sorted by relative_path",
+  "runs": [
+    {
+      "name": "ai-hardware-session-case",
+      "workspace_relpath": "Projects/research_map/validation-runs/ai-hardware-session-case",
+      "schema_version": "1.0",
+      "manifest_sha256": "a1255ab41a79f5247a855247ecb8a5270e6daad8e25aafbb654f5d7088893505",
+      "tree_sha256": "f69c62ea723f181038b6e7e950470e46252bb39936df063384652f68b663afb3",
+      "file_count": 11,
+      "byte_count": 957727,
+      "strict_validation": {"errors": 0, "warnings": 0, "passed": 53, "exit_code": 0}
+    },
+    {
+      "name": "self-regulating-learning-hardware",
+      "workspace_relpath": "Doc/Typora/note_2025_S2SPR/周工作/W22/sciver mapper/self-regulating-learning-hardware",
+      "schema_version": "1.2",
+      "manifest_sha256": "0d56c21c5f4c6d8c0c42e84323d2bbc982170ab8ab929d3c21d0a2d479f87309",
+      "tree_sha256": "d22c0078e2f0a453f1e0388ccb3bdda16885422a48a11752a17c07f2bb62dbc9",
+      "file_count": 10,
+      "byte_count": 159697,
+      "strict_validation": {"errors": 0, "warnings": 0, "passed": 81, "exit_code": 0}
+    }
+  ]
+}

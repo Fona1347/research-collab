@@ -1,93 +1,78 @@
-[English](README.md) | [简体中文](README.zh-CN.md)
+# Research Collab
 
-# Paper Collab Skills
+A maintained collection of nine research Skills: discovery, evidence-grounded
+reading, research-route decisions, plotting and presentation planning.
 
-Paper Collab is a small, source-only Agent Skills package for traceable single-paper reading and presentation planning.
+[简体中文](README.zh-CN.md) · [Maintenance and installation](docs/maintenance.md) ·
+[Sources and dependencies](docs/sources.md)
 
-Current package version: `V1.2.1`
+The collection expansion is **Unreleased**. The previous Paper Collab package
+release is V1.2.1; individual Skill and evidence-schema versions remain independent.
+No research workflow starts merely because this collection is installed.
 
-## Included Skills
+| Skill | Purpose |
+|---|---|
+| paper-deep-reading | Single-paper reading, canonical-source integrity and research judgment |
+| paper-presentation | Presentation plans from approved reading artifacts |
+| zotero-literature-note | Structured notes from user-selected Zotero material |
+| research-lookup-enhanced | Bounded discovery and traceable evidence packets |
+| sciverse-research | Supported-corpus evidence and Sciverse/Paper Schema workflows |
+| research-opportunity-mapper | Formal research-route comparison, focus and audits |
+| research-opportunity-mapper-quick | Standalone lightweight opportunity mapping |
+| sci-plot | Deterministic numeric scientific figures and export checks |
+| literature-fulltext-acquisition | Experimental orchestration of authorized full-text acquisition |
 
-- `paper-deep-reading` coordinates PDF-first reading, evidence tracking, validation boundaries, originality and research-generativity judgment, function-first design-choice analysis, reader-facing Chinese reports, deterministic run naming, and canonical main-PDF staging.
-- `paper-presentation` converts bounded deep-reading artifacts into a traceable presentation plan, speaker notes, or paper card without rerunning retrieval.
+## Develop and install
 
-The presentation skill is intentionally paired with the deep-reading skill, so installing both is recommended.
+Edit each Skill under skills/<skill-name>. Its own scripts, references and assets
+remain together, including Sci-Plot's src/sci_plot package. Component development
+documentation, contracts and collection tooling live outside the Skill folders.
 
-## Repository Layout
+Use Python 3.11+ for the collection tools. From the repository root:
 
-```text
-skills/
-  paper-deep-reading/
-    SKILL.md
-    agents/openai.yaml
-    references/
-  paper-presentation/
-    SKILL.md
-    agents/openai.yaml
-```
+    python scripts/skills.py validate
+    python scripts/skills.py package --skill paper-deep-reading --output dist/reading-preview.zip
+    python scripts/skills.py package --output dist/research-collab-preview.zip
+    python scripts/skills.py install --skill paper-deep-reading --skills-root <absolute-skills-directory> --dry-run
+    python scripts/skills.py install --skill paper-deep-reading --skills-root <absolute-skills-directory>
+    python scripts/skills.py check --skill paper-deep-reading --skills-root <absolute-skills-directory>
 
-No runtime service, dependency installer, paper PDF, report output, Zotero data, or machine-specific configuration is bundled.
+Repeat --skill to select several components. Omission selects all nine, including
+the experimental acquisition adapter. Archives contain named Skill folders,
+licenses and a hash manifest. Generated archives are not editable sources.
 
-## Installation
+An existing conflicting installation requires a reviewed local adoption baseline;
+the installer will not silently replace it. Subsequent updates detect edits using
+the prior installation receipt and preserve unknown files and config/local.json.
+See the maintenance guide for backups, restoration and per-component failures.
 
-Copy either skill directory, preserving its contents, into the skills directory used by your compatible agent environment. For Codex, install both folders under your Codex skills root:
+## Dependencies and boundaries
 
-```text
-<codex-skills-dir>/paper-deep-reading
-<codex-skills-dir>/paper-presentation
-```
+Skill installation does not install Python packages, configure services, register
+MCP servers, access a library, or grant remote upload/download authorization.
+Sci-Plot needs its declared Python libraries. Sciverse and Zotero depend on
+separately configured services/connectors. Paper Fetch, MinerU and other companion
+Skills remain external dependencies; none are rebranded as original code here.
 
-You can also ask a skill-aware agent:
+The optional MinerU adapter and experimental acquisition wrapper accept local
+runtime settings, documented within their references. Missing prerequisites remain
+explicit limitations. Acquisition currently uses Windows and PowerShell 7.
 
-```text
-Install both Agent Skills from https://github.com/Fona1347/paper-collab-skills,
-then validate paper-deep-reading and paper-presentation without running a live paper workflow.
-```
+.paper-collab.yaml remains the existing local output preference for deep reading.
+Personal Mapper profiles and historical studies are not bundled. Existing local
+profiles remain user-controlled, read-only intake inputs, never scientific evidence.
 
-Installing a Skill does not grant access to Zotero, local PDFs, network services, external parsers, or output locations. Those permissions remain subject to the user's instructions and workspace rules.
+## Validate
 
-## Output Configuration
+    python scripts/validate.py --plot-python <existing-sci-plot-python>
 
-An optional workspace-root `.paper-collab.yaml` may provide an absolute default output parent:
-
-```yaml
-default_output_parent: 'D:\paper-reports'
-```
-
-This file is a local path preference, not a permission grant, and is intentionally ignored by Git. An explicitly supplied run directory always takes precedence.
-
-Automatically generated run names use:
-
-```text
-Zotero:
-<item-key>-<first-author-full-name>_<year>_<journal-or-publisher>-<short-title>
-
-Other inputs:
-<first-author-full-name>-<year>-<journal-or-publisher>-<short-title>
-```
-
-When a main PDF is available, the skill stages a copy as `<task_name>.pdf` inside the approved run directory. Zotero source items and attachments remain read-only and are never renamed or modified.
-
-## Quick Start
-
-```text
-Use $paper-deep-reading to deeply read <PDF, DOI, title, or Zotero item key>.
-Show me the resolved output directory before creating research artifacts.
-```
-
-```text
-Use $paper-presentation to turn the approved paper-deep-reading artifacts into
-a journal-club presentation plan without rerunning retrieval.
-```
-
-## Version Compatibility
-
-`V1.2.1` is the package release version. Its canonical report artifacts continue to use `evidence_contract: v1.1`; this is the evidence schema version, not the package version. `paper-presentation` also retains a read-only fallback for legacy V1.0.x artifacts.
-
-## Security and Privacy
-
-Do not commit papers, reports, Zotero exports, local configuration, credentials, caches, or user-specific paths. See [SECURITY.md](SECURITY.md) for private reporting guidance.
+The checks are offline and use synthetic data. Host skill-creator validation is
+included when available. Historical Mapper regression requires the explicit
+MAPPER_LEGACY_WORKSPACE environment variable; without it the history-specific checks are reported
+as skipped. No account credential is needed for the public synthetic regressions.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT; existing notices are retained. See LICENSE, per-Skill licenses, and
+[dependency attribution](docs/sources.md). Research data, downloaded papers,
+credentials, private profiles and external runtimes are outside this repository.

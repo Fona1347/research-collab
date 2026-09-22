@@ -1,0 +1,6 @@
+interface:
+  display_name: "Zotero Literature Note"
+  short_description: "Generate Zotero notes with MinerU and visual evidence"
+  default_prompt: "Use $zotero-literature-note to generate a structured literature reading note from a Zotero item, using verified Zotero materials, MinerU cache, and visual evidence when available."
+policy:
+  allow_implicit_invocation: true

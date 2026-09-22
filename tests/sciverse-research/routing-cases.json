@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "paper-list",
+      "prompt": "Find papers about neuromorphic computing since 2026 and return DOI, year, and venue.",
+      "expected_primary_route": "search_papers",
+      "required_output_fields": [
+        "title",
+        "doi",
+        "year",
+        "venue"
+      ]
+    },
+    {
+      "id": "evidence-question",
+      "prompt": "Find direct evidence about whether ferroelectric topological patterns can support neuromorphic computing.",
+      "expected_primary_route": "semantic_search",
+      "expected_follow_up": "read_content",
+      "required_output_fields": [
+        "doc_id",
+        "chunk_id",
+        "offset"
+      ]
+    },
+    {
+      "id": "unknown-filter",
+      "prompt": "Filter for highly cited open-access papers, but first determine the supported field names.",
+      "expected_primary_route": "list_catalog",
+      "expected_follow_up": "search_papers"
+    },
+    {
+      "id": "citation-network",
+      "prompt": "Use this paper's unique_id to list references and citing papers.",
+      "expected_primary_route": "list_paper_relations",
+      "required_input_fields": [
+        "unique_id"
+      ]
+    },
+    {
+      "id": "paper-schema-structured-reading",
+      "prompt": "For this parsed AI paper, identify methods, findings, supporting evidence, and internal relations.",
+      "expected_primary_route": "paper_schema",
+      "required_output_fields": [
+        "schema_id",
+        "entity_id",
+        "evidence_id",
+        "partial",
+        "truncated",
+        "warnings"
+      ],
+      "fallback_if_unavailable": "Report that Paper Schema is unavailable and use the exposed core Sciverse tools."
+    },
+    {
+      "id": "paper-schema-zero-results",
+      "prompt": "No Paper Schema records were found. Does that prove the paper or entity does not exist?",
+      "expected_answer_boundary": "No. It only means no match was found in the currently parsed corpus."
+    },
+    {
+      "id": "portable-setup-reference",
+      "prompt": "Show Sciverse setup and troubleshooting guidance without assuming a particular workspace or archived session.",
+      "expected_reference_route": "references/mcp-upgrade-notes.md",
+      "expected_answer_boundary": "Setup history and credentials remain external; inspect current tool availability."
+    }
+  ]
+}
