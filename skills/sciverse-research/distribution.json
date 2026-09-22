@@ -1,0 +1,13 @@
+{
+  "format": 1,
+  "files": [
+    "LICENSE",
+    "SKILL.md",
+    "agents/openai.yaml",
+    "references/mcp-upgrade-notes.md",
+    "references/sciverse-api.md",
+    "references/sciverse-codex-user-guide.md",
+    "references/sciverse-paper-schema.md",
+    "references/sciverse-validation-test.md"
+  ]
+}

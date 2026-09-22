@@ -1,0 +1,20 @@
+{
+  "format": 1,
+  "files": [
+    "LICENSE",
+    "SKILL.md",
+    "agents/openai.yaml",
+    "references/citation-policy.md",
+    "references/evidence-policy.md",
+    "references/mineru-cache-policy.md",
+    "references/output-versioning.md",
+    "references/pdf-toolchain-appendix.md",
+    "references/prompt-templates.md",
+    "references/template-index.md",
+    "references/templates/flexible-note.md",
+    "references/templates/layered-explainer.md",
+    "references/templates/research-standard.md",
+    "references/visual-evidence-policy.md",
+    "references/workflow.md"
+  ]
+}

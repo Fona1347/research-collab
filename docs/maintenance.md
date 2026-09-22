@@ -4,7 +4,7 @@
 
 Edit skills/<skill-name>, not an installation or a ZIP. Keep shared collection
 tooling outside the packages. Retain each component's established tests and
-contracts; versions are independent, with collection changes under Unreleased.
+contracts; versions are independent, with pending collection changes under Unreleased.
 
 The collection CLI requires Python 3.11+. validate checks package identity,
 required files and Markdown links; it is not a claim of scientific correctness.
@@ -18,6 +18,12 @@ a ZIP. Existing identical output is reusable; different output is never overwrit
 --dry-run writes nothing. ZIP entries are reproducible for the same source revision,
 include per-Skill licenses, and are verified against manifest.json before publication.
 Local settings, caches and private Mapper profiles are excluded.
+
+Every Skill has an explicit distribution.json file list. Review new runtime resources
+before adding them; unlisted source files and missing listed files block publication.
+Do not auto-populate it from a directory containing private notes. The inventory
+itself is included automatically. File filters are not a content/secret scanner;
+inspect the diff and package before publishing.
 
 ## Adopt an existing installation
 
@@ -52,10 +58,13 @@ unmanaged. Only previously managed, unchanged obsolete files can be removed.
 A write failure restores changed files and the previous receipt automatically.
 Successful updates report the exact backup directory. To revert a successful update:
 
-    python scripts/skills.py restore --backup <reported-backup-directory> --dry-run
-    python scripts/skills.py restore --backup <reported-backup-directory>
+    python scripts/skills.py restore --backup <reported-backup-directory> --skills-root <original-skills-directory> --dry-run
+    python scripts/skills.py restore --backup <reported-backup-directory> --skills-root <original-skills-directory>
 
-Restoration refuses to overwrite edits made after the recorded installation.
+Restoration binds the backup to the explicitly named original target and verifies
+manifest file closure, backup hashes and receipt ownership before writing. It refuses
+to overwrite edits made after the recorded installation. Legitimate older backups
+remain usable; the new target argument is required for them too.
 check compares managed files and the receipt to the current source, leaving unknown
 files alone. It does not claim that external services or scientific results work.
 
@@ -92,5 +101,13 @@ not part of validation. Its portable guard tests use fake local executables.
 
 Old repositories retain their history, stashes and uncommitted changes. Migration
 pointer files identify this repository as the future development location.
-The consolidation branch is reviewed by PR; main and the previous formal release
-stay unchanged until an explicit merge/release task. No force push is needed.
+Changes are committed on a task branch and reviewed by PR. Push that branch for
+review; merging and publishing a Release are separate actions. No force push is needed.
+
+## Coverage and limits
+
+See [compatibility](compatibility.md) for component groups, runtime requirements,
+legacy behavior and CI scope. The default runner includes Quick and Presentation
+behavioral tests and same-repository canonical API integration. The
+[semantic cases](evaluation/README.md) require an independent answer and rubric
+review; mechanical checks never certify scientific claims or live services.

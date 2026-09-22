@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "files": [
+    "LICENSE",
+    "SKILL.md",
+    "agents/openai.yaml",
+    "config/local.example.json",
+    "references/document-parsers.md",
+    "references/output-schema.md",
+    "references/provider-matrix.md",
+    "references/query-routing.md",
+    "references/research-levels.md",
+    "scripts/extract_url.py",
+    "scripts/manuscript_packet.py",
+    "scripts/research_lookup.py",
+    "scripts/rle/__init__.py",
+    "scripts/rle/evidence_provider.py",
+    "scripts/rle/extraction.py",
+    "scripts/rle/http_client.py",
+    "scripts/rle/models.py",
+    "scripts/rle/pipeline.py",
+    "scripts/rle/providers.py",
+    "scripts/rle/public_http.py",
+    "scripts/rle/query_plan.py",
+    "scripts/rle/ranking.py",
+    "scripts/rle/reporting.py",
+    "scripts/rle/research_profile.py",
+    "scripts/rle/source_router.py"
+  ]
+}

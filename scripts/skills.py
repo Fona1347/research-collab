@@ -19,9 +19,13 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 RECEIPT = ".research-collab-install.json"
+DISTRIBUTION = "distribution.json"
 LOCAL_FILES = {"config/local.json", "profiles/local-capability-profile.md", ".paper-collab.yaml"}
 EXCLUDED_DIRS = {".git", ".local", ".venv", "__pycache__", ".pytest_cache", ".work", "dist", "build"}
-FORBIDDEN_SUFFIXES = {".pdf", ".zip", ".7z", ".sqlite", ".db", ".pem", ".key", ".pfx"}
+FORBIDDEN_SUFFIXES = {".pdf", ".zip", ".7z", ".tar", ".tar.gz", ".tar.bz2", ".tar.xz",
+                      ".sqlite", ".sqlite3", ".db", ".pem", ".key", ".pfx", ".p12"}
+EXCLUDED_FILES = {".DS_Store", "Thumbs.db"}
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
@@ -58,8 +62,37 @@ def member(root: Path, relative: str) -> Path:
     return result
 
 
+def distributable(relative: str) -> None:
+    path = PurePosixPath(relative)
+    if (relative in LOCAL_FILES or path.name == RECEIPT
+            or any(p in EXCLUDED_DIRS or p.endswith(".egg-info") for p in path.parts)
+            or any(path.name.lower().endswith(suffix) for suffix in FORBIDDEN_SUFFIXES)
+            or (path.name.lower().startswith(".env") and path.name != ".env.example")):
+        raise GuardError(f"Non-distributable file: {relative}")
+
+
+def distribution_paths(value) -> set[str]:
+    if (not isinstance(value, dict) or value.get("format") != 1
+            or not isinstance(value.get("files"), list)
+            or not all(isinstance(p, str) for p in value["files"])):
+        raise GuardError("Invalid distribution.json; expected format 1 and a file list")
+    paths = value["files"]
+    if len(paths) != len(set(paths)) or DISTRIBUTION in paths:
+        raise GuardError("Distribution list must contain distinct files, excluding itself")
+    for rel in paths:
+        # member() also checks path traversal when the listed file is read.
+        distributable(rel)
+    return {*paths, DISTRIBUTION}
+
+
 def source_files(skill: Path) -> dict[str, bytes]:
     no_links(skill)
+    inventory = member(skill, DISTRIBUTION)
+    if not inventory.is_file():
+        raise GuardError(f"{skill.name}: missing explicit {DISTRIBUTION}")
+    declared = distribution_paths(load_json(inventory))
+    for rel in declared:
+        member(skill, rel)
     result = {}
     for folder, dirs, names in os.walk(skill, followlinks=False):
         folder = Path(folder)
@@ -71,12 +104,16 @@ def source_files(skill: Path) -> dict[str, bytes]:
         for name in names:
             p = folder / name
             rel = p.relative_to(skill).as_posix()
-            if rel in LOCAL_FILES or name == RECEIPT or p.suffix in (".pyc", ".pyo"):
+            if rel in LOCAL_FILES or name in (RECEIPT, *EXCLUDED_FILES) or p.suffix in (".pyc", ".pyo"):
                 continue
             no_links(p)
-            if p.suffix.lower() in FORBIDDEN_SUFFIXES or (name.startswith(".env") and name != ".env.example"):
-                raise GuardError(f"Non-distributable file: {rel}")
+            distributable(rel)
+            if rel not in declared:
+                raise GuardError(f"Unlisted source file: {skill.name}/{rel}; review it before adding to {DISTRIBUTION}")
             result[rel] = p.read_bytes()
+    missing = declared - result.keys()
+    if missing:
+        raise GuardError(f"{skill.name}: missing distribution files {sorted(missing)}")
     return dict(sorted(result.items()))
 
 
@@ -115,18 +152,25 @@ def validate_skill(name: str, root: Path = ROOT) -> dict:
     return {"skill": name, "files": hashes, "tree_sha256": digest(json_bytes(hashes))}
 
 
-def revision(root: Path = ROOT) -> str:
+def revision(root: Path = ROOT, names: list[str] | None = None) -> str:
     cmd = ["git", "-c", f"safe.directory={root}", "-C", str(root)]
     try:
+        top = subprocess.run(cmd + ["rev-parse", "--show-toplevel"], capture_output=True, text=True, check=True).stdout.strip()
+        if Path(top).resolve() != root.resolve():
+            return "source-snapshot"
         head = subprocess.run(cmd + ["rev-parse", "HEAD"], capture_output=True, text=True, check=True).stdout.strip()
-        dirty = subprocess.run(cmd + ["status", "--porcelain", "--", "skills"], capture_output=True, text=True, check=True).stdout
-        return "working-tree" if dirty.strip() else head
+        dirty = subprocess.run(cmd + ["status", "--porcelain"], capture_output=True, text=True, check=True).stdout
+        tracked = set(subprocess.run(cmd + ["ls-files", "-z", "--", "skills"], capture_output=True, text=True, check=True).stdout.split("\0"))
+        untracked = any(f"skills/{name}/{rel}" not in tracked
+                        for name in (names if names is not None else skill_names(root))
+                        for rel in source_files(root / "skills" / name))
+        return "working-tree" if dirty.strip() or untracked else head
     except (OSError, subprocess.CalledProcessError):
         return "source-snapshot"
 
 
 def archive_manifest(names: list[str], root: Path = ROOT) -> dict:
-    return {"format": 1, "collection": "research-collab", "revision": revision(root),
+    return {"format": 1, "collection": "research-collab", "revision": revision(root, names),
             "skills": {n: validate_skill(n, root) for n in names}}
 
 
@@ -148,7 +192,12 @@ def check_archive(path: Path) -> dict:
         for name, record in manifest["skills"].items():
             if not NAME_RE.fullmatch(name) or not {"SKILL.md", "agents/openai.yaml", "LICENSE"}.issubset(record["files"]):
                 raise GuardError("Incomplete skill in archive")
+            if DISTRIBUTION in record["files"]:
+                declared = distribution_paths(json.loads(archive.read(f"{name}/{DISTRIBUTION}")))
+                if declared != set(record["files"]):
+                    raise GuardError(f"Archive distribution list mismatch: {name}")
             for rel, sha in record["files"].items():
+                distributable(rel)
                 filename = f"{name}/{rel}"
                 expected.add(filename)
                 if filename not in names or digest(archive.read(filename)) != sha:
@@ -268,7 +317,7 @@ def install(name: str, skills_root: Path, backup_root: Path, root: Path = ROOT,
             elif current[rel] != record["files"][rel]:
                 raise GuardError(f"{name}: unowned conflicting file {rel}; supply a reviewed baseline")
     changed = [rel for rel in sorted(paths) if current[rel] != record["files"].get(rel)]
-    new_receipt = {"format": 1, **record, "revision": revision(root)}
+    new_receipt = {"format": 1, **record, "revision": revision(root, [name])}
     if not changed and previous == new_receipt:
         return {"skill": name, "status": "unchanged"}
     if dry_run:
@@ -302,30 +351,64 @@ def install(name: str, skills_root: Path, backup_root: Path, root: Path = ROOT,
         atomic_write(previous_receipt, json_bytes(new_receipt))
         check_install(name, skills_root, root)
     except Exception:
-        restore(backup, root=root, require_unchanged=False)
+        restore(backup, skills_root=skills_root, root=root, require_unchanged=False)
         raise
     return {"skill": name, "status": "installed", "changed": len(changed), "backup": str(backup)}
 
 
-def restore(backup: Path, root: Path = ROOT, require_unchanged: bool = True, dry_run: bool = False) -> dict:
+def restore(backup: Path, *, skills_root: Path, root: Path = ROOT,
+            require_unchanged: bool = True, dry_run: bool = False) -> dict:
     no_links(backup)
-    info = load_json(backup / "restore.json")
-    target = Path(info["target"])
+    info = load_json(member(backup, "restore.json"))
+    if (not isinstance(info, dict) or info.get("format") != 1
+            or not isinstance(info.get("skill"), str) or not NAME_RE.fullmatch(info["skill"])
+            or not isinstance(info.get("target"), str)):
+        raise GuardError("Invalid restore manifest identity or format")
+    target = skills_root / info["skill"]
     ensure_target(target, info["skill"], root)
-    if require_unchanged and read_current(target, info["after"]) != info["after"]:
-        raise GuardError("Installation changed since this backup; refusing to overwrite newer work")
-    for rel, sha in info["before"].items():
-        if sha is not None:
-            saved = member(backup / "files", rel)
-            if digest(saved.read_bytes()) != sha:
+    if not Path(info["target"]).is_absolute() or Path(info["target"]).resolve() != target.resolve():
+        raise GuardError("Backup belongs to another target; supply its original --skills-root")
+    before, after = info.get("before"), info.get("after")
+    if (not isinstance(before, dict) or not isinstance(after, dict)
+            or before.keys() != after.keys() or not all(isinstance(p, str) for p in before)
+            or RECEIPT not in before
+            or not isinstance(after[RECEIPT], str)):
+        raise GuardError("Invalid restore file set; before/after and installation receipt must agree")
+    saved_files = {}
+    for rel in before:
+        if rel in LOCAL_FILES:
+            raise GuardError("Restore must not own local settings")
+        member(target, rel)
+        for sha in (before[rel], after[rel]):
+            if sha is not None and (not isinstance(sha, str) or not SHA256_RE.fullmatch(sha)):
+                raise GuardError("Invalid restore SHA-256")
+        if before[rel] is not None:
+            saved = member(backup / "files", rel).read_bytes()
+            if digest(saved) != before[rel]:
                 raise GuardError("Backup integrity check failed")
+            saved_files[rel] = saved
+    if require_unchanged:
+        if read_current(target, after) != after:
+            raise GuardError("Installation changed since this backup; refusing to overwrite newer work")
+        receipt = load_json(member(target, RECEIPT))
+        if (not isinstance(receipt, dict) or receipt.get("format") != 1 or receipt.get("skill") != info["skill"]
+                or not isinstance(receipt.get("files"), dict)):
+            raise GuardError("Restore target has no matching installation receipt")
+        prior = json.loads(saved_files[RECEIPT]) if RECEIPT in saved_files else {}
+        if prior and (not isinstance(prior, dict) or prior.get("format") != 1 or prior.get("skill") != info["skill"]
+                      or not isinstance(prior.get("files"), dict)):
+            raise GuardError("Backup contains an invalid previous receipt")
+        owned = set(receipt["files"]) | set(prior.get("files", {})) | {RECEIPT}
+        if not set(before).issubset(owned):
+            raise GuardError("Restore manifest includes files not owned by this installation")
     if not dry_run:
-        for rel, sha in info["before"].items():
+        # All paths, hashes and target ownership have passed before the first write.
+        for rel, sha in before.items():
             dest = member(target, rel)
             if sha is None:
                 dest.unlink(missing_ok=True)
             else:
-                atomic_write(dest, member(backup / "files", rel).read_bytes())
+                atomic_write(dest, saved_files[rel])
     return {"skill": info["skill"], "status": "restore-preview" if dry_run else "restored"}
 
 
@@ -342,9 +425,9 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
     try:
         if args.action == "restore":
-            if not args.backup:
-                parser.error("restore requires --backup")
-            print(json.dumps(restore(args.backup, dry_run=args.dry_run), ensure_ascii=False))
+            if not args.backup or not args.skills_root:
+                parser.error("restore requires --backup and the original --skills-root")
+            print(json.dumps(restore(args.backup, skills_root=args.skills_root, dry_run=args.dry_run), ensure_ascii=False))
             return 0
         names = select(args.skill)
         if args.action == "package":

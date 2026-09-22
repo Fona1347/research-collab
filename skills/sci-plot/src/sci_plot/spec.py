@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import math
 from collections.abc import Iterator, Mapping
 from pathlib import Path
 from typing import Any
@@ -56,6 +57,8 @@ TOP_LEVEL_KEYS = {
     "layout",
 }
 PLOT_KEYS = {"kind", "data", "mapping", "labels", "style"}
+PANEL_STYLE_KEYS = {"theme", "style", "palette", "font_size", "chinese_font",
+                    "grid", "rcparams", "scienceplots"}
 
 
 def template_catalog() -> list[dict[str, Any]]:
@@ -204,6 +207,18 @@ def validate_spec(spec: Mapping[str, Any]) -> dict[str, Any]:
         for index, panel in enumerate(panels):
             if not isinstance(panel, dict):
                 raise SpecError(f"panels[{index}] must be an object")
+            style = _require_mapping(panel.get("style", {}), f"panels[{index}].style")
+            unsupported = set(style) - PANEL_STYLE_KEYS
+            if unsupported:
+                raise SpecError(f"panels[{index}].style has figure-wide or unsupported keys: {', '.join(sorted(unsupported))}; set figure-wide keys at the top level")
+            custom_rc = style.get("rcparams", {})
+            if isinstance(custom_rc, dict) and any(
+                key.startswith(("figure.", "savefig.")) or key in {"backend", "interactive", "toolbar"}
+                for key in custom_rc
+            ):
+                raise SpecError(f"panels[{index}].style.rcparams must contain panel settings, not figure/export settings")
+            if panel.get("kind") == "heatmap" and "palette" in style:
+                raise SpecError("Heatmap uses the viridis value colormap; panel.palette applies to categorical plot colors")
             merged = _merge_plot(inherited, panel)
             _validate_plot(merged, f"panels[{index}]")
         layout = normalized.get("layout", {})
@@ -216,6 +231,10 @@ def validate_spec(spec: Mapping[str, Any]) -> dict[str, Any]:
                 or layout[key] <= 0
             ):
                 raise SpecError(f"layout.{key} must be a positive integer")
+        cols = layout.get("cols", min(2, len(panels)))
+        rows = layout.get("rows", math.ceil(len(panels) / cols))
+        if rows * cols < len(panels):
+            raise SpecError("layout.rows * layout.cols is smaller than the panel count")
     else:
         _validate_plot(
             {key: normalized[key] for key in PLOT_KEYS if key in normalized},

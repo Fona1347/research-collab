@@ -24,7 +24,7 @@ class CliContractTests(unittest.TestCase):
     def test_entry_point_and_skill_identity(self) -> None:
         with (REPOSITORY_ROOT / "pyproject.toml").open("rb") as handle:
             project = tomllib.load(handle)
-        self.assertEqual(project["project"]["version"], "0.2.0")
+        self.assertEqual(project["project"]["version"], "0.2.1")
         self.assertIn("SciencePlots>=2.1,<3", project["project"]["dependencies"])
         self.assertEqual(project["project"]["scripts"]["sci-plot"], "sci_plot.cli:main")
         self.assertEqual(project["project"]["readme"], "README.md")

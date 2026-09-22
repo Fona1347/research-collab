@@ -2,7 +2,7 @@
 
 把文献发现、论文阅读、研究方向判断、科研绘图与汇报衔接起来的 **9 个科研 Skill**。每个 Skill 都可以单独调用，保留可追溯的来源、判断依据和产物。
 
-[English](README.md) · [维护与安装](docs/maintenance.md) · [来源与依赖](docs/sources.md)
+[English](README.md) · [维护与安装](docs/maintenance.md) · [来源与依赖](docs/sources.md) · [兼容性与验证边界](docs/compatibility.md)
 
 ## 让你的 agent 帮你配置
 
@@ -71,6 +71,8 @@ Codex 从项目的 `.agents/skills` 加载技能。CLI/IDE 可用 `$技能名` �
 | 编排已授权的全文获取 | [literature-fulltext-acquisition](skills/literature-fulltext-acquisition/SKILL.md) | 获取记录与明确的失败状态；**实验项** |
 
 普通检索不会自动启动 Mapper。正式路线判断时，完整 Mapper 会根据决策需求推荐配置；已选接口、可用资源和排除方向都值得在请求中说明。汇报 Skill 消费已有阅读产物，最终 PPTX 制作需要另行选择演示工具。
+
+`精读` 与 `standard` 保留完整阅读及外部核验目标；远程传输 PDF、读取 Zotero 笔记或扩大库范围仍需对应授权。已有明确授权继续使用，仅在确有缺失或扩大范围时确认。共享状态未知的材料不视为公开材料。
 
 ## 推荐配置：按需补齐
 
@@ -154,8 +156,10 @@ python scripts/skills.py check --skills-root "$skillsDir"
 
 `scripts/validate.py` 可运行组件回归；用 `--component` 选择范围，绘图测试可指定 `--plot-python`。Mapper 的真实历史回归需要显式的 `MAPPER_LEGACY_WORKSPACE`；未提供时使用公共合成材料并报告相关跳过项。测试不开展正式科研检索或真实论文下载。
 
+新源码通过每个 Skill 的 `distribution.json` 显式清单分发；新增文件须先审查后列入。恢复时必须同时指定原 `--skills-root`，以核对目标归属。CI 与本地回归只验证离线工程行为；另有小型[合成语义案例](docs/evaluation/README.md)供独立读者检查证据和授权判断。
+
 ## 状态与许可
 
-集合整合仍为 **Unreleased**；既有 Paper Collab 正式包版本为 V1.2.1，各 Skill 和证据 schema 独立版本。全文获取继续标为实验项；离线检查通过不代表线上服务或真实下载已经验证。
+Research Collab 集合初版为 **[v2.0.0](https://github.com/Fona1347/research-collab/releases/tag/v2.0.0)**，承接 Paper Collab V1.2.1；各 Skill 和证据 schema 保持独立版本。全文获取继续标为实验项；离线检查通过不代表线上服务或真实下载已经验证。
 
 采用 [MIT](LICENSE)，保留组件版权与[第三方归属](docs/sources.md)。论文、真实研究报告、个人档案、凭据和外部运行环境不属于公开分发内容。

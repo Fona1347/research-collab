@@ -101,7 +101,18 @@ def load_effective_config(
         figure_config_layer(figure_spec or {}),
         cli_overrides,
     )
-    return validate_config(config), project_path if project_path and project_path.is_file() else None
+    normalized = validate_config(config)
+    if cli_overrides and cli_overrides.get("render"):
+        normalized["_cli_render_overrides"] = copy.deepcopy(cli_overrides["render"])
+    return normalized, project_path if project_path and project_path.is_file() else None
+
+
+def panel_config(config: Mapping[str, Any], style: Mapping[str, Any]) -> dict[str, Any]:
+    """Apply panel-specific styling, retaining explicit CLI precedence."""
+    return validate_config(deep_merge(
+        config, {"render": style},
+        {"render": config.get("_cli_render_overrides", {})},
+    ))
 
 
 def _positive_number(value: Any, name: str) -> float:

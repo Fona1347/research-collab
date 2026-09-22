@@ -58,8 +58,11 @@ Require both:
 Normalize `manifest.json`, `full.md`, `content_list.json`, and available `images/`.
 Use `full.md` for Markdown and sections. Use content-list blocks for tables,
 captions, page locators, and reference blocks. Preserve manifest model/schema and
-local output paths. Reuse an existing complete output directory; reject an
-incomplete non-empty MinerU directory and fall back.
+local output paths. Reuse an existing complete output directory only after its
+source.input_sha256 matches the current input file. Reject missing, malformed or
+stale hashes and incomplete non-empty directories; preserve their contents and
+record the error before trying a local fallback. Do not automatically re-upload
+or label a manifest hash as verified without comparing it to the source bytes.
 
 ## Local fallbacks
 
@@ -90,3 +93,17 @@ arguments take precedence, then environment values, then the local file. The
 interpreter defaults to the current Python. Missing wrapper configuration preserves
 the existing local-parser fallback. API keys remain environment-only. This does not
 grant remote-upload permission; OA and explicit remote-parser gates still apply.
+
+## Public HTTP boundary
+
+HTTP(S) retrieval checks every redirect and all resolved destination addresses
+before opening a connection. Direct connections use the checked DNS results;
+configured urllib proxies receive a checked destination IP with the original Host
+and TLS server name. Existing proxy/no_proxy configuration is trusted transport,
+not permission for a source URL to select an internal destination. Cross-origin
+redirects do not forward credentials or request bodies. Policy blocks also apply
+to robots.txt and fail explicitly; they are not treated as missing robots files.
+Injected test transports are trusted code and must preserve this boundary if they
+perform real I/O. No certificate verification or global network settings are changed.
+
+The input SHA-256 check binds reuse to the selected source bytes. It is not an output signature: it does not authenticate locally edited parser outputs or establish the scientific correctness of parsed text. Keep the cache in a trusted local directory and inspect important claims against the source.

@@ -1,0 +1,12 @@
+{
+  "format": 1,
+  "files": [
+    "LICENSE",
+    "SKILL.md",
+    "agents/openai.yaml",
+    "config/literature.config.toml.example",
+    "config/local.example.json",
+    "references/tools.md",
+    "scripts/literature-tools.ps1"
+  ]
+}

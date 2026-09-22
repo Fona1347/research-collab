@@ -5,6 +5,7 @@ import argparse
 import json
 import os
 import subprocess
+import shutil
 import sys
 import uuid
 
@@ -13,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--component", action="append", choices=("collection", "reading", "mapper", "lookup", "sciverse", "plot", "zotero", "acquisition"))
+    parser.add_argument("--component", action="append", choices=("collection", "reading", "presentation", "mapper", "quick", "lookup", "sciverse", "plot", "zotero", "acquisition"))
     parser.add_argument("--plot-python", default=sys.executable)
     parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--quick-validator", type=Path)
@@ -25,9 +26,10 @@ def main():
     env["PYTHONUTF8"] = "1"
     env["MPLBACKEND"] = "Agg"
     env["MPLCONFIGDIR"] = str(output / "matplotlib")
+    env.setdefault("ROM_CANONICAL_CHECKER", str(ROOT / "skills/paper-deep-reading/scripts/check_canonical.py"))
     mapper = ROOT / "skills/research-opportunity-mapper"
     tests = ROOT / "tests"
-    selected = args.component or ["collection", "reading", "mapper", "lookup", "sciverse", "plot", "zotero", "acquisition"]
+    selected = args.component or ["collection", "reading", "presentation", "mapper", "quick", "lookup", "sciverse", "plot", "zotero", "acquisition"]
     if "mapper" in selected:
         sys.path.insert(0, str(tests))
         from mapper_synthetic_workspace import seed
@@ -46,7 +48,9 @@ def main():
         ("reading", "canonical", [sys.executable, "-m", "unittest", "discover", "-s", str(ROOT / "skills/paper-deep-reading/scripts"), "-p", "test_*.py", "-v"]),
         ("reading", "footnotes", [sys.executable, "-m", "unittest", "discover", "-s", str(tests), "-p", "test_check_report_footnotes.py", "-v"]),
         ("mapper", "mapper", [sys.executable, "-m", "unittest", "discover", "-s", str(mapper / "tests"), "-v"]),
-        ("mapper", "quick-cli", [sys.executable, str(ROOT / "skills/research-opportunity-mapper-quick/scripts/init_run.py"), "--help"]),
+        ("quick", "quick", [sys.executable, "-m", "unittest", "discover", "-s", str(tests), "-p", "test_mapper_quick.py", "-v"]),
+        ("presentation", "presentation", [sys.executable, "-m", "unittest", "discover", "-s", str(tests / "paper-presentation"), "-v"]),
+        ("collection", "validation-runner", [sys.executable, "-m", "unittest", "discover", "-s", str(tests), "-p", "test_validation_runner.py", "-v"]),
         ("lookup", "lookup", [sys.executable, "-m", "unittest", "discover", "-s", str(tests / "research-lookup-enhanced"), "-v"]),
         ("lookup", "lookup-offline", [sys.executable, str(tests / "research-lookup-enhanced/offline_smoke.py")]),
         ("plot", "plot", [args.plot_python, "-m", "unittest", "discover", "-s", str(tests / "sci-plot"), "-v"]),
@@ -80,6 +84,12 @@ def main():
         if label == "acquisition-runtime" and not (step_env.get("LITERATURE_TOOLS_ROOT") and step_env.get("LITERATURE_PROTECTED_ROOT")):
             results.append({"component": group, "check": label, "exit_code": 0, "status": "skipped", "reason": "External runtime smoke requires explicit local tool configuration"})
             print(f"{label}: SKIP (no external runtime configured)", flush=True)
+            continue
+        if command[0] == pwsh and shutil.which(pwsh) is None:
+            log = "PowerShell 7 (pwsh) is required for this selected component. Use an existing environment with pwsh on PATH; validation never installs it.\n"
+            (output / f"{label}.log").write_text(log, encoding="utf-8")
+            results.append({"component": group, "check": label, "exit_code": 127, "status": "blocked", "reason": log.strip()})
+            print(f"{label}: BLOCKED (PowerShell 7 missing)", flush=True)
             continue
         try:
             run = subprocess.run(command, cwd=ROOT, env=step_env, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=240)
