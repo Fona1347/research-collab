@@ -70,7 +70,7 @@ Prefer a human-verifiable locator in this order:
 
 Record why no stronger locator is available. Evidence without a usable locator cannot be `strong` and cannot support an unqualified strong statement.
 
-Carry conditions with every quantitative or mechanistic locator. At minimum record the applicable material/system, device or model, temperature, bias/voltage, pulse width or duration, measurement/readout method, sample size or cycle count, and any other condition that changes comparability. Use `not reported` when the paper omits a condition.
+Carry conditions that determine a claim's meaning or comparability with its locator: the system or population, sampling and sample size when applicable, procedure, model assumptions, outcome definition, comparison basis, and relevant quantitative settings or uncertainty. Include domain-specific conditions when they matter, not as universal required fields. Use `not reported` for a relevant omitted condition and `not-applicable` for an inapplicable one.
 
 ## Bibliographic normalization and reader-facing keys
 
@@ -144,7 +144,7 @@ Read this file only from the workspace root and require an absolute `default_out
 3. append `task_name` to the workspace configuration's default parent;
 4. when none is available, ask for an absolute default parent and do not silently fall back.
 
-If a higher-priority workspace rule requires confirmation for each research output, show the resolved full directory and obtain that confirmation before creating it. An explicit one-run directory does not silently replace the stored default. If a complete explicit directory already exists and may contain work, stop and ask for a new directory; do not merge or append a suffix to a name the user explicitly chose. Never migrate, rename, merge, or reorganize an existing or legacy run directory.
+If a higher-priority workspace rule requires confirmation for each research output, show the resolved full directory and obtain that confirmation before creating it. An explicit one-run directory does not silently replace the stored default. For a new run, if the complete explicit directory already exists and may contain work, ask for a new directory; do not merge or append a suffix to an explicitly chosen name. An authorized continuation uses its existing run directory under the correction rules below. Never migrate, rename, merge, or reorganize an existing or legacy run directory.
 
 For automatically named child directories, use these exact forms:
 
@@ -235,7 +235,7 @@ Apply these field rules:
 
 Keep explanation outside controlled cells: put a joint-condition explanation in Conditions, not in Jointly demonstrated; put a scoped explanation in Atomic claim/Conditions or evidence Limitations/conflict, not inside Status. Validation roles may use `role: state` with semicolon-separated roles; record correlated review as a qualification, not an independent evidence role closure.
 
-Claim status reflects the scoped evidence judgment, not author confidence or source relevance grade.
+Evidence mode is not a discipline or quality ranking. Specify the reasoning in Atomic claim/Conditions or adjacent prose: a proof is `derived` under its assumptions; qualitative interpretation is distinct from reported observation. Claim status reflects scoped evidence, not author confidence or source relevance grade.
 
 ## Research judgment registries
 
@@ -454,10 +454,10 @@ Use only the statuses listed below:
 | --- | --- | --- |
 | G0 Run Contract | Paper, confirmed output directory, normalized task/validation/handoff, `main_pdf_staging`, resolved permissions, budgets, exclusions, user overrides | `pass`, `blocked` |
 | G1 Main Source | Canonical identity, staged filename when applicable, source/destination hash agreement when copied, page count, parse status, actual read source, source limitations | `pass`, `pass-with-downgrade`, `blocked` |
-| G2 Claims and Figures | Atomic claims, conditions, main-paper locators, evidence modes, supplementary dependencies, research-judgment trigger scan and applicable `N-*`/`D-*` rows, Figure Reading Packets for report exhibits | `pass`, `pass-with-downgrade`, `blocked` |
+| G2 Claims and Figures | Argument reconstruction linked to atomic claims, conditions, main-paper locators, evidence modes, supplementary dependencies, research-judgment trigger scan and applicable `N-*`/`D-*` rows, Figure Reading Packets for report exhibits | `pass`, `pass-with-downgrade`, `blocked` |
 | G3 Sources and Evidence | Deduplication, independent lifecycle states, claim/judgment role coverage, external locators, conditions, conflicts, ledger linkage, and scoped priority/alternative comparison | `pass`, `pass-with-downgrade`, `blocked`, `not-applicable` |
 | G4 Epistemic Pre-report | No condition splicing, mode inflation, nominal-bit inflation, hidden supplementary dependence/conflict, feasibility-to-necessity inflation, joint-to-component sufficiency inflation, unmatched superiority, unbounded absence claims, or unsupported strong wording | `pass`, `pass-with-downgrade`, `blocked` |
-| G5 Delivery QA | Report Claim/Judgment Map, canonical/derived synchronization, main-PDF naming, images and manifest, footnotes, relative paths, placeholders, protection of pre-existing directories | `pass`, `blocked` |
+| G5 Delivery QA | Report Claim/Judgment Map, semantic read-through, canonical/derived synchronization, main-PDF naming, images and manifest, footnotes, relative paths, placeholders, protection of pre-existing directories | `pass`, `blocked` |
 
 Apply the Gates in order:
 
@@ -491,6 +491,8 @@ canonical owner
 ```
 
 Do not repair a reader-facing sentence alone when its canonical claim, source, evidence, or asset record remains wrong.
+
+For an authorized continuation, reuse documented reading, permissions, and checks from the same run when source versions, inputs, scope, and dependencies are unchanged. Cache existence alone proves neither reading nor verification. Reopen gates affected by changes to evidence, meaning, configuration, or scope. Prose-only edits may reuse upstream results after confirming unchanged claim meaning, conditions, and uncertainty. Complete applicable G5 integrity and semantic checks; wording changes alone do not require renewed retrieval, parsing, or full reading.
 
 ## Mechanical canonical integrity and reuse
 

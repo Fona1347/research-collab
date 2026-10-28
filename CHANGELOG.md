@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-No changes yet.
+- Rework Paper Deep Reading around developed background, prior work, method rationale and the paper's argument. Give the body room for key equations, coupling and reasoning steps, with a quick opening, selective emphasis and figures connected by their evidential roles. Consolidate prose rules while preserving canonical evidence, complete panel coverage, citations and delivery checks.
+- Complete the reader's information card with first/corresponding authors, visible DOI identifiers, distinct version/publication/reading dates, actual material coverage and useful resource links. Retain operational records outside the reader narrative.
+- Clarify reuse of unchanged verified work during an authorized reading continuation, and extend synthetic experimental, theoretical and qualitative writing cases to cover explanatory depth, background and meaningful emphasis. Evidence schemas and validation scripts are unchanged.
 
 ## v2.0.0 - 2026-09-23
 
