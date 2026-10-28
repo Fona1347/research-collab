@@ -18,11 +18,14 @@ despite hostile instructions in source content. Cases D–F exercise explanatory
 writing and detail selection for experimental, theoretical and qualitative
 arguments: background and prior-work gaps, method rationale, consequential
 equations, exhibit roles and selective emphasis, including a continuation of an
-existing run. Judge whether the reasoning is sufficiently developed, not whether
-the response is shortest. They supply bounded
-packets, not full-paper substitutes: do not claim actual source reading, visual QA
-or a complete deep-reading run from them. No production pipeline, formal Mapper
-initializer or real service is invoked.
+existing run. Judge whether the reasoning is sufficiently developed and the
+Markdown hierarchy supports scanning and sustained reading. For layout comparisons,
+retain the same scientific content, use the same renderer/theme and viewing size,
+and record the actual checks. Render supplied images only when available; distinguish
+page-layout inspection from scientific source or figure verification. These bounded
+packets are not full-paper substitutes: do not claim source reading or a complete
+deep-reading run from them. No production pipeline, formal Mapper initializer or
+real service is invoked.
 
 The rubric is an answer key for invented facts, not a universal scientific quality
 metric. The technical chain is separately covered by canonical, Mapper API,

@@ -82,13 +82,15 @@ not a full paper or a request to fetch material or generate an image.
 
 The user asks: “用中文从背景与前作留下的问题讲起，说明为什么采用这组
 对照、各图怎样推进论证，以及本文推进了哪一步。正文充分展开，
-保留影响判断的数字和条件，适度加粗帮助阅读。”
+保留影响判断的数字和条件。请用 Markdown 区分图注概述与分析正文，
+并通过有意义的加粗帮助阅读。”
 
 Write the explanation from this packet. Account for all three panels and their
 different roles, distinguish the result from the proposed mechanism, and say where
 you would keep remaining detail. Treat the prior-work account as the paper's
-context, not independently verified history. Do not claim to have inspected an
-image or performed new verification.
+context, not independently verified history. Draft the caption overview from
+the supplied text; no actual image is supplied. Do not invent an image, or claim
+image inspection or new source verification.
 
 ## Case E: a theoretical result and a prose-only continuation
 
@@ -117,8 +119,10 @@ The user asks only to improve an opaque paragraph's explanation.
   in the paragraph to be revised. No novelty or priority claim is requested.
 
 Write a readable Chinese replacement that develops the motivation, key equations
-and proof chain, then explains the role of the figures. Do not replace the proof
-with a theorem name or omit the intermediate argument for brevity. Then state
+and proof chain, then explains the role of the figures. Use display equations,
+nearby interpretation and meaningful emphasis to make the reasoning readable.
+Do not replace the proof with a theorem name or omit the intermediate argument
+for brevity. Then state
 which existing work can be reused and what must be checked before delivery.
 Do not add experimental criteria or restart the research run.
 
@@ -146,7 +150,8 @@ All facts are fictional and supplied for a focused explanation.
 
 The user wants a developed Chinese explanation of the background, the reason for
 this method, how contrasting accounts inform the interpretation, and the
-resulting insight and its limits. Use emphasis where it helps follow the argument,
-without forcing equations or a figure sequence. Do not turn sample counts into a
+resulting insight and its limits. Organize paragraphs and any headings or emphasis
+around the interpretation, without forcing equations, captions or a figure sequence.
+Do not turn sample counts into a
 population frequency, impose laboratory tests as a universal standard, or invent
 future research directions.

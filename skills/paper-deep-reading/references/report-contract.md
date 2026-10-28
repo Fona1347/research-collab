@@ -77,7 +77,9 @@ Develop background at the level the question needs: orient the reader to the bro
 
 There is no default total length or section quota. Let complexity and reading purpose determine depth. Preserve the explanatory middle: definitions by their role, method choices, key derivations or feedback, reasons for controls, meaningful examples and comparisons. Remove duplicated conclusions, process labels and empty transitions; an explanation that connects evidence to a conclusion is substantive content. Give the body room to develop what the overview only introduces.
 
-Develop one point per paragraph with its evidence. Use tables for comparisons or detailed values and lists for parallel items. Use bold selectively for meaningful short figure captions, panel-group leads or paragraph judgments that help a reader scan the argument. Choose emphasis by semantic importance, not a fixed sentence position, panel label, number or template slot; keep supporting explanation in normal text.
+Use headings to expose questions and reasoning steps, with comparable scope at the same level. Develop each paragraph's point with its evidence and connect it to the next step. Use lists for parallel items or ordered steps and tables for comparable dimensions or reference values; let sustained explanation remain prose. Separate headings, images, captions, paragraphs and display equations with blank lines; reserve horizontal rules for larger transitions.
+
+Use bold to make meaningful short captions, panel-group roles, key relationships and judgments easy to find. A brief complete judgment sentence may be emphasized; keep its consequential conditions attached. Choose emphasis by meaning, not a fixed position, bare panel letter, number or format quota. Keep supporting explanation in normal text, and give headings, captions and paragraph leads distinct jobs instead of repeating the same takeaway.
 
 Select exhibits for their explanatory roles, including informative controls and contrary results, without a minimum or maximum count. Figures and tables often carry the argument; connect them through the questions they answer and the next reasoning step. They may be integrated with topic sections or collected under `关键图表精读`; nonconsecutive figures and logically grouped panels are welcome.
 
@@ -108,7 +110,7 @@ Use `first`, `fastest`, `highest`, `proves`, `completely excludes`, `breakthroug
 
 Preserve condition tuples in comparisons. Do not combine, for example, a 600 ps result from one condition with a 358 K result from another into one apparent operating point.
 
-Use callouts sparingly for a reader-critical takeaway, caution, or next step. A callout must not replace the evidence paragraph or carry an otherwise unsupported strong statement.
+Outside exhibit captions, use callouts for a reader-critical takeaway, definition or caution when separation helps. Distinguish source paraphrase, report synthesis and verbatim quotation; a callout must retain support and scope without replacing the evidence paragraph. Use basic Markdown for essential hierarchy; renderer-specific alerts, highlighting or collapsible details are optional, and essential reasoning stays visible.
 
 ## Research-judgment modules
 
@@ -140,9 +142,22 @@ For each displayed exhibit:
 
 1. Introduce the question, comparison or reasoning step the exhibit addresses and connect it to the surrounding argument.
 2. Embed a readable display asset with meaningful alt text and a run-relative path.
-3. Explain every visible panel in scientifically coherent groups: how to read the relevant features, what is observed or compared, and how that bears on the argument. Preserve evidence mode, strength, conditions and boundaries. Explain the method or control rationale where it enables understanding.
+3. Below the exhibit, default to a brief `>` blockquote with a meaningful bold caption lead and a source-grounded overview of what is shown. Label a paraphrase as a caption overview, not a verbatim quotation. Jointly presented exhibits may share a caption; adapt when a separate overview would duplicate an already clear caption.
+4. In ordinary prose, explain every visible panel in scientifically coherent groups: how to read the relevant features, what is observed or compared, and how that bears on the argument. Preserve evidence mode, strength, conditions and boundaries. Explain the method or control rationale where it enables understanding.
 
-Use a short descriptive caption or panel-group lead when it helps navigation, with selective bold as described above. For example, **图3｜从预测到观测的对应。** identifies a role in the argument; the following prose must explain the actual comparison. Adapt wording and grouping to the exhibit, including conceptual diagrams, proofs or qualitative evidence. Avoid repeating the full explanation in both caption and body. Put group-meeting roles only in the handoff section.
+This sketch illustrates visual roles, not required wording or a fixed panel sequence. Adapt headings, grouping and emphasis to the exhibit, including conceptual diagrams, proofs or qualitative evidence. A short panel-group lead usually needs bold rather than another heading level; the following prose supplies the explanation. Put group-meeting roles only in the handoff section.
+
+```markdown
+### 图 X｜这一组证据回答的问题
+
+<img src="assets/figures/fig-x-display.png" alt="图 X：展示对象与主要比较" />
+
+> **图注概述｜展示对象与比较方式。** 概述图中呈现的内容。
+
+**a–c：这组面板在论证中的作用。** 结合图中现象、相关条件与正文，展开解释。
+
+后续段落说明这些结果如何推进当前问题，或为何需要下一组证据。
+```
 
 Never embed a full-page render as a report exhibit. Files under `assets/pages/` are QA or crop inputs only and must not be mentioned or linked in `view-report.md`.
 
@@ -173,7 +188,7 @@ Verify the original number when one exists; otherwise describe it as an unnumber
 
 Distinguish an original equation from a report-side derivation. Label any report derivation explicitly, show its premises, and do not attribute it to the authors. Do not rewrite a model fit as direct measurement or unique-mechanism proof.
 
-When equation artwork is necessary, apply the same display-asset and manifest contract as other exhibits. Prefer accessible LaTeX for simple equations.
+Use readable display LaTeX for consequential equations and inline math for symbols, keeping interpretation nearby. When equation artwork is necessary, apply the same display-asset and manifest contract as other exhibits.
 
 ## External footnote contract
 
@@ -291,7 +306,7 @@ Pass G5 only when all applicable checks succeed:
 | Claim and judgment mapping | Every strong report claim or research judgment maps to canonical support and all map rows are `in-sync` |
 | Canonical integrity | `check_canonical.py --run-dir <actual-run-directory>` passes separately from footnotes; linked IDs, controlled states, one-source/one-claim evidence rows and distinct-source counters are valid |
 | Reader boundary | No modes, workflow names, internal IDs, raw operational paths, hashes, logs, or QA narration; verified paper/author/version/date information, actual material coverage and useful reader links are present |
-| Explanation and selection | Read for comprehension, then check against sources and canonical records: sufficient background and prior-work context, clear method rationale, key equations and reasoning links, meaningful exhibit roles and contribution judgment; no invented links or loss of material conditions, uncertainty or conflicting evidence |
+| Explanation and selection | Read the rendered report at its intended viewing size for scanning and continuous comprehension: headings, captions, analysis, emphasis and equations have clear roles. Then check sources and canonical records for sufficient background/prior work, method rationale, key equations and reasoning links, exhibit roles and contribution judgment; no invented links or loss of material conditions, uncertainty or conflicting evidence. Record the renderer and checks actually performed; a syntax check alone is not rendered-page verification |
 | Epistemic wording | Conditions and evidence modes remain distinct; every applicable downgrade is visible, near the affected claim or in a clearly scoped shared explanation |
 | Research judgment | Triggered originality/design judgments preserve baselines, functions, necessity/sufficiency scope, alternatives, applicable decisive tests, and unresolved boundaries without logical inflation |
 | Figures | Dynamic selection, complete panel interpretation, relative display paths, readable assets, and synchronized manifest |
