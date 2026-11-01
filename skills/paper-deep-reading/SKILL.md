@@ -11,7 +11,7 @@ Before sending user/workspace material to an external service, distinguish publi
 
 ## Core Contract
 
-Treat `view-report.md` as the final reader-facing Chinese report. Build it from canonical run, claim, source, evidence, and asset records; do not treat separately written briefs or matrices as independent truth.
+Build the Chinese `view-report.md` from canonical run, claim, source, evidence, and asset records; separate briefs or matrices are not independent truth. Explain the paper deeply enough for the reader to reconstruct its question, reasoning and contribution. Let complexity and reading purpose determine depth; remove repetition without compressing away background, key equations or explanatory links. Validation scope determines what to verify, not the report's voice.
 
 Read the bundled references as follows:
 
@@ -31,7 +31,7 @@ Keep these boundaries:
 
 ## Scope Gate And Internal State
 
-Resolve the paper identity, output directory, upload/network permissions, explicit exclusions, and resource budgets before live work. Use only user-supplied data or narrowly authorized main-item/PDF/DOI metadata reads to obtain the author, year, venue, and title needed to build G0; defer attachment enumeration, full-text access, download, copy, upload, parsing, and broader search until G0 passes. An explicitly supplied Zotero item key permits child metadata only for main-PDF selection after G0 and file access only for the selected main attachment; it does not permit note content, SI content, non-selected attachment content, or unrelated items. Treat workspace `.paper-collab.yaml` as a path preference, never as permission. If a higher-priority workspace rule requires per-run output confirmation, show the resolved directory and obtain that confirmation before creating directories or copying files. If multiple blocking inputs are missing, ask for them together in one concise question.
+For a new run, resolve the paper identity, output directory, upload/network permissions, explicit exclusions, and resource budgets before live work. For an authorized continuation, use the reuse and correction rules in `evidence-kernel.md`. Use only user-supplied data or narrowly authorized main-item/PDF/DOI metadata reads to obtain the author, year, venue, and title needed to build G0; defer attachment enumeration, full-text access, download, copy, upload, parsing, and broader search until G0 passes. An explicitly supplied Zotero item key permits child metadata only for main-PDF selection after G0 and file access only for the selected main attachment; it does not permit note content, SI content, non-selected attachment content, or unrelated items. Treat workspace `.paper-collab.yaml` as a path preference, never as permission. If a higher-priority workspace rule requires per-run output confirmation, show the resolved directory and obtain that confirmation before creating directories or copying files. If multiple blocking inputs are missing, ask for them together in one concise question.
 
 Resolve output in this order: an explicit complete run directory, an explicit output parent plus an automatically named child, a valid workspace-root configuration plus an automatically named child, then a required question for an absolute default parent. Treat a missing, unreadable, malformed, incomplete, or non-absolute configuration as unresolved; do not invent or normalize a fallback. When the user provides an output parent rather than a complete run-directory name, derive `task_name` and the child run directory with the naming contract in `evidence-kernel.md`. Preserve an explicitly named run directory. Never overwrite an existing directory to enforce the convention, and never rename or migrate a legacy run.
 
@@ -89,7 +89,7 @@ Distinguish validation scopes:
 
 ## External Dependency Preflight
 
-Before any live G0 action, run a read-only external-dependency preflight. When this Skill is installed as a directory, use the bundled script when available:
+Before live G0 actions in a new run, run a read-only external-dependency preflight; on continuation, recheck affected capabilities only when their configuration, availability, or intended use changes. When this Skill is installed as a directory, use the bundled script when available:
 
 ```text
 python scripts/check_dependencies.py --mode <validation>
@@ -160,7 +160,7 @@ G0 Run Contract
 
 ### G0 Run Contract
 
-Create `paper-package.md` before live actions. Record main-paper identity, resolved output, `main_pdf_staging`, internal state, permission flags, budgets, explicit user overrides, `evidence_contract: v1.1`, and `reader_citation_contract: semantic-footnote-v1` for newly generated reader-facing reports. Stop if identity, output confirmation, or required permission is unresolved.
+For a new run, create `paper-package.md` before live actions. Record main-paper identity, resolved output, `main_pdf_staging`, internal state, permission flags, budgets, explicit user overrides, `evidence_contract: v1.1`, and `reader_citation_contract: semantic-footnote-v1` for newly generated reader-facing reports. Stop if identity, output confirmation, or required permission is unresolved.
 
 ### G1 Main Source
 
@@ -178,7 +178,7 @@ Do not claim parser evidence merely because files exist.
 
 ### G2 Claims And Figures
 
-Perform a structure scan, technical deconstruction, and research judgment. Create the canonical Claim/Condition Registry in `reading-report.md`. Make each important claim atomic and record its conditions, main-paper locator, evidence mode, joint-demonstration status, supplementary dependency, validation role, and closure status.
+Reconstruct the relevant background and prior work, unresolved question, rationale for the authors' approach, and chain of reasoning in `reading-report.md`, linked to its canonical Claim/Condition Registry. Retain the key equations, assumptions, intermediate steps and dependencies that make the method understandable. Make important claims atomic and record conditions, main-paper locators, evidence modes, joint-demonstration status, supplementary dependencies, validation roles, and closure status. Distinguish established links, authors' interpretation, and report inference; never supply a missing causal or logical step to smooth the explanation.
 
 For every full report, run the compact research-judgment trigger scan in `research-judgment.md`. When triggered, add the canonical `N-*` Novelty-Generativity-Perspective Registry and/or `D-*` Design Necessity and Counterfactual Registry to `reading-report.md`. Link each judgment to atomic `C-*` claims, state the nearest baseline or required function, and record missing discriminating controls rather than relying on evaluative prose.
 
@@ -223,13 +223,13 @@ python <skill-root>/scripts/check_canonical.py --run-dir <approved-run-directory
 
 It validates controlled values, IDs, source/claim/evidence links, role states and deduplicated source counters. It does not establish scientific truth, actual reading, locator authority or semantic atomicity; those remain G2–G4 checks. Canonical failures block G5 until corrected upstream. A successful footnote check cannot replace this check. See the API and correction guidance in `evidence-kernel.md`.
 
-Assemble `view-report.md` only from eligible canonical records. Verify report-to-claim-and-judgment mapping, semantic external footnotes, display assets, relative paths, figure completeness, equation status, placeholders, internal-path leakage, and protection of pre-existing outputs. Map every strong originality, perspective, necessity, sufficiency, alternative, and superiority statement to canonical `C-*`, `N-*`, `D-*`, and applicable `E-*` records. Run the bundled mechanical check from the resolved Skill root when the report contains external footnotes; the three artifact paths may be absolute:
+Assemble `view-report.md` only from eligible canonical records and complete every applicable Delivery QA check in `report-contract.md`, including strong-claim/judgment mapping. Run the bundled footnote check when external footnotes are present; the three artifact paths may be absolute:
 
 ```text
 python <skill-root>/scripts/check_report_footnotes.py --report view-report.md --registry auxiliary-literature-table.md --audit view-report-audit.md
 ```
 
-The script checks syntax, key normalization, definition completeness, anchors, backlinks, and registry/audit synchronization; it does not establish bibliographic authority, verify DOI-based collision ordering, replace full-text reading, or verify locators. A derived-view conflict or either failed G5 layer must fail this gate until the canonical record is corrected and the view is regenerated.
+The script checks syntax, key normalization, definition completeness, anchors, backlinks, and registry/audit synchronization; it does not establish bibliographic authority, verify DOI-based collision ordering, replace full-text reading, or verify locators. Complete the semantic read-through in `report-contract.md` as well. A derived-view conflict or either failed G5 layer must fail this gate until the canonical record is corrected and the view is regenerated.
 
 Use gate states exactly as defined in `evidence-kernel.md`. Do not describe external validation as complete when G3 is `not-applicable`, downgraded, or blocked.
 
@@ -272,36 +272,12 @@ Treat `auxiliary-paper-brief.md`, `auxiliary-evidence-cards.md`, `review-matrix.
 
 ## Reader-Facing Report Boundary
 
-Follow `report-contract.md`. In particular:
-
-- keep `view-report.md` free of modes, internal IDs, raw paths, hashes, logs, permission tables, and QA narration;
-- use a dynamic `关键图表精读` section rather than a fixed figure count;
-- write `核心结论` as one paragraph of 3-5 Chinese sentences;
-- treat `全文速览` as a concise two-minute reading section, not a hard character quota;
-- use readable `*-display.png` assets and Typora-compatible relative HTML image paths;
-- never embed full-page renders from `assets/pages/`;
-- explain every visible panel or natural panel group using caption and body context;
-- preserve original equation numbers or mark an unavailable number explicitly;
-- include paper-appropriate sections equivalent to `原创性、研究生成力与关键视角` and `核心设计选择：必要性、充分性与替代机制` when their trigger scan is positive;
-- present follow-up directions as bounded, falsifiable report inferences with a minimum decisive test, not as generic application or material-substitution lists;
-- use `reader_citation_contract: semantic-footnote-v1`: semantic Markdown footnote keys, superscript-only body markers, complete definitions under `外部核验文献`, and explicit `[回到正文]` links;
-- derive author, journal abbreviation, and year from the shared normalization rules in `references/evidence-kernel.md`;
-- cite only externally verified full text with reader-facing Markdown footnotes;
-- label `Internal Evidence`, `External Evidence`, `Inference`, and `User Assumption` where relevant;
-- retain `组会汇报建议` only as a handoff seed and do not generate slide sequence, action titles, or speaker notes.
+Follow `report-contract.md` for paper identity and reading context, explanation depth, figures, equations, assets, and citations. Organize a layered reader account around the paper's argument; preserve the background, method logic and comparisons needed to understand it. Explain consequential numbers and limitations where they affect interpretation. Keep provenance legible and operational records out of the prose.
 
 Hand presentation work to `paper-presentation`; `commitments.md` remains the sole presentation-planning source of truth.
 
 ## Completion Contract
 
-Before completion:
-
-- confirm all applicable gates have an honest terminal state;
-- confirm no unread or metadata-only source is presented as verified evidence;
-- confirm every strong external evidence row has a usable locator or is downgraded;
-- confirm unresolved scope is visible as `not established within scope`, `blocked`, or a report limitation;
-- confirm canonical integrity, final images, semantic footnotes, equations, relative paths, reader-facing boundaries, and the separate bundled G5 footnote check pass;
-- confirm an available main PDF is named `<task_name>.pdf`, its staged-copy hash is verified when applicable, and it did not consume an auxiliary-PDF budget;
-- confirm unauthorized Zotero, restricted-resource, supplementary, and sensitive-copy actions did not occur.
+Before completion, confirm honest terminal states for all applicable gates, passing G5 checks, and adherence to the Run Contract's permissions and budgets. Unread or metadata-only sources cannot become verified evidence; unresolved scope must remain visible as `not established within scope`, `blocked`, or a report limitation.
 
 Lead the final response with the `view-report.md` link. Then state the actual validation scope, number of external full texts verified when applicable, image-QA status, and unresolved evidence boundary. If no official journal or publisher abbreviation was available, state that the directory name used a normalized full name or `unknown-venue`; keep this notice out of `view-report.md`. Omit internal modes, candidate counts, hashes, full artifact inventories, and command logs unless the user asks.

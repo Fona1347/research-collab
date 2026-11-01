@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-No changes yet.
+- Rework Paper Deep Reading around developed background, prior work, method rationale and the paper's argument. Give the body room for key equations, coupling and reasoning steps. Restore default blockquote caption overviews, meaningful bold leads and a flexible figure-layout example; distinguish headings, captions and developed analysis, and inspect the rendered report during existing delivery QA. Consolidate prose rules without word or format quotas, preserving canonical evidence, complete panel coverage and citations.
+- Complete the reader's information card with first/corresponding authors, visible DOI identifiers, distinct version/publication/reading dates, actual material coverage and useful resource links. Retain operational records outside the reader narrative.
+- Clarify reuse of unchanged verified work during an authorized reading continuation, and extend synthetic experimental, theoretical and qualitative writing cases to cover explanatory depth, background, caption/body separation, equation readability and meaningful emphasis. Compare layouts with scientific content held constant. Evidence schemas and validation scripts are unchanged.
 
 ## v2.0.0 - 2026-09-23
 

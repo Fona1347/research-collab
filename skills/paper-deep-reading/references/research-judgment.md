@@ -55,8 +55,8 @@ Apply this sequence rather than asking only whether the paper is “innovative�
 3. Classify the novelty type.
 4. Separate paper-internal distinctiveness from externally verified priority.
 5. Remove paper-specific material and implementation nouns to state a transferable abstraction.
-6. Derive a falsifiable follow-up direction with a minimum decisive test and failure criterion.
-7. State any perspective shift as an old framing, new framing, newly visible design space, and boundary.
+6. When requested or supported by a useful unresolved question, derive a falsifiable follow-up direction with a minimum decisive test and failure criterion; otherwise record why it is not applicable.
+7. State any supported perspective shift as an old framing, new framing, newly visible design space, and boundary; do not invent a shift to fill the field.
 
 Maintain this normative table when the module is triggered:
 
@@ -211,10 +211,7 @@ If a judgment fails, use the existing single targeted closure pass when availabl
 
 ## Reader-facing contract
 
-When material, render the canonical analysis under paper-appropriate headings equivalent to:
-
-- `原创性、研究生成力与关键视角`;
-- `核心设计选择：必要性、充分性与替代机制`.
+Integrate judgments with the contribution, method, or evidence discussion, preserving logical distinctions. Use a separate section only when clearer.
 
 Do not expose `N-*`, `D-*`, or other internal IDs. For each major judgment:
 
@@ -224,7 +221,7 @@ Do not expose `N-*`, `D-*`, or other internal IDs. For each major judgment:
 4. state the verdict and its scope;
 5. state the decisive missing control, alternative, or boundary when unresolved.
 
-Write follow-up research directions as hypotheses with decisive tests, not as generic recommendation lists. Cite externally verified priority, counterexample, or matched-comparison evidence using the report's normal footnote contract.
+Write any follow-up research direction as a bounded hypothesis with a decisive test and failure observable, not a generic recommendation. Cite externally verified priority, counterexample, or matched-comparison evidence using the report's normal footnote contract.
 
 ## Cross-domain abstraction
 
