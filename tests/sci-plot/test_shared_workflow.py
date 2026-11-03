@@ -19,7 +19,7 @@ from sci_plot.qa import audit_figure
 class DeliveryTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
-        self.root = Path(self.tmp.name)
+        self.root = Path(self.tmp.name).resolve()
         self.data = self.root / "data.csv"
         self.data.write_text("x,y\n0,1\n1,2\n", encoding="utf-8")
         self.fig, self.ax = plt.subplots(figsize=(4, 3), layout="constrained")
