@@ -1,4 +1,4 @@
 interface:
   display_name: "Sci Plot"
-  short_description: "Create publication-ready scientific plots"
-  default_prompt: "Use $sci-plot to turn tabular research data into a safe, publication-ready figure."
+  short_description: "Reproducible scientific plots, fields and export checks"
+  default_prompt: "Use $sci-plot to plot my research data with shared export checks, reproducibility records and visual review."

@@ -169,7 +169,7 @@ class SpecDataTests(unittest.TestCase):
     def test_declared_data_formats(self) -> None:
         self.assertEqual(
             SUPPORTED_FORMATS,
-            ("csv", "tsv", "json", "xlsx", "npy", "npz"),
+            ("csv", "tsv", "txt", "json", "xlsx", "npy", "npz"),
         )
 
     def test_non_finite_geometry_is_rejected_for_every_plot_family(self) -> None:

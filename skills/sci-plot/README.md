@@ -7,6 +7,18 @@ SciencePlots 是默认启用的核心样式依赖，并通过 `no-latex` 兼容�
 
 本次版本的重点变化见 [CHANGELOG.md](CHANGELOG.md)。
 
+0.3.0 同时作为共享科研绘图入口：常用图使用 JSON 规格，复杂统计图、机器学习评估、
+二维场和 3D 图使用 Python。两条路径共用 `export_and_audit`，交付图片、输入/代码/
+输出哈希及检查记录。现有 EasyPlot Figure 可以直接接入，无需重写样式。
+
+- [自定义脚本与统一导出](references/custom-matplotlib.md)
+- [仪器表格、通用场与 COMSOL 导出数据](references/field-data.md)
+- [复现、审图与跨电脑部署](references/shared-workflow.md)
+
+环境检查：`python scripts/check_environment.py --require --require-pdf`。
+代表性验证：`python scripts/demo_workflow.py --output-root NEW_DIRECTORY`。
+缺少依赖先申请安装；已有环境可通过包内 launcher 使用，无需重新安装本包。
+
 > 本 README 只服务于开发者和维护者。Agent 的运行契约以
 > [SKILL.md](SKILL.md) 和 `references/` 为准。维护源码位于集合仓库的
 > skills/sci-plot；安装副本由集合工具生成。

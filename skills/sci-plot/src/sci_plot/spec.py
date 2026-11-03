@@ -43,7 +43,7 @@ TEMPLATE_CATALOG: dict[str, dict[str, Any]] = {
     },
 }
 ALLOWED_KINDS = set(TEMPLATE_CATALOG)
-ALLOWED_DATA_FORMATS = {"csv", "tsv", "json", "xlsx", "npy", "npz"}
+ALLOWED_DATA_FORMATS = {"csv", "tsv", "txt", "json", "xlsx", "npy", "npz"}
 TOP_LEVEL_KEYS = {
     "schema_version",
     "kind",
