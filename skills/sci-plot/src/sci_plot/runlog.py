@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .safety import redact_cli_args
+from .safety import redact_cli_args, file_fingerprint
 
 
 def _version(name: str) -> str:
@@ -28,6 +28,10 @@ def version_report() -> dict[str, str]:
         "scienceplots": _version("SciencePlots"),
         "numpy": _version("numpy"),
         "pandas": _version("pandas"),
+        "scipy": _version("scipy"),
+        "Pillow": _version("Pillow"),
+        "openpyxl": _version("openpyxl"),
+        "python": sys.version.split()[0],
     }
 
 
@@ -74,6 +78,8 @@ def write_run_log(
         "project_root": str(project_root) if project_root else "",
         "inputs": [str(path) for path in inputs],
         "outputs": [str(path) for path in outputs],
+        "fingerprints": {str(path): file_fingerprint(path)
+                         for path in [spec_path, *inputs, *outputs] if path.is_file()},
         "kind": kind,
         "theme": theme,
         "backend": backend,

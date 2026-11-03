@@ -11,8 +11,9 @@ from .config import ALLOWED_STYLES, ALLOWED_THEMES, load_effective_config, panel
 from .data import SUPPORTED_FORMATS, inspect_table, load_plot_data
 from .errors import DataError, SciPlotError, SourceError
 from .export import choose_output_paths, export_figure
+from .delivery import export_and_audit, verify_bundle, record_review
 from .project import init_project, resolve_output_base, resolve_project_root
-from .qa import audit_outputs
+from .qa import audit_outputs, pdf_tools
 from .render import render_figure
 from .runlog import version_report, write_run_log
 from .safety import (
@@ -86,6 +87,17 @@ def build_parser() -> argparse.ArgumentParser:
     templates = subparsers.add_parser("list-templates", help="List built-in plot kinds and mappings")
     templates.set_defaults(handler=_cmd_list_templates)
 
+    doctor = subparsers.add_parser("doctor", help="Read-only runtime and PDF tool inspection")
+    doctor.set_defaults(handler=_cmd_doctor)
+    verify = subparsers.add_parser("verify-bundle", help="Recheck recorded input/source/output hashes")
+    verify.add_argument("manifest", type=Path)
+    verify.set_defaults(handler=_cmd_verify_bundle)
+    review = subparsers.add_parser("record-review", help="Record an actual visual inspection against bundle hashes")
+    review.add_argument("manifest", type=Path)
+    review.add_argument("--status", required=True, choices=["passed", "needs_revision"])
+    review.add_argument("--notes", required=True)
+    review.set_defaults(handler=_cmd_record_review)
+
     source = subparsers.add_parser("source", help="Inspect and approve upstream revisions")
     source.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST_PATH)
     source_sub = source.add_subparsers(dest="source_command", required=True)
@@ -156,6 +168,23 @@ def _cmd_inspect_data(args: argparse.Namespace) -> int:
 
 def _cmd_list_templates(args: argparse.Namespace) -> int:
     _json({"templates": template_catalog()})
+    return 0
+
+
+def _cmd_doctor(args):
+    _json({"versions": version_report(), "package": str(Path(__file__).parent),
+           "executable": sys.executable, "pdf_tools": pdf_tools(), "environment_modified": False})
+    return 0
+
+
+def _cmd_verify_bundle(args):
+    report = verify_bundle(args.manifest)
+    _json(report)
+    return 0 if report["valid"] else 1
+
+
+def _cmd_record_review(args):
+    _json({"review": str(record_review(args.manifest, status=args.status, notes=args.notes))})
     return 0
 
 
@@ -248,27 +277,28 @@ def _cmd_render(args: argparse.Namespace) -> int:
     log_root = project_root or spec_path.parent
     try:
         rendered = render_figure(spec, spec_path, config)
-        export_warnings = export_figure(
+        delivery = export_and_audit(
             rendered.figure,
-            paths,
-            formats,
+            output_base,
+            project_root=allowed_root,
+            inputs=declared_inputs,
+            input_fingerprints=fingerprints,
+            spec_path=spec_path,
+            effective_config=config,
+            provenance={"kind": spec["kind"], "figure_spec": spec},
+            formats=formats,
             dpi=config["render"]["dpi"],
             backend=rendered.backend,
             rc_params=rendered.rc_params,
             theme=config["render"]["theme"],
             overwrite=args.overwrite,
+            conflict=config["output"]["conflict"],
+            allow_external=args.allow_external_output,
         )
-        verify_fingerprints(fingerprints)
-        qa = audit_outputs(
-            paths,
-            formats,
-            expected_dpi=config["render"]["dpi"],
-            expected_size_mm=(
-                config["render"]["width_mm"],
-                config["render"]["height_mm"],
-            ),
-        )
-        warnings = rendered.warnings + export_warnings + qa["warnings"]
+        paths = delivery["outputs"]
+        conflict_renamed = delivery["conflict_renamed"]
+        qa = delivery["qa"]
+        warnings = rendered.warnings + delivery["warnings"]
         if config["logging"]["enabled"]:
             log_path = write_run_log(
                 root=log_root,
@@ -300,6 +330,7 @@ def _cmd_render(args: argparse.Namespace) -> int:
                 "qa": qa["checks"],
                 "warnings": warnings,
                 "run_log": str(log_path) if log_path else "",
+                "manifest": str(delivery["manifest"]),
                 "versions": version_report(),
             }
         )

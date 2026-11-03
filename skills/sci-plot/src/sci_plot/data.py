@@ -6,7 +6,7 @@ from typing import Any
 from .errors import DataError, DependencyError
 from .spec import TEMPLATE_CATALOG, resolve_data_path
 
-SUPPORTED_FORMATS = ("csv", "tsv", "json", "xlsx", "npy", "npz")
+SUPPORTED_FORMATS = ("csv", "tsv", "txt", "json", "xlsx", "npy", "npz")
 
 
 def _pandas():
@@ -59,15 +59,25 @@ def load_table(data_spec: dict[str, Any], spec_path: Path):
     if not path.is_file():
         raise DataError(f"Input data file not found: {path}")
     data_format = infer_format(path, data_spec.get("format"))
+    reader = data_spec.get("reader", {})
+    if not isinstance(reader, dict) or set(reader) - {"delimiter", "comment", "skiprows", "header", "names", "encoding", "sheet_name"}:
+        raise DataError("Unsupported data.reader option")
+    if data_format == "txt" and not reader.get("delimiter"):
+        raise DataError("TXT requires data.reader.delimiter (use '\\s+' for whitespace)")
+    if reader and data_format not in {"csv", "tsv", "txt", "xlsx"}:
+        raise DataError("data.reader options apply only to delimited tables or XLSX")
     try:
-        if data_format == "csv":
-            frame = pd.read_csv(path)
-        elif data_format == "tsv":
-            frame = pd.read_csv(path, sep="\t")
+        if data_format in {"csv", "tsv", "txt"}:
+            if "sheet_name" in reader:
+                raise DataError("sheet_name applies only to XLSX")
+            options = {k: v for k, v in reader.items() if k != "delimiter"}
+            frame = pd.read_csv(path, sep=reader.get("delimiter", "\t" if data_format == "tsv" else ","), **options)
         elif data_format == "json":
             frame = pd.read_json(path)
         elif data_format == "xlsx":
-            frame = pd.read_excel(path, engine="openpyxl")
+            if set(reader) - {"sheet_name", "header", "names", "skiprows"}:
+                raise DataError("Unsupported XLSX reader option")
+            frame = pd.read_excel(path, engine="openpyxl", **reader)
         elif data_format == "npy":
             np = _numpy()
             frame = _array_frame(np.load(path, allow_pickle=False))
