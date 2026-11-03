@@ -13,6 +13,7 @@ Use this reference when assembling, auditing, or handing off `view-report.md`. I
 - [Key-figure contract](#key-figure-contract)
 - [Asset Registry and image QA](#asset-registry-and-image-qa)
 - [Equation contract](#equation-contract)
+- [Reader citation presentation](#reader-citation-presentation)
 - [External footnote contract](#external-footnote-contract)
 - [Derived-artifact contract](#derived-artifact-contract)
 - [Group-meeting handoff](#group-meeting-handoff)
@@ -69,6 +70,7 @@ Use the paper's actual argument and the user's reading purpose to choose heading
 | Meaning, limitations, and credibility | Required in substance; separate internal support from external validation where applicable |
 | Open questions | Required when material uncertainties remain |
 | `组会汇报建议` | Include only when `presentation_handoff=yes` |
+| `主文与转引注释` | Include when citing main-paper locations or the main paper's citation chain |
 | `外部核验文献` | Include when external sources are cited |
 
 Build the information card from verified source identity and the actual reading record in `paper-package.md`. Include the title, first author(s) and corresponding author(s) as marked in the source, venue/citation, and DOI with the full identifier as link text. Keep online/publication date and the version read (such as preprint, accepted manuscript or Article in Press) distinct from reading, revision and archive dates. Describe materials actually used, with page/file coverage when useful; link available main text, supplements, data, review files, source archives or related analyses that help the reader. A related-resource link does not imply the material was read. Record missing metadata plainly rather than infer authorship roles or dates.
@@ -97,7 +99,7 @@ Make the provenance class legible in prose without printing internal IDs:
 
 | Provenance | Reader-facing treatment |
 | --- | --- |
-| Main-paper evidence | Anchor to the relevant figure/panel, table, equation, section, or reported condition |
+| Main-paper evidence | Cite the relevant figure/panel, table, equation, section, or reported condition with a main-source footnote |
 | External evidence | State whether it supports, weakens, contradicts, or contextualizes the main claim and attach a verified footnote |
 | Inference | Mark as the report's interpretation and state the premises and boundary |
 | User assumption | Identify it explicitly; do not merge it into the paper's conclusion |
@@ -190,6 +192,35 @@ Distinguish an original equation from a report-side derivation. Label any report
 
 Use readable display LaTeX for consequential equations and inline math for symbols, keeping interpretation nearby. When equation artwork is necessary, apply the same display-asset and manifest contract as other exhibits.
 
+## Reader citation presentation
+
+Keep evidence status independent of typography. Use native Markdown footnotes for citations in every validation scope: main-paper evidence, studies reported by the main paper, and independently verified external evidence all appear as superscript markers. Keep scientific discussion of authors and figures where it helps explain the argument, but move citation-only page/section/reference strings into the definitions. Ordinary links remain appropriate for the information card and useful resources. Do not substitute normal-height numbered links, escaped brackets such as `[\[7\]](...)`, repeated source parentheses, or bibliography headings for footnotes.
+
+Attach a marker to the sentence or clause it supports, including a sourced table cell or figure analysis. Preserve the source of empirical results and attributed viewpoints; distinguish report-side deductions and proposals. A main-paper-only report still needs citations. Formatting never upgrades evidence status or grants permission to retrieve the cited original studies.
+
+Use the reserved keys from `evidence-kernel.md`:
+
+| Citation | Key | Definition under `主文与转引注释` |
+| --- | --- | --- |
+| Main-paper location | `main-loc-p8-fig3` (descriptive locator slug) | `主文：` (or `Main paper:`), identifiable main source, `定位：` (or `Locator:`), useful page/section/panel and a link to the staged main source when available |
+| Numbered study cited by the main paper | `main-ref-7` (its original number) | Available original bibliography, italicized title and year; `转引自：` (or `Cited via:`), main-source locator, exact `原文文献 [7]` (or `Original ref. [7]`), and `未独立核验原始文献` (or `original source not independently verified`) |
+
+For a main paper with an unnumbered bibliography, use a main-locator key, retain its original author-date attribution and the same secondary-source disclosure in the definition; do not invent reference numbers. Do not expand bibliography initials by guesswork. Reusing a secondary key across several passages must preserve which main-paper locations support those occurrences, rather than reducing distinct claims to a generic page range.
+
+Synthetic syntax example (replace the bibliographic and locator text with actual canonical records):
+
+```markdown
+综述将这一响应归于此前的一项实验。[^main-ref-7]
+
+## 主文与转引注释
+
+[^main-ref-7]: A. Example. *Measured response in a model system*. Example Journal (2020). 转引自：Example Review；定位：p. 8, Fig. 3；原文文献 [7]；未独立核验原始文献。
+```
+
+Default to `reader_backlinks: native` for all footnote kinds. Typora supplies footnote navigation and a return arrow for each occurrence, including repeated citations; verify these controls in the actual reader. Do not hand-author `<a id>` tags or `[回到正文]` links in native mode: empty HTML anchors can appear as source text in the editor. Do not change themes or CSS to hide them. Keep `reader_backlinks: explicit` as a compatibility/export option when needed, using the anchor contract below; historical reports without the field retain that explicit behavior.
+
+Put main-source definitions before `外部核验文献` when both are present; omit either unused section. Separate definitions with blank lines; indent continuation paragraphs by four spaces. Keep each marker on one line. Main-source metadata and provenance are checked against the main paper and its canonical records, never against an invented external-validation entry.
+
 ## External footnote contract
 
 New reports use `reader_citation_contract: semantic-footnote-v1`. Use Markdown footnotes for external-validation sources cited in prose, but do not number them by first appearance. The semantic key is defined in `evidence-kernel.md` and must use the exact form:
@@ -201,11 +232,10 @@ New reports use `reader_citation_contract: semantic-footnote-v1`. Use Markdown f
 For example:
 
 ```markdown
-<a id="ref-yujian-hu-nat-med-2025-1"></a>
 该模型在外部队列中仍显示出明显的设备与协议迁移边界。[^Yujian Hu_Nat Med_2025]
 ```
 
-The raw Markdown key is semantic, while the rendered body citation is only a superscript marker. Do not expose author-year text, numbered citations such as `[^1]`, temporary keys such as `[^Otani2021]`, or visible DOI/reference text in the body sentence. The invisible HTML anchor is permitted solely to support an explicit return link.
+The raw Markdown key is semantic, while the rendered body citation is only a superscript marker. Do not expose citation-only author-year text, numbered citations such as `[^1]`, temporary keys such as `[^Otani2021]`, or visible DOI/reference text in the body sentence. Native mode requires no HTML anchor.
 
 An external source is footnote-eligible only when:
 
@@ -214,7 +244,7 @@ An external source is footnote-eligible only when:
 - a page, section, figure/panel, table, equation, data point, stable HTML anchor, or justified fallback locator was verified;
 - its Source Registry and Evidence Ledger rows are in sync;
 - its first-author full name, standard journal abbreviation, and four-digit publication year are authoritative and normalized;
-- its `Reader-facing footnote key` and `Backlink anchor IDs` are recorded in the Source Registry.
+- its `Reader-facing footnote key` and `Backlink anchor IDs` (`native` or the explicit IDs) are recorded in the Source Registry.
 
 Do not cite metadata, abstracts, search snippets, citation graphs, or an unread PDF as verified evidence. Such records may remain audit candidates, but they cannot receive a reader-facing key.
 
@@ -223,14 +253,14 @@ Place all definitions at the end of the report under the exact heading `外部�
 ```markdown
 ## 外部核验文献
 
-[^Yujian Hu_Nat Med_2025]: Yujian Hu, et al. *AI-based diagnosis of acute aortic syndrome from noncontrast CT*. *Nature Medicine* [Nat Med], 2025. DOI: https://doi.org/xxx. Evidence role: 外部性能与迁移边界核验。 Locator: p. 8, Fig. 3. [回到正文](#ref-yujian-hu-nat-med-2025-1)
+[^Yujian Hu_Nat Med_2025]: Yujian Hu, et al. *AI-based diagnosis of acute aortic syndrome from noncontrast CT*. *Nature Medicine* [Nat Med], 2025. DOI: https://doi.org/xxx. Evidence role: 外部性能与迁移边界核验。 Locator: p. 8, Fig. 3.
 ```
 
-Create `ref-<key-slug>-1`, `ref-<key-slug>-2`, and so on for each body occurrence of a source. Derive `<key-slug>` by case-folding the semantic key and replacing every run of non-letter/non-number characters with one hyphen. The definition must include one `[回到正文](#...)` link for every occurrence, in first-appearance order, and every target must exist in the body. Keep target-paper references distinct: preserve phrases such as `原文 refs. 3-8` when reporting the authors' citation chain, but do not convert those references into external-validation footnotes unless they were independently retrieved and read in this run.
+Only in `reader_backlinks: explicit`, create `ref-<key-slug>-1`, `ref-<key-slug>-2`, and so on for each body occurrence, with a corresponding `<a id="..."></a>` anchor. Derive `<key-slug>` by case-folding the semantic key and replacing every run of non-letter/non-number characters with one hyphen. Each definition then includes one `[回到正文](#...)` link for every occurrence, in first-appearance order, with every target present in the body. Do not mix explicit and native modes in one report. Preserve the main paper's citation chain in main-source footnotes; never classify it as independent external verification unless the original source was independently retrieved, read and verified in this run.
 
 Tie each footnote to the exact sentence or clause it supports. An S-grade verified source used in the final judgment must appear in prose, not only in a table or the reference list. A-grade verified sources may support mechanism, material-system plausibility, context, or boundaries when their limitations are stated.
 
-End with the `外部核验文献` definitions when at least one external footnote is used. When external validation is out of scope or no source is eligible, do not create a decorative or empty citation section; state the validation boundary instead.
+End with the `外部核验文献` definitions when at least one external footnote is used. When external validation is out of scope or no external source is eligible, omit that section and state the validation boundary. Retain the applicable `主文与转引注释`; absence of external verification does not remove main-source citations.
 
 ## Derived-artifact contract
 
@@ -311,17 +341,20 @@ Pass G5 only when all applicable checks succeed:
 | Research judgment | Triggered originality/design judgments preserve baselines, functions, necessity/sufficiency scope, alternatives, applicable decisive tests, and unresolved boundaries without logical inflation |
 | Figures | Dynamic selection, complete panel interpretation, relative display paths, readable assets, and synchronized manifest |
 | Equations | Correct meaning/numbering, variables and units, use, inference, assumptions, and boundaries |
-| Footnotes | `semantic-footnote-v1`; semantic keys use normalized full author/journal/year fields; body markers are superscripts only; definitions are under `外部核验文献`; every definition has a locator and explicit `[回到正文]`; Source Registry and Evidence Ledger are synchronized; no metadata-only evidence |
+| Footnotes | `semantic-footnote-v1`; all citation kinds render as superscripts; reserved main keys and normalized external keys remain distinct; definitions use their respective sections and locators, with native return controls by default; all keys/backlink modes match the audit and external keys match the Source Registry/Evidence Ledger; no secondary or metadata-only source is promoted to verified evidence |
+| Citation rendering | In the intended reader (Typora when requested), inspect a representative main/external marker, a repeated marker and any cited table/figure text; verify superscript display, definition navigation and return links. Record the renderer and tests actually performed. A regex check, ordinary-link repair or preview from another renderer cannot establish Typora compatibility |
 | Derived views | Generated views match canonical owners; untriggered conditional views are not required |
 | Handoff | No new claim or slide plan; `paper-presentation` owns `commitments.md` |
 | Filesystem | Every report-relative target exists; no unresolved placeholder; no pre-existing or legacy directory was overwritten or reorganized |
 
 G5 permits only `pass` or `blocked`. Repair broken links, stale derived state, missing citations, unreadable assets, and placeholder text before delivery; do not downgrade these mechanical failures into prose caveats.
 
-For a semantic-footnote report, the audit's structured Gate table must contain exactly one G5 row with `Status=pass`. The G5 portion of `view-report-audit.md` must also contain the exact line `reader_citation_contract: semantic-footnote-v1` and this structured Footnote Map. Separate anchor IDs with a comma and one space, in first-appearance order.
+For a semantic-footnote report, the audit's structured Gate table must contain exactly one G5 row with `Status=pass`. The G5 portion of `view-report-audit.md` must also contain the exact line `reader_citation_contract: semantic-footnote-v1`, the line `reader_backlinks: native` (or `explicit`), and this structured Footnote Map. Native rows use `native` in the backlink column; explicit rows list IDs separated by a comma and one space, in first-appearance order. Historical audits without the mode field use explicit anchors.
 
 | Reader-facing footnote key | Source ID | Backlink anchor IDs |
 | --- | --- | --- |
-| Yujian Hu_Nat Med_2025 | S1 | ref-yujian-hu-nat-med-2025-1 |
+| Yujian Hu_Nat Med_2025 | S1 | native |
 
-The Footnote Map must match the report and Source Registry exactly, including the key set, Source IDs, anchor order, and absence of extra IDs. It is a derived audit view; the Source Registry remains the canonical owner of the key and anchor fields.
+The Footnote Map includes all reader footnotes. Use `main` for main-locator keys and the exact `main-ref-N` key for numbered secondary citations in its `Source ID` column; keep them out of the external Source Registry and counts. External rows must match the Source Registry exactly. All rows must match the report's keys and backlink mode/ordered explicit anchors with no extra IDs. The map is derived: main-source identity/locators/citation chains remain in `paper-package.md`/`reading-report.md`, and external fields remain in the Source Registry.
+
+Run `check_report_footnotes.py --require-citations` on every full report. Without that flag, a document with no citations returns `NOT-APPLICABLE`, not a delivery pass. The script detects common plain-link substitutes, broken footnote markers and empty reference-link definitions, but cannot determine semantic citation coverage or actual rendering. Complete those read-through and renderer checks before marking G5 `pass`; a missing intended-renderer check remains explicit in the audit.

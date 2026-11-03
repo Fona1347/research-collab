@@ -160,7 +160,7 @@ G0 Run Contract
 
 ### G0 Run Contract
 
-For a new run, create `paper-package.md` before live actions. Record main-paper identity, resolved output, `main_pdf_staging`, internal state, permission flags, budgets, explicit user overrides, `evidence_contract: v1.1`, and `reader_citation_contract: semantic-footnote-v1` for newly generated reader-facing reports. Stop if identity, output confirmation, or required permission is unresolved.
+For a new run, create `paper-package.md` before live actions. Record main-paper identity, resolved output, `main_pdf_staging`, internal state, permission flags, budgets, explicit user overrides, `evidence_contract: v1.1`, `reader_citation_contract: semantic-footnote-v1`, and `reader_backlinks: native` for newly generated reader-facing reports. Stop if identity, output confirmation, or required permission is unresolved.
 
 ### G1 Main Source
 
@@ -223,13 +223,13 @@ python <skill-root>/scripts/check_canonical.py --run-dir <approved-run-directory
 
 It validates controlled values, IDs, source/claim/evidence links, role states and deduplicated source counters. It does not establish scientific truth, actual reading, locator authority or semantic atomicity; those remain G2–G4 checks. Canonical failures block G5 until corrected upstream. A successful footnote check cannot replace this check. See the API and correction guidance in `evidence-kernel.md`.
 
-Assemble `view-report.md` only from eligible canonical records and complete every applicable Delivery QA check in `report-contract.md`, including strong-claim/judgment mapping. Run the bundled footnote check when external footnotes are present; the three artifact paths may be absolute:
+Assemble `view-report.md` only from eligible canonical records and complete every applicable Delivery QA check in `report-contract.md`, including strong-claim/judgment mapping. Main-paper citations, secondary citations reported by the main paper, and independently verified external sources all use superscript Markdown footnotes; provenance and verification status belong in the definitions, not in different body formats. Run the bundled citation check for every full report, including main-paper-only and fully-local reports; artifact paths may be absolute:
 
 ```text
-python <skill-root>/scripts/check_report_footnotes.py --report view-report.md --registry auxiliary-literature-table.md --audit view-report-audit.md
+python <skill-root>/scripts/check_report_footnotes.py --report view-report.md --audit view-report-audit.md --require-citations
 ```
 
-The script checks syntax, key normalization, definition completeness, anchors, backlinks, and registry/audit synchronization; it does not establish bibliographic authority, verify DOI-based collision ordering, replace full-text reading, or verify locators. Complete the semantic read-through in `report-contract.md` as well. A derived-view conflict or either failed G5 layer must fail this gate until the canonical record is corrected and the view is regenerated.
+Add `--registry auxiliary-literature-table.md` when a Source Registry exists; it is required for external footnotes and reconciled even if their body markers are missing. Prefer native footnote return controls, without hand-authored HTML anchors; record `reader_backlinks: native` in the audit and `native` in its and the Source Registry's backlink cells. Legacy explicit anchors remain supported. The script checks citation syntax, key normalization, definition completeness, backlink configuration, and registry/audit synchronization. It does not establish bibliographic authority, verify DOI-based collision ordering, replace full-text reading, verify locators, or inspect rendering. Zero citations cannot pass a full report. Complete the semantic read-through and actual reader-renderer check in `report-contract.md` as well. A derived-view conflict or either failed G5 layer must fail this gate until the canonical record is corrected and the view is regenerated.
 
 Use gate states exactly as defined in `evidence-kernel.md`. Do not describe external validation as complete when G3 is `not-applicable`, downgraded, or blocked.
 
