@@ -74,7 +74,7 @@ Carry conditions that determine a claim's meaning or comparability with its loca
 
 ## Bibliographic normalization and reader-facing keys
 
-Use one bibliographic normalization method for automatic run names and reader-facing external footnotes. Do not create a second ad hoc citation-key convention in `view-report.md`.
+Use one bibliographic normalization method for automatic run names and reader-facing external footnotes. Main-source locator and secondary-attribution footnotes use only the reserved namespaces defined below, not an ad hoc author-key convention.
 
 For an external journal article, establish the following canonical fields before assigning a reader-facing key:
 
@@ -96,7 +96,13 @@ For example:
 
 If two or more distinct deduplicated sources cited in the same reader-facing report produce the same base key, sort that cited collision set by normalized DOI, then normalized title when DOI is absent, and append `_a`, `_b`, and so on. Use no suffix when only one member of a possible collision set is cited; whenever suffixes are present, the report must contain a contiguous set beginning with `_a` and `_b`. Reuse one key for every occurrence of the same source. A source with an unverified full name, unresolved official abbreviation, or unestablished year cannot receive a reader-facing key; either resolve the metadata or remove/downgrade the citation before G5.
 
-Derive hidden backlink IDs from the same key so that the first occurrence is `ref-<key-slug>-1`, the second is `ref-<key-slug>-2`, and so on. Create `<key-slug>` by case-folding the key and replacing every run of non-letter/non-number characters with one hyphen. Preserve Unicode letters and numbers, trim hyphens, and keep the occurrence suffix. This slug is an internal anchor only; it must not replace the semantic key shown in Markdown source.
+New reports use `reader_backlinks: native`: let the reader render footnote navigation and per-occurrence return controls, and record `native` in `Backlink anchor IDs` cells. Do not add HTML anchors or manual return links in this mode. Verify the controls in the intended reader; do not invent renderer-generated IDs.
+
+For an existing report with explicit backlinks, or an explicitly selected export that needs them, use `reader_backlinks: explicit`. An absent field in historical artifacts means `explicit`. Derive IDs from the same key so that occurrences are `ref-<key-slug>-1`, `ref-<key-slug>-2`, and so on. Create `<key-slug>` by case-folding the key and replacing every run of non-letter/non-number characters with one hyphen. Preserve Unicode letters and numbers and trim hyphens. This internal anchor must not replace the semantic key. Changing backlink mode requires synchronizing the report, registry and audit; do not silently migrate legacy reports.
+
+`semantic-footnote-v1` also reserves `main-loc-<locator-slug>` for the selected main paper and `main-ref-<original-positive-integer>` for its numbered citation chain. Locator slugs use lowercase ASCII letters/digits separated by single hyphens (for example `main-loc-p8-fig3`). Preserve one key per original numbered reference; reuse it and retain occurrence-specific locators in the definition. These keys do not assert that the original referenced work was retrieved or read. Preserve the bibliography's available initials and metadata; do not guess full names or perform otherwise unauthorized lookups to fit an external semantic key.
+
+Main-paper identity remains owned by `paper-package.md`; main locators and any original-reference-to-claim associations remain owned by `reading-report.md`. The Footnote Map is derived from those records. Its reserved `Source ID` is `main` for locator keys and the exact `main-ref-N` key for secondary citations. They are not `S-*` records, do not enter the external Source Registry or Evidence Ledger merely for formatting, and do not increase verified/cited external-source counts. If an original source is independently read and verified later, update the canonical evidence first and use its eligible external key only for the propositions actually verified. See `report-contract.md` for definition content and rendering checks.
 
 ## Run Contract
 
@@ -106,6 +112,7 @@ Place a `Run Contract` table near the start of `paper-package.md`.
 | --- | --- |
 | `evidence_contract` | Exactly `v1.1` |
 | `reader_citation_contract` | Exactly `semantic-footnote-v1` for newly generated reader-facing reports; historical artifacts created before this contract may omit the field, and must not be retrofitted unless the report is regenerated |
+| `reader_backlinks` | `native` for new reports; `explicit` for legacy/manual anchors or a selected export requirement; omitted historical values mean `explicit` |
 | `paper_identity` | Title plus DOI or another canonical identifier; record an identity limitation if none exists |
 | `task_name` | Derived run-directory basename, or the basename of an explicitly named run directory |
 | `output_directory` | User-approved run directory |
@@ -279,7 +286,7 @@ Keep lifecycle statuses independent:
 
 Publisher HTML or Zotero indexed full text may reach `Read status=full` and `Verification status=verified` without a materialized or parsed PDF, provided the relevant content and locator were actually checked. Metadata, an abstract, a search snippet, or a citation graph alone can never reach `verified`.
 
-For `Reader-facing footnote key`, use the exact semantic key or `not-cited`, `not-applicable`, `pending`, or `blocked: <reason>`. For `Backlink anchor IDs`, list the exact HTML IDs in first-appearance order separated by a comma and one space, or use the same controlled value when no reader-facing citation exists. A semantic key requires `Citation status=cited`; every cited semantic key and its ordered anchor list must match the generated report exactly, with no missing, reordered, or extra IDs.
+For `Reader-facing footnote key`, use the exact semantic key or `not-cited`, `not-applicable`, `pending`, or `blocked: <reason>`. For `Backlink anchor IDs`, use `native` for renderer-provided controls, or list explicit HTML IDs in first-appearance order separated by a comma and one space; use the same controlled missing-value token when no reader-facing citation exists. A semantic key requires `Citation status=cited`; every cited semantic key and backlink mode/ordered explicit anchor list must match the generated report and audit exactly.
 
 ## Evidence Ledger
 
