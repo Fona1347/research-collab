@@ -11,11 +11,15 @@
 | sci-plot | Sci-Plot | Current working source including uncommitted fixes; bundled src runtime |
 | zotero-literature-note | zotero-literature-note | Public-ready canonical Skill and its copyright notice |
 | literature-fulltext-acquisition | literature-acquisition | Experimental Skill and guarded wrapper; upstream runtimes excluded |
+| insight | insight | V2.2 source, including its [method attribution](../skills/insight/references/sources.md) |
 
 Source histories stay in the old repositories. Exact local paths, initial commit IDs,
 hash inventories, reviewed drift and recovery locations are private migration records.
 
 ## Dependency attribution
+
+- Insight can reuse the separately available `grill-me` Skill for decisions. It
+  can use the host's question interface or chat when that companion is absent.
 
 - Sciverse and Paper Schema: external service/MCP capabilities, not an original
   server implementation in this collection.

@@ -1,6 +1,6 @@
 # Compatibility and capability index
 
-This index describes the v2.0.0 collection. Pin the release tag or a reviewed Git
+This index describes the maintained collection. Pin a release tag or a reviewed Git
 commit for a reproducible snapshot; component versions and evidence schemas are independent.
 Installing a Skill does not install its dependencies or grant data/service access.
 
@@ -15,6 +15,7 @@ Installing a Skill does not install its dependencies or grant data/service acces
 | sci-plot | 0.2.1; figure schema 1 | Python 3.11+ and declared plotting dependencies; optional pubfig | Actual plots/exports, panel styles, precedence, input/output guards |
 | zotero-literature-note | 0.3.0-beta | Selected Zotero item/connector; authorized parser as needed | Release payload, references, policy/templates (PowerShell 7) |
 | literature-fulltext-acquisition | Experimental adapter; existing upstream lock | Windows + PowerShell 7, configured tools and entitlement | Fake-executable guards; configured runtime help only, no live retrieval |
+| insight | V2.2 | Complete independent review requires subagents with fresh histories. Decision prompts can use `grill-me` when available or the host's question interface or chat. | Package inventory and internal links |
 
 Historical version labels describe lineage, not new releases. Without an independent
 semantic version, use the collection commit. Sci-Plot's patch records executable
