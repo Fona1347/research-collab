@@ -1,6 +1,6 @@
 # Research Collab
 
-**Nine research Skills** for literature discovery, paper reading, research-route decisions, scientific plotting and presentation planning. Use each independently or combine them around a task, with traceable sources, reasoning and outputs.
+**Ten research Skills** for literature discovery, paper reading, research-route decisions, research writing, scientific plotting and presentation planning. Use each independently or combine them around a task, with traceable sources, reasoning and outputs.
 
 [简体中文](README.zh-CN.md) · [Maintenance and installation](docs/maintenance.md) · [Sources and dependencies](docs/sources.md) · [Compatibility and verification scope](docs/compatibility.md)
 
@@ -41,7 +41,7 @@ python scripts/skills.py install --skills-root "$skillsDir"
 python scripts/skills.py check --skills-root "$skillsDir"
 ```
 
-This installs all nine Skills, including the experimental acquisition adapter. It does not install Python dependencies, register MCP servers or start research. To try one Skill, add `--skill paper-deep-reading` to the install and check commands. If an existing installation conflicts, follow the [adoption guide](docs/maintenance.md#adopt-an-existing-installation) and preserve local changes.
+This installs all ten Skills, including the experimental acquisition adapter. It does not install Python dependencies, register MCP servers or start research. To try one Skill, add `--skill paper-deep-reading` to the install and check commands. If an existing installation conflicts, follow the [adoption guide](docs/maintenance.md#adopt-an-existing-installation) and preserve local changes.
 
 ### 2. Read your first paper
 
@@ -66,6 +66,7 @@ Codex loads project Skills from `.agents/skills`. In the CLI/IDE, use `$skill-na
 | Find papers, expand queries and organize sources | [research-lookup-enhanced](skills/research-lookup-enhanced/SKILL.md) | Traceable candidates and evidence packets |
 | Retrieve passages or structured reading from Sciverse | [sciverse-research](skills/sciverse-research/SKILL.md) | Evidence with provenance and completeness status |
 | Understand one paper and its evidence boundaries | [paper-deep-reading](skills/paper-deep-reading/SKILL.md) | Reader report and authoritative working artifacts |
+| Develop a research argument or revise a draft | [insight](skills/insight/SKILL.md) | Evidence-grounded claims, revised prose, or independent review and an author-approved draft |
 | Create a Markdown note from a Zotero item | [zotero-literature-note](skills/zotero-literature-note/SKILL.md) | Traceable notes and figures |
 | Compare research directions, examine a chosen interface or audit a plan | [research-opportunity-mapper](skills/research-opportunity-mapper/SKILL.md) | Route decisions, validation plans and decision records |
 | Explore research opportunities quickly | [research-opportunity-mapper-quick](skills/research-opportunity-mapper-quick/SKILL.md) | Lightweight opportunity map |

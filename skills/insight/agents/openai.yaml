@@ -1,0 +1,4 @@
+interface:
+  display_name: "见微"
+  short_description: "共同发展直觉与主张，充分展开论证；按任务轻重选择直接编辑或独立审查"
+  default_prompt: "使用 $insight，按下面任务的需要共同发展观点或直接修改，充分展开论证并保持表达直接。"

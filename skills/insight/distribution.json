@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "files": [
+    "LICENSE",
+    "SKILL.md",
+    "agents/openai.yaml",
+    "references/argument.md",
+    "references/coordination.md",
+    "references/expression.md",
+    "references/literature.md",
+    "references/protocol.md",
+    "references/sources.md"
+  ]
+}
