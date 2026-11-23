@@ -1,0 +1,28 @@
+--- a/openalex_cli/downloader.py
++++ b/openalex_cli/downloader.py
+@@ -86,8 +86,15 @@ class DownloadOrchestrator:
+ 
+         # Set up signal handlers for graceful shutdown
+         loop = asyncio.get_running_loop()
++        registered_signals: list[int] = []
+         for sig in (signal.SIGINT, signal.SIGTERM):
+-            loop.add_signal_handler(sig, self._request_shutdown)
++            try:
++                loop.add_signal_handler(sig, self._request_shutdown)
++            except (NotImplementedError, RuntimeError):
++                # asyncio signal handlers are unavailable on Windows and when
++                # the event loop is not running in the main thread.
++                break
++            registered_signals.append(sig)
+ 
+         try:
+             # Initialize or resume checkpoint
+@@ -144,7 +151,7 @@ class DownloadOrchestrator:
+             await self.storage.close()
+ 
+             # Remove signal handlers
+-            for sig in (signal.SIGINT, signal.SIGTERM):
++            for sig in registered_signals:
+                 loop.remove_signal_handler(sig)
+ 
+     def _request_shutdown(self) -> None:

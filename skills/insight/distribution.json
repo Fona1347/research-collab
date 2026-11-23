@@ -1,0 +1,22 @@
+{
+  "format": 1,
+  "files": [
+    "LICENSE",
+    "README.md",
+    "SKILL.md",
+    "agents/openai.yaml",
+    "assets/01-anti-defensive-polish.gif",
+    "assets/02-idea-exploration.gif",
+    "assets/03-flaw-interception.gif",
+    "assets/04-dual-genre-delivery.gif",
+    "assets/architecture-dark.svg",
+    "assets/architecture-light.svg",
+    "references/argument.md",
+    "references/coordination.md",
+    "references/decision-interaction.md",
+    "references/expression.md",
+    "references/literature.md",
+    "references/protocol.md",
+    "references/sources.md"
+  ]
+}

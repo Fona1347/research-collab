@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "installed_at": "2026-08-18",
+  "python": {
+    "version": "3.12.13",
+    "root": "<tools-root>/python"
+  },
+  "tools": {
+    "paper-search-mcp": {
+      "version": "0.1.4",
+      "provides": [
+        "paper-search",
+        "paper-search-mcp"
+      ]
+    },
+    "openalex-official": {
+      "version": "0.3.3",
+      "provides": [
+        "openalex"
+      ],
+      "local_patches": [
+        {
+          "id": "windows-asyncio-signal-handlers",
+          "file": "maintenance/literature-fulltext-acquisition/patches/openalex-official-0.3.3-windows-signals.patch",
+          "apply_script": "maintenance/literature-fulltext-acquisition/patches/apply-openalex-windows-signals.ps1",
+          "reason": "Guard Unix-only asyncio signal handlers so downloads can run on Windows."
+        }
+      ]
+    },
+    "instsci": {
+      "version": "0.1.1",
+      "git_commit": "836cd6b65ad74136b7a1ff17672816a3b8b789aa",
+      "provides": [
+        "instsci",
+        "instsci-mcp"
+      ],
+      "compatibility_pins": {
+        "mcp": "1.29.0"
+      }
+    }
+  },
+  "policy": {
+    "allowed": [
+      "open-access",
+      "user-authorized-institutional-access"
+    ],
+    "blocked": [
+      "sci-hub",
+      "libgen",
+      "tor",
+      "proxy-pool"
+    ],
+    "mcp_config_template": "config/literature.config.toml.example",
+    "mcp_registration": "not-global",
+    "implicit_skill_invocation": false,
+    "paper_search_mcp_disabled_tools": [
+      "download_scihub",
+      "download_with_fallback"
+    ]
+  }
+}

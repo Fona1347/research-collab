@@ -1,0 +1,8 @@
+[mcp_servers.paper_search]
+command = '<existing-tools-root>\runtimes\paper-search\.venv\Scripts\paper-search-mcp.exe'
+cwd = '<existing-tools-root>\runs'
+env_vars = ["UNPAYWALL_EMAIL", "SEMANTIC_SCHOLAR_API_KEY", "CORE_API_KEY"]
+disabled_tools = ["download_scihub", "download_with_fallback"]
+startup_timeout_sec = 30.0
+tool_timeout_sec = 120.0
+required = false

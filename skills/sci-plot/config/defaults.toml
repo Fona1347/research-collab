@@ -1,0 +1,71 @@
+# Sci Plot 默认配置基线。
+#
+# 配置优先级（从低到高）：
+# 内置默认值 → 项目根目录 sci-plot.toml → figure spec → CLI 参数。
+# 本文件不扩展 Sci Plot 支持的图表类型；当前核心图表类型仍为
+# line、bar、scatter、heatmap、errorbar 和 multi_panel。
+
+[render]
+# 绘图/导出后端：
+# - "auto"：优先使用兼容的 pubfig 0.3.x；不可用时回退到 Matplotlib。
+# - "matplotlib"：强制使用 Matplotlib 绘图与导出。
+# - "pubfig"：强制使用 pubfig；缺失或不兼容时直接报错，不自动回退。
+backend = "auto"
+
+# 内置主题：paper、nature、science、cell、custom。
+# 这些是出版风格启发式配置，不是对应期刊的官方模板。
+# custom 主题必须同时提供 palette 或 rcparams。
+theme = "paper"
+
+# 内置样式：general-paper、minimal、custom。
+# custom 样式必须提供 rcparams；它与 theme 是两个独立维度。
+style = "general-paper"
+
+# 是否启用 SciencePlots 的 ["science", "no-latex"] Matplotlib 样式。
+# true 需要安装 SciencePlots；它只改变视觉样式，不增加图表类型或统计功能。
+scienceplots = true
+
+# 中文字体名称；留空时使用 Sci Plot 的默认字体回退链。
+# 只有目标环境中实际安装的字体名称才会生效。
+chinese_font = ""
+
+# 最终图形中的基础字体大小，单位为 pt。
+font_size = 7.0
+
+# 最终图形物理尺寸，单位为 mm；同时影响栅格输出的像素尺寸。
+width_mm = 89.0
+height_mm = 60.0
+
+# 栅格图输出分辨率；允许范围为 72–2400 DPI。
+dpi = 300
+
+# 默认导出格式；可选 svg、pdf、png、tiff。
+# TIFF 由 Sci Plot 自己的 Pillow 适配层生成并验证为 RGBA。
+formats = ["svg"]
+
+# 是否显示 Matplotlib 网格。
+grid = false
+
+# 以下是可选的项目级参数，默认不启用：
+# - palette：覆盖主题调色板，例如：
+#   palette = ["#0072B2", "#E69F00", "#009E73"]
+# - rcparams：传入 Matplotlib rcParams，用于精细控制框线、刻度、线宽等，例如：
+#   rcparams = { "axes.spines.top" = true, "axes.spines.right" = true, "xtick.direction" = "in", "ytick.direction" = "in" }
+# 注意：rcparams 的键和值必须是当前 Matplotlib 可识别的参数。
+
+[output]
+# 输出冲突策略：
+# - "timestamp"：已有同名输出时，为整批输出追加统一时间戳，不覆盖旧文件。
+# - "error"：发现已有输出时直接报错，适合需要严格控制文件名的流程。
+# --overwrite 只能通过 CLI 显式启用，不由此处默认开启。
+conflict = "timestamp"
+
+[updates]
+# 是否在每次 render 前检查已登记的上游来源更新。
+# true 可能触发远程只读检查；普通绘图通常保持 false。
+check_before_render = false
+
+[logging]
+# 是否写入 Sci Plot 成功/失败运行日志。
+# CLI 的 --no-log 可对单次运行临时关闭。
+enabled = true

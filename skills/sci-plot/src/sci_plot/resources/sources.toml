@@ -1,0 +1,70 @@
+schema_version = 1
+
+[[sources]]
+id = "pubfig"
+url = "https://github.com/Galaxy-Dawn/pubfig"
+github = "Galaxy-Dawn/pubfig"
+branch = "main"
+role = "optional-preferred-runtime"
+release_tracking = true
+last_checked = "2026-07-22T14:20:51.828849+00:00"
+last_approved_ref = "154386ba88223f407154ad99a4e2c18f4810178d"
+last_approved_tag = "v0.3.0"
+last_approved_version = "0.3.0"
+latest_seen_ref = "4eec11658d689b730bebd299ee1a0a196687deaf"
+latest_seen_tag = "v0.3.0"
+latest_seen_tag_ref = "154386ba88223f407154ad99a4e2c18f4810178d"
+latest_seen_version = "0.3.0"
+latest_compare_status = "ahead"
+latest_change_count = 10
+latest_watched_changes = []
+latest_risks = ["api-or-spec", "output-behavior", "routing-or-guidance"]
+adapter_status = "Sci Plot schema isolated; pubfig 0.3.x export adapter"
+watch_paths = ["pyproject.toml", "src/pubfig/cli.py", "src/pubfig/render_spec.py", "src/pubfig/export"]
+notes = "Never inherit overwrite=true. TIFF remains in the Sci Plot export layer."
+
+[[sources]]
+id = "engineering-figure-agent"
+url = "https://github.com/heyu-233/engineering-figure-agent"
+github = "heyu-233/engineering-figure-agent"
+branch = "main"
+role = "routing-reference"
+release_tracking = false
+last_checked = "2026-07-22T14:20:51.828849+00:00"
+last_approved_ref = "a33a553b43f92152fdafcb1c4574d67a4e050cb6"
+last_approved_tag = ""
+last_approved_version = ""
+latest_seen_ref = "a33a553b43f92152fdafcb1c4574d67a4e050cb6"
+latest_seen_tag = ""
+latest_seen_tag_ref = ""
+latest_seen_version = ""
+latest_compare_status = "identical"
+latest_change_count = 0
+latest_watched_changes = []
+latest_risks = []
+adapter_status = "Design reference only; no runtime code copied"
+watch_paths = ["SKILL.md", "README.en.md", "scripts", "references"]
+notes = "Only the quantitative-versus-conceptual routing boundary is adopted."
+
+[[sources]]
+id = "nature-skills"
+url = "https://github.com/Yuan1z0825/nature-skills"
+github = "Yuan1z0825/nature-skills"
+branch = "main"
+role = "publication-qa-reference"
+release_tracking = false
+last_checked = "2026-07-22T14:20:51.828849+00:00"
+last_approved_ref = "91862221b39f7ca16d52ae0e1e9cb6c2bb31a96b"
+last_approved_tag = ""
+last_approved_version = ""
+latest_seen_ref = "91862221b39f7ca16d52ae0e1e9cb6c2bb31a96b"
+latest_seen_tag = ""
+latest_seen_tag_ref = ""
+latest_seen_version = ""
+latest_compare_status = "identical"
+latest_change_count = 0
+latest_watched_changes = []
+latest_risks = []
+adapter_status = "Lightweight rules extracted; optional external QA"
+watch_paths = ["skills/nature-figure/SKILL.md", "skills/nature-figure/static", "skills/nature-figure/references/qa-contract.md"]
+notes = "Do not copy or install the complete upstream skill."

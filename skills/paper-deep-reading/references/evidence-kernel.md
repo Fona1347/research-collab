@@ -1,0 +1,514 @@
+# Evidence Kernel Contract (v1.1)
+
+Use this reference when initializing or updating a deep-reading run's canonical Markdown records. It defines data ownership, field vocabularies, authorization resolution, evidence selection, epistemic controls, and the six fail-fast Gates. Keep orchestration and resource routing in `SKILL.md`; keep the detailed records here.
+
+## Contents
+
+- [Contract principles](#contract-principles)
+- [Canonical ownership](#canonical-ownership)
+- [Identifiers, missing values, and locators](#identifiers-missing-values-and-locators)
+- [Bibliographic normalization and reader-facing keys](#bibliographic-normalization-and-reader-facing-keys)
+- [Run Contract](#run-contract)
+- [Output resolution and run-directory naming](#output-resolution-and-run-directory-naming)
+- [Main-PDF staging](#main-pdf-staging)
+- [Main-paper identity](#main-paper-identity)
+- [Claim and Condition Registry](#claim-and-condition-registry)
+- [Research judgment registries](#research-judgment-registries)
+- [Source Registry](#source-registry)
+- [Evidence Ledger](#evidence-ledger)
+- [Authorization resolution](#authorization-resolution)
+- [Budgets and counters](#budgets-and-counters)
+- [Candidate selection and stopping](#candidate-selection-and-stopping)
+- [Review roles and correlated cross-checks](#review-roles-and-correlated-cross-checks)
+- [Epistemic rules](#epistemic-rules)
+- [Six fail-fast Gates](#six-fail-fast-gates)
+- [Gate recording and correction order](#gate-recording-and-correction-order)
+
+## Contract principles
+
+1. Use structured Markdown tables as the canonical data layer. Do not create parallel JSONL ledgers, schemas, migrations, renderers, or workflow state files.
+2. Give each field exactly one canonical owner. Other artifacts may cite a stable ID, but must not maintain an independently editable copy of the same fact.
+3. Separate relevance, acquisition, parsing, reading, verification, and citation state. Never infer one state from another.
+4. Treat `view-report.md` and all optional summaries as derived views. They may not originate a key scientific claim or final judgment.
+5. Correct canonical records first, then refresh every affected derived view. A stale derived view is a delivery failure, not an alternative interpretation.
+6. Preserve uncertainty and unresolved scope. `not established within scope` is a valid outcome.
+
+## Canonical ownership
+
+| Artifact | Canonical entity or field family | May derive, but must not redefine |
+| --- | --- | --- |
+| `paper-package.md` | Run Contract and main-paper identity | Gate summaries, report scope labels |
+| `reading-report.md` | Claim and Condition Registry plus triggered Novelty-Generativity-Perspective and Design Necessity/Counterfactual registries | Reader-facing claims, research judgments, review summaries |
+| `auxiliary-literature-table.md` | Source Registry | Evidence cards, auxiliary briefs, reference lists |
+| `external-evidence-matrix.md` | Evidence Ledger | External-validation prose, confidence summaries |
+| `assets/_manifest.md` | Asset Registry | Figure embeds and exhibit lists |
+| `view-report-audit.md` | Gate results and Report Claim Map | Delivery summary |
+| `view-report.md` | Derived reader-facing report only | Presentation handoff |
+
+Do not copy a final assessment into a derived table and later edit it there. Link the derived row to its canonical `Claim ID`, `Idea ID`, `Design ID`, or `Evidence ID` and apply any correction upstream.
+
+## Identifiers, missing values, and locators
+
+Use stable, zero-padded identifiers within one run:
+
+| Entity | Format | Rule |
+| --- | --- | --- |
+| Claim | `C-001` | Assign once; do not renumber after exclusion or weakening |
+| Research idea | `N-001` | Assign when the Novelty-Generativity-Perspective trigger is positive |
+| Design choice | `D-001` | Assign when the Design Necessity and Counterfactual trigger is positive |
+| Source | `S-001` | Assign after metadata deduplication |
+| Evidence | `E-001` | One source-to-claim relation per row; split materially different conditions or relations |
+
+Use `none`, `not-applicable`, `unknown`, or `blocked: <reason>` instead of an ambiguous blank cell. Do not use `not-applicable` to conceal an unperformed required check.
+
+Prefer a human-verifiable locator in this order:
+
+1. page plus section and figure/panel, table, equation, or named data point;
+2. section plus figure/panel, table, equation, or named data point when stable page numbers do not exist;
+3. stable HTML heading or paragraph anchor;
+4. MinerU block identifier only when the preceding locators are unavailable.
+
+Record why no stronger locator is available. Evidence without a usable locator cannot be `strong` and cannot support an unqualified strong statement.
+
+Carry conditions that determine a claim's meaning or comparability with its locator: the system or population, sampling and sample size when applicable, procedure, model assumptions, outcome definition, comparison basis, and relevant quantitative settings or uncertainty. Include domain-specific conditions when they matter, not as universal required fields. Use `not reported` for a relevant omitted condition and `not-applicable` for an inapplicable one.
+
+## Bibliographic normalization and reader-facing keys
+
+Use one bibliographic normalization method for automatic run names and reader-facing external footnotes. Main-source locator and secondary-attribution footnotes use only the reserved namespaces defined below, not an ad hoc author-key convention.
+
+For an external journal article, establish the following canonical fields before assigning a reader-facing key:
+
+- `first_author_full_name`: the first author's complete given name followed by family name, such as `Yujian Hu`. Resolve it from the full text, publisher record, or another authoritative bibliographic record. Do not expand initials by guesswork. Preserve Unicode letters, diacritics, meaningful hyphens, apostrophes, and multi-token names; collapse whitespace to single spaces.
+- `standard_journal_abbreviation`: prefer a verified Zotero `journalAbbreviation`, then the publisher's official abbreviation, then an authoritative NLM/Index Medicus abbreviation. DOI metadata may establish article identity and may supply the abbreviation only when it explicitly does so. Never invent an abbreviation by manually shortening the title.
+- `publication_year`: the four-digit year for the cited article version. When online-first and issue years differ, use the canonical year of the version actually cited and record the date distinction in the complete definition when relevant.
+
+Normalize each key component by preserving Unicode letters, combining marks, numbers, meaningful hyphens, apostrophes, and single spaces; replace underscores, control characters, Windows-invalid characters, and other structural punctuation runs with one space; then collapse and trim whitespace. Reserve underscores for the key separators. The base reader-facing key is exactly:
+
+```text
+<first-author given name> <first-author family name>_<standard journal abbreviation>_<YYYY>
+```
+
+For example:
+
+```markdown
+[^Yujian Hu_Nat Med_2025]
+```
+
+If two or more distinct deduplicated sources cited in the same reader-facing report produce the same base key, sort that cited collision set by normalized DOI, then normalized title when DOI is absent, and append `_a`, `_b`, and so on. Use no suffix when only one member of a possible collision set is cited; whenever suffixes are present, the report must contain a contiguous set beginning with `_a` and `_b`. Reuse one key for every occurrence of the same source. A source with an unverified full name, unresolved official abbreviation, or unestablished year cannot receive a reader-facing key; either resolve the metadata or remove/downgrade the citation before G5.
+
+New reports use `reader_backlinks: native`: let the reader render footnote navigation and per-occurrence return controls, and record `native` in `Backlink anchor IDs` cells. Do not add HTML anchors or manual return links in this mode. Verify the controls in the intended reader; do not invent renderer-generated IDs.
+
+For an existing report with explicit backlinks, or an explicitly selected export that needs them, use `reader_backlinks: explicit`. An absent field in historical artifacts means `explicit`. Derive IDs from the same key so that occurrences are `ref-<key-slug>-1`, `ref-<key-slug>-2`, and so on. Create `<key-slug>` by case-folding the key and replacing every run of non-letter/non-number characters with one hyphen. Preserve Unicode letters and numbers and trim hyphens. This internal anchor must not replace the semantic key. Changing backlink mode requires synchronizing the report, registry and audit; do not silently migrate legacy reports.
+
+`semantic-footnote-v1` also reserves `main-loc-<locator-slug>` for the selected main paper and `main-ref-<original-positive-integer>` for its numbered citation chain. Locator slugs use lowercase ASCII letters/digits separated by single hyphens (for example `main-loc-p8-fig3`). Preserve one key per original numbered reference; reuse it and retain occurrence-specific locators in the definition. These keys do not assert that the original referenced work was retrieved or read. Preserve the bibliography's available initials and metadata; do not guess full names or perform otherwise unauthorized lookups to fit an external semantic key.
+
+Main-paper identity remains owned by `paper-package.md`; main locators and any original-reference-to-claim associations remain owned by `reading-report.md`. The Footnote Map is derived from those records. Its reserved `Source ID` is `main` for locator keys and the exact `main-ref-N` key for secondary citations. They are not `S-*` records, do not enter the external Source Registry or Evidence Ledger merely for formatting, and do not increase verified/cited external-source counts. If an original source is independently read and verified later, update the canonical evidence first and use its eligible external key only for the propositions actually verified. See `report-contract.md` for definition content and rendering checks.
+
+## Run Contract
+
+Place a `Run Contract` table near the start of `paper-package.md`.
+
+| Field | Allowed value or required content |
+| --- | --- |
+| `evidence_contract` | Exactly `v1.1` |
+| `reader_citation_contract` | Exactly `semantic-footnote-v1` for newly generated reader-facing reports; historical artifacts created before this contract may omit the field, and must not be retrofitted unless the report is regenerated |
+| `reader_backlinks` | `native` for new reports; `explicit` for legacy/manual anchors or a selected export requirement; omitted historical values mean `explicit` |
+| `paper_identity` | Title plus DOI or another canonical identifier; record an identity limitation if none exists |
+| `task_name` | Derived run-directory basename, or the basename of an explicitly named run directory |
+| `output_directory` | User-approved run directory |
+| `task` | `full-report`, `focused-analysis`, or `plan-only` |
+| `validation` | `standard`, `main-paper-only`, `fully-local`, or `custom` |
+| `presentation_handoff` | `yes` or `no` |
+| `permissions` | Link to the resolved permission table in the same artifact |
+| `candidate_policy` | `soft-target` or `hard-limit`; use `hard-limit` only from an explicit user limit |
+| `candidate_target` | Default `15-30`; a target is not a hard limit |
+| `candidate_hard_limit` | Default `null`; set only from an explicit user limit |
+| `materialized_aux_pdf_limit` | Default `10` under authorized standard validation |
+| `parser_submission_limit` | Default `10` under authorized standard validation |
+| `cited_external_source_limit` | Default `null` |
+| `candidate_count` | Current deduplicated metadata-candidate count; initialize at `0` |
+| `materialized_aux_pdf_count` | Current distinct materialized auxiliary-PDF count; initialize at `0` |
+| `parser_submission_count` | Current distinct first-submission count; initialize at `0` |
+| `verified_external_source_count` | Current full-read, locator-verified external-source count; initialize at `0` |
+| `cited_external_source_count` | Current externally cited source count; initialize at `0` |
+| `user_overrides` | Exact user additions, exclusions, and hard limits, or `none` |
+| `excluded_resources` | Supplementary, restricted, sensitive, or other explicitly excluded resources |
+
+Treat the three axes as orthogonal. For example, `task=full-report` does not imply `validation=standard`, and `presentation_handoff=yes` does not authorize presentation generation.
+
+## Output resolution and run-directory naming
+
+Treat workspace `.paper-collab.yaml` as a stored path preference, not an authorization record. Accept exactly one required setting:
+
+```yaml
+default_output_parent: '/path/to/paper-reports'
+```
+
+Read this file only from the workspace root and require an absolute `default_output_parent`. If the file is missing or unreadable, its YAML is malformed, the setting is missing, or the value is not absolute, treat the preference as unresolved and ask for an absolute default parent; do not invent, normalize, or silently substitute a fallback. Resolve output in this order:
+
+1. preserve a complete run directory explicitly supplied for the current task;
+2. append an automatically derived `task_name` to an explicit output parent;
+3. append `task_name` to the workspace configuration's default parent;
+4. when none is available, ask for an absolute default parent and do not silently fall back.
+
+If a higher-priority workspace rule requires confirmation for each research output, show the resolved full directory and obtain that confirmation before creating it. An explicit one-run directory does not silently replace the stored default. For a new run, if the complete explicit directory already exists and may contain work, ask for a new directory; do not merge or append a suffix to an explicitly chosen name. An authorized continuation uses its existing run directory under the correction rules below. Never migrate, rename, merge, or reorganize an existing or legacy run directory.
+
+For automatically named child directories, use these exact forms:
+
+```text
+Zotero item: <item-key>-<first-author-full-name>_<year>_<journal-or-publisher>-<short-title>
+Other input: <first-author-full-name>-<year>-<journal-or-publisher>-<short-title>
+```
+
+- Preserve the Zotero item key exactly and place it first whenever the main paper is identified from a Zotero item.
+- Use the first author's complete canonical name in given-name-then-family-name order and preserve single internal spaces. Preserve a one-field institutional author; use `unknown-author` when no author can be established.
+- Prefer an official journal abbreviation for journal articles and an official publisher or venue abbreviation for other item types. For Zotero, prefer `journalAbbreviation`, then the applicable publication or publisher field; use authoritative DOI metadata when needed. If no official abbreviation exists, use the normalized full journal or publisher name and set the completion notice; use `unknown-venue` when no venue can be established.
+- Use the four-digit publication year; use `undated` when it cannot be established.
+- Form `short-title` from a distinctive portion of the canonical title: normally 3-8 content words for a space-delimited title or 6-20 characters for a CJK title. Use `untitled` when no title can be established.
+- In author and venue segments, preserve Unicode letters/numbers, diacritics, apostrophes, meaningful hyphens, and single spaces; replace every other punctuation, underscore, control-character, or Windows-invalid-character run with one space, then collapse and trim whitespace. Normalize every `short-title` whitespace or punctuation run to one hyphen and trim leading or trailing hyphens, dots, and spaces. Reserve structural underscores for the Zotero form.
+- Keep the final `task_name`, including a collision suffix, at most 100 characters by shortening only `short-title`. Do not remove or truncate the item key, complete author, year, or venue. If those fixed segments exceed the limit, require an explicit complete run directory.
+- If an automatically named directory exists, do not overwrite or merge it. Append the smallest available numeric suffix, starting with `-2`, and shorten `short-title` if needed to preserve the length limit.
+
+Examples:
+
+```text
+ABCD1234-John Smith_2024_Nat Commun-Photocatalytic-Water-Splitting
+John Smith-2024-Nat Commun-Photocatalytic-Water-Splitting
+ABCD1234-Li Ming_undated_unknown-venue-光催化分解水催化剂
+```
+
+## Main-PDF staging
+
+When a main PDF is available, place it at the run root as `<task_name>.pdf` and use that run-relative file as the canonical main source.
+
+- For a local PDF, copy rather than move or rename the source; verify source and destination SHA256 match.
+- For a DOI, title, or other non-file input, save an authorized retrieved PDF directly as `<task_name>.pdf`.
+- For an explicitly supplied Zotero item, read the parent metadata; after G0, use read-only child metadata solely to select the main PDF and use an attachment/file route only for that selected file. This narrow grant excludes note content, SI content, non-selected attachment content, and unrelated items. Copy one selected main PDF; never rename, move, update, attach, tag, delete, import, or upload anything in Zotero.
+- For one eligible Zotero PDF, select it without broadening access. For multiple PDFs, exclude non-PDF files and files clearly identified as supplementary/SI, in-progress, or preprint when a formal version exists. Prefer the newest formal published full text whose DOI or title matches the parent item. Never promote SI to the main paper; ask when the choice remains ambiguous or only a non-final preprint is available.
+- When a Zotero item has no usable PDF, retrieve an OA copy only when existing network/OA permissions allow it, save it in the run directory, and never attach it back to Zotero.
+- For every input kind, if no PDF is available, create no placeholder. Set G1 to `pass-with-downgrade` only when an authorized, sufficiently complete non-PDF full text supports the requested task; record the actual representation, `page count: not-applicable`, affected claims, and PDF-dependent limitations. Otherwise set G1 to `blocked` for a PDF-dependent full report.
+- Record Zotero item and attachment keys, destination-relative path, size, and SHA256 in the operational record. Do not record a source Zotero absolute path in reader-facing output.
+- Staging the main PDF consumes neither `materialized_aux_pdf_count` nor `parser_submission_count`.
+
+### Legacy aliases
+
+Resolve legacy terms only as compatibility aliases:
+
+| Legacy term | Normalized value |
+| --- | --- |
+| `full-deep-reading` | `task=full-report` |
+| `complete-validation` | `validation=standard`, when the user explicitly requests/permits it or gives the unqualified command `精读` |
+| `structure-only` | `task=plan-only` |
+| `presentation-prep` | `presentation_handoff=yes` |
+
+## Main-paper identity
+
+Keep the following main-source record in `paper-package.md`:
+
+| Field | Required content |
+| --- | --- |
+| Input kind | `zotero-item`, `local-pdf`, `doi`, `title`, or another explicit descriptor |
+| Canonical title | Title read from the paper or authoritative metadata |
+| DOI or canonical identifier | Normalized DOI, PMID, arXiv ID, or explicit `not available` |
+| Naming metadata | Complete first-author name, year, venue value, and venue status: `official-abbreviation`, `normalized-full-name`, or `unknown-venue` |
+| Zotero source keys | Item and selected attachment keys when applicable; otherwise `not-applicable` |
+| Source file | Run-relative `<task_name>.pdf` when a main PDF is available; otherwise the authorized source descriptor |
+| Page count | PDF page count, or `not-applicable` for a non-PDF source |
+| File size | Byte count of the actually read local file when one exists |
+| SHA256 | Hash of the actually read local file when one exists |
+| Parse status | `not-required`, `not-submitted`, `parsed`, `partial`, `failed`, or `blocked` |
+| Actual read source | Exact parsed output, PDF, or full-text representation used for claims |
+| Identity or parse limitations | Mismatch, missing pages, OCR loss, inaccessible content, or `none` |
+
+Do not pass G1 merely because a file exists. Confirm that the identity, hash where applicable, parse result, and actual read source refer to the intended paper.
+
+## Claim and Condition Registry
+
+Maintain this normative table in `reading-report.md`:
+
+| Claim ID | Atomic claim | Priority | Evidence mode | Main-paper locator | Conditions | Jointly demonstrated | Supplementary dependency | Validation roles | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+
+Apply these field rules:
+
+- Make each claim atomic enough that it can be supported, weakened, or contradicted without changing another proposition in the row.
+- Use `high`, `medium`, or `low` for Priority. Mark novelty/priority, causal mechanism, record performance, safety/reliability, and high-risk extrapolation claims `high` unless a narrower scope justifies otherwise.
+- Use exactly one Evidence mode: `direct measurement`, `derived`, `model fit`, `simulation`, `extrapolation`, or `author interpretation`.
+- Put the complete comparison tuple in Conditions; do not leave a value implicit because it appears in nearby prose.
+- In Jointly demonstrated, list other Claim IDs only when the claims require the same multi-part evidence chain; otherwise use `none`.
+- In Supplementary dependency, record both dependency and read state. An unread dependency requires a downgrade.
+- In Validation roles, record each required evidence role and its state: `open`, `closed`, `downgraded`, `blocked`, or `not-applicable`.
+- Use exactly one Status: `supported`, `weakened`, `contradicted`, `not established within scope`, or `blocked`.
+
+Keep explanation outside controlled cells: put a joint-condition explanation in Conditions, not in Jointly demonstrated; put a scoped explanation in Atomic claim/Conditions or evidence Limitations/conflict, not inside Status. Validation roles may use `role: state` with semicolon-separated roles; record correlated review as a qualification, not an independent evidence role closure.
+
+Evidence mode is not a discipline or quality ranking. Specify the reasoning in Atomic claim/Conditions or adjacent prose: a proof is `derived` under its assumptions; qualitative interpretation is distinct from reported observation. Claim status reflects scoped evidence, not author confidence or source relevance grade.
+
+## Research judgment registries
+
+When triggered, keep the `N-*` Novelty-Generativity-Perspective Registry and `D-*` Design Necessity and Counterfactual Registry in `reading-report.md` after the Claim and Condition Registry. Follow [research-judgment.md](research-judgment.md) for their normative schemas, controlled verdicts, function-first decomposition, external-validation roles, and reader-facing boundaries.
+
+These registries canonically own report-side originality, transferability, perspective, necessity, sufficiency, alternative, and superiority judgments. Link them to `C-*` claims and applicable `E-*` evidence rather than copying source lifecycle fields. If the trigger scan is negative, record `not-applicable` in the structured analysis and do not create empty tables.
+
+## Source Registry
+
+Maintain this normative table in `auxiliary-literature-table.md`:
+
+| Source ID | Canonical identifier | Title / year | Discovery route | Related Claim IDs | Evidence role | Relevance grade | Directness | Independence | Comparability | Counter-evidence value | Full-text status | PDF status | Parse status | Read status | Verification status | Citation status | Reader-facing footnote key | Backlink anchor IDs | Include/exclude reason |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+
+Use DOI as the preferred identifier; otherwise use a stable PMID, arXiv ID, publisher URL, or normalized title/year key. Deduplicate before assigning the Source ID.
+
+Use evidence roles that answer a claim- or judgment-specific need, such as `priority/novelty`, `nearest-prior-art`, `quantitative benchmark`, `matched-comparison`, `mechanism`, `alternative-mechanism`, `counterexample`, `discriminating-control`, `boundary/contradiction`, `method/provenance`, or `context`. Add a narrower role when needed; do not replace a missing decisive role with repeated context papers.
+
+Use S/A/B/C/D only for relevance and selection priority:
+
+| Grade | Meaning |
+| --- | --- |
+| S | Decisive and direct for a high-priority claim, with sufficiently comparable conditions |
+| A | Strongly relevant and potentially claim-changing, but less direct or less comparable than S |
+| B | Useful context or a candidate lead; not decisive by itself |
+| C | Remote, redundant, or materially incomparable for the current claim |
+| D | Exclude because it is irrelevant, unreliable, superseded for the use, or outside authorized scope |
+
+Do not calculate a weighted total. Grade is not verification status and does not prove evidence strength.
+
+Keep lifecycle statuses independent:
+
+| Status field | Controlled values and interpretation |
+| --- | --- |
+| Full-text status | `available`, `unavailable`, `access-blocked`, `unknown` |
+| PDF status | `not-needed`, `not-materialized`, `materialized`, `failed`, `not-authorized` |
+| Parse status | `not-needed`, `not-submitted`, `parsed`, `partial`, `failed`, `not-authorized` |
+| Read status | `unread`, `partial`, `full` |
+| Verification status | `not-started`, `verified`, `conflicted`, `rejected`, `blocked` |
+| Citation status | `not-cited`, `planned`, `cited` |
+
+Publisher HTML or Zotero indexed full text may reach `Read status=full` and `Verification status=verified` without a materialized or parsed PDF, provided the relevant content and locator were actually checked. Metadata, an abstract, a search snippet, or a citation graph alone can never reach `verified`.
+
+For `Reader-facing footnote key`, use the exact semantic key or `not-cited`, `not-applicable`, `pending`, or `blocked: <reason>`. For `Backlink anchor IDs`, use `native` for renderer-provided controls, or list explicit HTML IDs in first-appearance order separated by a comma and one space; use the same controlled missing-value token when no reader-facing citation exists. A semantic key requires `Citation status=cited`; every cited semantic key and backlink mode/ordered explicit anchor list must match the generated report and audit exactly.
+
+## Evidence Ledger
+
+Maintain this normative table in `external-evidence-matrix.md`:
+
+| Evidence ID | Claim ID | Source ID | Relation | Evidence mode | Locator | Conditions | Evidence summary | Limitations/conflict | Evidence strength | Final assessment | Report target |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+
+Use only `supports`, `weakens`, `contradicts`, or `contextualizes` for Relation. Use the Claim Registry vocabulary for Evidence mode.
+
+Use `strong`, `moderate`, `weak`, or `unusable` for Evidence strength. Base strength on directness, locator quality, condition comparability, source independence, completeness of reading, and unresolved conflict—not on Relevance grade alone.
+
+Use the Claim Registry status vocabulary for Final assessment. Multiple evidence rows may feed one final claim assessment; preserve disagreeing rows rather than overwriting them with a consensus summary.
+
+Write a quote-free, claim-specific Evidence summary. Put incomparable conditions, circular citation, supplementary dependence, missing controls, source overlap, and contrary results in Limitations/conflict. Report target names the intended reader-facing section or `audit-only`.
+
+## Authorization resolution
+
+Delivery intent alone grants no external capability. A request for `view-report.md`, a report, or a summary does not by itself authorize networking, Zotero, downloads, uploads, or parsing.
+
+An unqualified `精读` selects the standard quality and external-validation scope. It does not itself authorize remote file transmission or wider Zotero/library access. Apply the bounded preset below.
+
+Resolve every capability in this precedence order:
+
+```text
+explicit user denial > explicit user permission > authorized preset > inferred default
+```
+
+Record the result in `paper-package.md`:
+
+| Capability | Decision | Basis | Scope, limit, or exclusion |
+| --- | --- | --- | --- |
+| Main-PDF staging | `allowed`, `denied`, or `ask-before-use` | explicit input, user, preset, or default | One identified main source and approved run directory |
+| Main-paper upload/remote parsing | `allowed`, `denied`, or `ask-before-use` | explicit user grant/denial or unresolved | Named service and selected file scope; no grant from standard alone |
+| Public network search | same | same | Query/topic scope |
+| Zotero read-only access | same | selected main input or explicit grant | Selected item/content/library scope; no blanket library grant |
+| OA download | same | same | Allowed source classes |
+| Auxiliary PDF materialization | same | same | Count limit and destination |
+| Auxiliary PDF parsing/upload | same | local route or explicit remote grant | Count limit, service and selected files; budget is not permission |
+| Supplementary material access | same | same | File scope |
+| Restricted/paid/login resources | same | same | Resource scope |
+| Zotero or library writes | same | same | Normally excluded; requires separate permission |
+| Sensitive local-file copying | same | same | Requires separate permission |
+
+An explicitly supplied local PDF, DOI, title, or Zotero item establishes narrow input-identity access. Before G0 is complete, read only the parent item, file metadata, or authoritative bibliographic metadata needed to determine the canonical author, year, venue, and title; do not enumerate attachments, retrieve full text, download, copy, upload, parse, or run broader search. After the run directory is approved, the selected source may establish `main_pdf_staging=allowed` unless the user denies copying. For a supplied Zotero key, child enumeration is limited to attachment metadata needed to select one main PDF, and content/file access is limited to the selected attachment. This permission does not authorize note content, SI content, non-selected attachments, unrelated local files, other Zotero items, supplementary attachments, or any Zotero write. A Zotero item discovered indirectly during validation remains `ask-before-use` for attachment copying until the user selects or confirms it as the main source.
+
+When neither the user nor an authorized preset resolves an external capability, use `ask-before-use`; an inferred default must not silently become permission.
+
+Apply `validation=standard` when either:
+
+1. the user explicitly requests or permits standard validation; or
+2. the user gives the unqualified command `精读`.
+
+The standard preset permits staging the explicitly identified main PDF, public scholarly search, metadata/OA lookup, and downloading/materializing at most 10 distinct OA auxiliary PDFs in the approved run directory. It is a bounded ceiling, not a mandatory action list.
+
+Remote main-paper or auxiliary-PDF parsing/upload is `allowed` only when an explicit grant already covers the service and selected files. Otherwise record `ask-before-use` and ask once if that route is needed. A generic standard-validation approval is not an upload grant unless its approved scope explicitly includes remote file transmission. Reuse existing grants; do not repeat confirmation for the same service, material and purpose. A parser-submission limit of 10 never grants permission.
+
+Zotero access is limited to the explicitly supplied main-item route above or an already authorized item/content/library scope. Standard alone does not permit searching the library, reading notes or annotations, or accessing unrelated attachments. Zotero/library writes, SI, paid/login-only/private/confidential resources and unrelated local copying remain excluded unless separately authorized. Explicit denials override the preset.
+
+Keep `task=full-report` / `validation=standard` and all applicable G0–G5 quality requirements when using an authorized local parser. If evidence checks cannot be completed, record the missing check and its effect, and resolve only the needed scope or route; do not silently downgrade the requested workflow or manufacture a pass.
+
+Interpret other scopes as follows:
+
+- `main-paper-only`: analyze the main paper under its resolved staging and parser permissions; do not search, use Zotero beyond an explicitly supplied main item, obtain auxiliary sources, or claim external validation.
+- `fully-local`: do not use network, remote upload, or new downloads; use only user-authorized local material, including an explicitly supplied Zotero main item.
+- `custom`: enumerate every allowed, denied, and ask-before-use capability.
+- `plan-only`: describe actions and gates without executing live external actions.
+
+Do not silently broaden a preset to overcome a blocker.
+
+## Budgets and counters
+
+Use these defaults unless the user explicitly supplies a hard limit:
+
+| Budget field | Default |
+| --- | --- |
+| `candidate_policy` | `soft-target` |
+| `candidate_target` | `15-30` |
+| `candidate_hard_limit` | `null` |
+| `materialized_aux_pdf_limit` | `10` |
+| `parser_submission_limit` | `10` |
+| `cited_external_source_limit` | `null` |
+
+Keep the used counts canonically in the `paper-package.md` Run Contract and update them after every relevant state transition. Apply these counting rules:
+
+1. Count a Candidate after metadata deduplication. Candidates consume neither PDF nor parser budget.
+2. Staging the main PDF as `<task_name>.pdf` consumes neither auxiliary-PDF counter.
+3. Increment `materialized_aux_pdf_count` once when a distinct auxiliary PDF is downloaded or copied into the run.
+4. Increment `parser_submission_count` once on the first MinerU submission of a distinct auxiliary PDF. Retries of the same PDF do not increment it again.
+5. Reading publisher HTML or Zotero indexed full text without copying a PDF consumes neither materialization nor parser budget.
+6. Interpret “no more than 10 auxiliary papers” as the materialized/parsed PDF ceiling unless the user explicitly says the candidate set itself must contain at most 10.
+7. Do not limit final cited sources by default, but cite only sources read in full with a verified locator.
+
+Thus, 20 deduplicated candidates, 8 materialized PDFs, and 6 first parser submissions remain within the default limits.
+
+## Candidate selection and stopping
+
+Select candidates lexicographically, without a weighted score:
+
+1. Cover an open, high-priority evidence role.
+2. Prefer direct evidence and comparable conditions.
+3. For novelty, record, causal-mechanism, and high-risk extrapolation claims, prefer independent, contrary, or boundary evidence.
+4. Prefer available full text and a verifiable locator.
+5. Reduce repeated authorship, citation-chain dependence, and duplicated experimental conditions.
+6. Break any remaining tie by normalized DOI, then normalized title.
+
+After the initial screen, run at most one targeted follow-up search for still-open high-risk roles. This search refinement does not authorize supplementary files or any other excluded resource.
+
+Stop when any applicable condition is met:
+
+- all required high-priority roles are closed or honestly downgraded;
+- the one targeted search adds no decisive S/A candidate;
+- a user hard limit is reached;
+- access or authorization blockers are recorded and the affected claim is downgraded or marked `blocked`;
+- further candidates only repeat authors, citation chains, conditions, or already-covered context.
+
+Never keep searching merely to force `supported`. Use `not established within scope` when the scoped evidence does not close the claim.
+
+## Review roles and correlated cross-checks
+
+Treat these as logical responsibilities; do not require four actual agents:
+
+| Role | Responsibility | Prohibited shortcut |
+| --- | --- | --- |
+| Extractor | Extract numbers, conditions, and locators | Interpret mechanism or upgrade strength |
+| Verifier | Match an atomic claim to the actual source content | Treat metadata or abstract agreement as verification |
+| Challenger | Seek counterexamples, alternative mechanisms, and incomparable conditions | Suppress conflict to create closure |
+| Editor | Assemble only verified records and preserve their limits | Invent a bridging claim or final judgment |
+
+Apply a full role-separated review to high-risk claims, S-grade sources, and disputed judgments. For routine low-risk context, combine roles while still recording the checks performed.
+
+A subagent is not automatically an independent verifier. Mark agreement as `correlated cross-check` when any of the following remain shared:
+
+- the same model family or substantially identical reasoning process;
+- the same source set;
+- the same extracted context or prompt framing.
+
+Record the label in Validation roles, Limitations/conflict, or the audit. A correlated cross-check may catch transcription, locator, or consistency errors, but it must not:
+
+- raise Relevance grade or Evidence strength;
+- close a missing external evidence role;
+- convert a model fit into causal proof;
+- erase disagreement;
+- be described as independent replication or independent validation.
+
+Scientific independence comes primarily from independent evidence and sufficiently comparable conditions, not from the number of agents that repeat the same context.
+
+## Epistemic rules
+
+Apply these rules before reader-facing assembly:
+
+1. Do not splice metrics across different materials, devices, temperatures, voltages, pulse widths, durations, cycle counts, or readout conditions. A result at 600 ps and a result at 358 K remain separate unless one source reports that joint condition.
+2. Distinguish `direct measurement`, `derived`, `model fit`, `simulation`, `extrapolation`, and `author interpretation` in both the registry and prose.
+3. A fit or consistency with a model does not establish that model as the unique mechanism. Record viable alternatives and missing discriminating controls.
+4. Do not convert a nominal state count into reliable information capacity. For example, 32 nominal resistance states do not establish 5 reliable bits without state distributions, error rates, retention, read margin, and decoding conditions.
+5. If a claim depends on unread supplementary material, lower its strength and state the dependency. Do not infer that the main text fully demonstrates it.
+6. Preserve conflicting evidence, circular citation, shared datasets, overlapping authorship, and incomparable benchmarks through the final assessment.
+7. Do not expand “not detected” or “no evidence observed” into “completely excluded.” State the detection limit, tested scope, or missing sensitivity when available.
+8. A successful implementation establishes feasibility under its stated joint conditions, not the necessity of the named component or mechanism.
+9. Do not promote joint sufficiency to component sufficiency; preserve interfaces, contacts, bias history, preprocessing, model components, measurement choices, and other dependencies.
+10. Failure of one baseline under the paper's settings does not establish principle-level impossibility. Identify whether the limit is physical, architectural, parametric, implementation-specific, unmatched, or unresolved.
+11. Do not infer broad superiority from an unmatched comparison, or non-existence from an unsuccessful search. State the comparison and search boundaries.
+12. Treat a follow-up direction as research-generative only when it has an evidence-grounded premise, falsifiable hypothesis, minimum decisive test, failure observable, and applicability boundary.
+
+Treat claims using `first`, `fastest`, `highest`, `proves`, `completely excludes`, or an equivalent superlative/causal absolute as high risk. If the epistemic check fails, do one permitted targeted search, narrow the wording, downgrade the claim, or record a blocker. Never pass G4 by stylistic substitution while leaving the unsupported meaning intact.
+
+## Six fail-fast Gates
+
+Use only the statuses listed below:
+
+| Gate | Required checks | Allowed statuses |
+| --- | --- | --- |
+| G0 Run Contract | Paper, confirmed output directory, normalized task/validation/handoff, `main_pdf_staging`, resolved permissions, budgets, exclusions, user overrides | `pass`, `blocked` |
+| G1 Main Source | Canonical identity, staged filename when applicable, source/destination hash agreement when copied, page count, parse status, actual read source, source limitations | `pass`, `pass-with-downgrade`, `blocked` |
+| G2 Claims and Figures | Argument reconstruction linked to atomic claims, conditions, main-paper locators, evidence modes, supplementary dependencies, research-judgment trigger scan and applicable `N-*`/`D-*` rows, Figure Reading Packets for report exhibits | `pass`, `pass-with-downgrade`, `blocked` |
+| G3 Sources and Evidence | Deduplication, independent lifecycle states, claim/judgment role coverage, external locators, conditions, conflicts, ledger linkage, and scoped priority/alternative comparison | `pass`, `pass-with-downgrade`, `blocked`, `not-applicable` |
+| G4 Epistemic Pre-report | No condition splicing, mode inflation, nominal-bit inflation, hidden supplementary dependence/conflict, feasibility-to-necessity inflation, joint-to-component sufficiency inflation, unmatched superiority, unbounded absence claims, or unsupported strong wording | `pass`, `pass-with-downgrade`, `blocked` |
+| G5 Delivery QA | Report Claim/Judgment Map, semantic read-through, canonical/derived synchronization, main-PDF naming, images and manifest, footnotes, relative paths, placeholders, protection of pre-existing directories | `pass`, `blocked` |
+
+Apply the Gates in order:
+
+1. Use only narrowly authorized identity-metadata reads needed to construct G0. Resolve G0, including any higher-priority per-run output confirmation, before attachment enumeration, full-text access, directory creation, broader search, download, copy, upload, or parsing actions.
+2. Resolve G1 before treating parsed content as the main paper.
+3. Resolve G2 before using figures or non-atomic claims in external verification.
+4. Resolve G3 before describing external evidence as complete or verified. When external verification is prohibited or outside scope, use `not-applicable` or `pass-with-downgrade`; never simulate completion.
+5. Resolve G4 before drafting strong reader-facing conclusions.
+6. Pass G5 before delivery. G5 has no downgrade state because broken provenance, links, or synchronization must be repaired or delivery must stop.
+
+Every `pass-with-downgrade` must identify the affected Claim IDs and applicable `N-*`/`D-*` IDs, the missing or weak evidence, the reader-facing limitation, and wording that is prohibited as a result. Use `blocked` when the requested outcome cannot be produced responsibly within authorization and evidence limits.
+
+## Gate recording and correction order
+
+For a full `view-report.md`, keep the Gate table in required internal `view-report-audit.md`:
+
+| Gate | Status | Checked canonical artifacts | Affected Claim/Judgment IDs | Missing/weak evidence or blocker | Reader-facing limit and prohibited wording | Required action |
+| --- | --- | --- | --- | --- | --- | --- |
+
+Focused or fully local tasks may use a compact audit, but must still record every applicable Gate. `view-report-audit.md` is internal and is not the primary presentation input.
+
+When a Gate detects an error, correct in this order:
+
+```text
+canonical owner
+-> linked canonical rows
+-> conditional derived views
+-> view-report-audit.md Report Claim Map
+-> view-report.md
+-> presentation handoff index
+```
+
+Do not repair a reader-facing sentence alone when its canonical claim, source, evidence, or asset record remains wrong.
+
+For an authorized continuation, reuse documented reading, permissions, and checks from the same run when source versions, inputs, scope, and dependencies are unchanged. Cache existence alone proves neither reading nor verification. Reopen gates affected by changes to evidence, meaning, configuration, or scope. Prose-only edits may reuse upstream results after confirming unchanged claim meaning, conditions, and uncertainty. Complete applicable G5 integrity and semantic checks; wording changes alone do not require renewed retrieval, parsing, or full reading.
+
+## Mechanical canonical integrity and reuse
+
+Run `scripts/check_canonical.py --run-dir <actual-run-directory> --json` independently of the footnote checker. Exit 0 means the canonical record checks passed, 1 means data errors, and 2 means an invocation/runtime failure. The Python entrypoint is `validate_run(run_dir)` and performs no network or writes. It returns `valid`, structured `errors`/`warnings` (`code`, owner `file`, `line`, `record_id`, `message`), `main_identity`, indexed `claims`/`sources`/`evidence`/`ideas`/`designs`, `counts`, `run_contract`, and SHA256 `artifacts`. Source rows also expose `normalized_identifier`; DOI identifiers use `doi:<normalized DOI>`.
+
+The actual run directory is the lookup root. A historical `output_directory` records provenance and does not redirect file access. Mapper may consume these records through the pure API, but it still must check its handoff's target paper and selected record, actual scientific conditions, and the allowed source scope.
+
+One Evidence row links exactly one Claim ID to one Source ID; split multi-claim rows, retaining the original ID for its first relation and allocating new stable IDs for the others. Update linked N/D/audit records in the same revision. Keep the original relation, conditions, mode, uncertainty and scoped assessment. Do not copy a broad summary to claim rows it does not support. Preserve old/new ID mapping in a revision note when correcting a frozen artifact copy.
+
+Count distinct sources by normalized identity, excluding the main paper even if it has an S row (such as S-000). Multiple claims, locators or reviewers using one paper never increase its source count. These are deduplicated identity counts, not a proof of scientific independence: shared authors, datasets, citation chains and conditions still require review. Source status must justify full-read/verified/cited counters; a main-only run may omit external registries, while an evaluated but empty external ledger uses its canonical header and records the scoped no-evidence outcome.
+
+Mechanical validation checks field vocabularies, IDs, cardinality, role states, lifecycle consistency and source counters. It does not prove sentence-level atomicity, actual reading, correct figures/locators, independent replication, threshold validity or scientific truth. G2–G4 retain those responsibilities; a green footnote or canonical check cannot replace them.

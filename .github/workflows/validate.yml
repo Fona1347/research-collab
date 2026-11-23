@@ -1,0 +1,51 @@
+name: Offline validation
+
+on:
+  pull_request:
+  push:
+    branches: [main, "codex/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: "3.11"
+          - os: windows-latest
+            python: "3.14"
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Prepare declared test dependencies in the disposable CI runner
+        run: python -m pip install ./skills/sci-plot "pypdf>=5" "PyYAML>=6"
+      - name: Run all offline component regressions
+        run: |
+          python scripts/validate.py --output-dir .local/ci-checks
+          $result = $LASTEXITCODE
+          if ($result -ne 0) {
+            Get-ChildItem -LiteralPath .local/ci-checks -Filter *.log | ForEach-Object {
+              Write-Output $_.Name
+              Get-Content -LiteralPath $_.FullName -Tail 100
+            }
+          }
+          exit $result
+      - name: Validate the distribution bundle
+        run: |
+          python scripts/skills.py package --output .local/ci-bundle.zip
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -c "from pathlib import Path; from scripts.skills import check_archive; result = check_archive(Path('.local/ci-bundle.zip')); print('Verified archive:', len(result['skills']), 'Skills')"

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Literature Full-Text Acquisition"
+  short_description: "Acquire legal OA and institution-entitled full text"
+  default_prompt: "Use $literature-fulltext-acquisition to retrieve legal full text for these DOIs into the current project."
+
+policy:
+  allow_implicit_invocation: false

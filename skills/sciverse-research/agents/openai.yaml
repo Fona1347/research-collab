@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sciverse Research"
+  short_description: "Sciverse research and structured paper evidence workflows"
+  default_prompt: "Use $sciverse-research to find citable scientific evidence or structured Paper Schema evidence with Sciverse, and preserve source identifiers."

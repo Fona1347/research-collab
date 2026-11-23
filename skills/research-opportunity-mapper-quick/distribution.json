@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "files": [
+    "LICENSE",
+    "SKILL.md",
+    "agents/openai.yaml",
+    "assets/templates/00_intake.md",
+    "assets/templates/01_breadth-ledger.md",
+    "assets/templates/02_search-log.md",
+    "assets/templates/03_evidence-matrix.md",
+    "assets/templates/04_research-map.md",
+    "assets/templates/05_candidate-portfolio.md",
+    "assets/templates/06_red-team.md",
+    "assets/templates/07_decision-log.md",
+    "assets/templates/map_report.md",
+    "references/critical-thinking.md",
+    "references/orchestration.md",
+    "references/prompt-library.md",
+    "references/quickstart-zh.md",
+    "references/reader-report.md",
+    "references/schemas.md",
+    "references/search-strategy.md",
+    "references/session-case-study.md",
+    "references/validation-report.md",
+    "references/workflow.md",
+    "scripts/init_run.py",
+    "scripts/validate_run.py"
+  ]
+}

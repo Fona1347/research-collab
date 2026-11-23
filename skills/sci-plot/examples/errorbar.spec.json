@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "kind": "errorbar",
+  "conclusion": "Treatment increases the response over time relative to control.",
+  "data": {
+    "path": "data/response-uncertainty.csv"
+  },
+  "mapping": {
+    "x": "time",
+    "y": "response",
+    "yerr": "sd",
+    "group": "condition"
+  },
+  "labels": {
+    "x": "Time",
+    "x_unit": "h",
+    "y": "Response",
+    "uncertainty": "SD"
+  },
+  "style": {
+    "theme": "paper",
+    "width_mm": 89,
+    "height_mm": 60
+  },
+  "export": {
+    "path": "outputs/response-errorbar",
+    "formats": ["svg", "pdf", "png", "tiff"],
+    "dpi": 300
+  }
+}

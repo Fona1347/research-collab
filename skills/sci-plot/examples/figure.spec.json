@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "kind": "line",
+  "conclusion": "Treatment increases the response over time relative to control.",
+  "data": {
+    "path": "data/response.csv"
+  },
+  "mapping": {
+    "x": "time",
+    "y": "response",
+    "group": "condition"
+  },
+  "labels": {
+    "title": "Response over time",
+    "x": "Time",
+    "x_unit": "h",
+    "y": "Response",
+    "y_unit": "a.u."
+  },
+  "style": {
+    "theme": "paper",
+    "width_mm": 89,
+    "height_mm": 60,
+    "rcparams": {
+      "axes.spines.top": true,
+      "axes.spines.right": true,
+      "axes.spines.left": true,
+      "axes.spines.bottom": true,
+      "xtick.direction": "in",
+      "ytick.direction": "in",
+      "xtick.top": true,
+      "xtick.bottom": true,
+      "ytick.left": true,
+      "ytick.right": true
+    }
+  },
+  "export": {
+    "path": "outputs/response",
+    "formats": ["svg", "pdf", "png", "tiff"],
+    "dpi": 300
+  }
+}

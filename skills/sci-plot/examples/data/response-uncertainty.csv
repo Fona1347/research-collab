@@ -1,0 +1,7 @@
+time,response,sd,condition
+0,0.10,0.02,Control
+1,0.18,0.03,Control
+2,0.27,0.04,Control
+0,0.14,0.02,Treatment
+1,0.29,0.04,Treatment
+2,0.43,0.05,Treatment

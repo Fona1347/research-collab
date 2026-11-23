@@ -1,0 +1,51 @@
+# Local Paper Collab configuration and outputs
+.paper-collab.yaml
+paper-reports/
+reports/
+run/
+output/
+outputs/
+
+# Research files and archives
+*.pdf
+*.zip
+*.7z
+*.tar
+*.tar.gz
+
+# Credentials and local environments
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Databases, caches, and OS/editor files
+*.db
+*.sqlite
+*.sqlite3
+__pycache__/
+*.py[cod]
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Collection build and local deployment state
+.local/
+.sci-plot/
+dist/
+build/
+.venv/
+.pytest_cache/
+*.egg-info/
+**/config/local.json
+**/profiles/local-capability-profile.md
+**/.research-collab-install.json
+**/.work/
+
+# Reader templates are source resources, not generated research reports.
+!skills/research-opportunity-mapper/assets/templates/reports/
+!skills/research-opportunity-mapper/assets/templates/reports/**

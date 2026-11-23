@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Lookup Enhanced"
+  short_description: "Depth-aware scientific search and evidence packets"
+  default_prompt: "Use $research-lookup-enhanced to choose an appropriate research depth and compile a traceable scholarly evidence packet for a scientific question."

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Paper Presentation"
+  short_description: "Traceable paper presentation builder"
+  default_prompt: "Use $paper-presentation to detect the V1.1 or legacy reading contract, classify readiness, create commitments.md first, and derive the requested presentation artifact from it."
+
+policy:
+  allow_implicit_invocation: true

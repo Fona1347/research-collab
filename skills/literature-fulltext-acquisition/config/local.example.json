@@ -1,0 +1,4 @@
+{
+  "tools_root": "<absolute-existing-tool-directory>",
+  "protected_root": "<absolute-protected-tool-workspace>"
+}
