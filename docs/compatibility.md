@@ -15,7 +15,7 @@ Installing a Skill does not install its dependencies or grant data/service acces
 | sci-plot | 0.2.1; figure schema 1 | Python 3.11+ and declared plotting dependencies; optional pubfig | Actual plots/exports, panel styles, precedence, input/output guards |
 | zotero-literature-note | 0.3.0-beta | Selected Zotero item/connector; authorized parser as needed | Release payload, references, policy/templates (PowerShell 7) |
 | literature-fulltext-acquisition | Experimental adapter; existing upstream lock | Windows + PowerShell 7, configured tools and entitlement | Fake-executable guards; configured runtime help only, no live retrieval |
-| insight | V2.4 | Primarily targets experimental, computational, and quantitative empirical research; humanities, law, pure math, and qualitative tasks include paradigm exemptions and favor lightweight editing / dual-genre delivery. Complete independent review requires subagents with fresh histories; decision prompts use bundled `references/decision-interaction.md`. | Package inventory and internal links |
+| insight | V2.5 | Primarily targets experimental, computational, and quantitative empirical research; humanities, law, pure math, and qualitative tasks include paradigm exemptions and favor lightweight editing / dual-genre delivery. Loads `references/english-prose.md` on demand for English or Chinese-to-English deliverables (zero overhead for Chinese tasks). Complete independent review requires subagents with fresh histories; decision prompts use bundled `references/decision-interaction.md`. | Package inventory and internal links |
 
 Historical version labels describe lineage, not new releases. Without an independent
 semantic version, use the collection commit. Sci-Plot's patch records executable

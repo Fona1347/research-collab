@@ -1,13 +1,13 @@
-# 见微（Insight）V2.4
+# 见微（Insight）V2.5
 
-**见微（`insight`）** 是一个独立、跨宿主的研究写作与立论 Skill：帮你从专业直觉、文献和已有材料中提炼值得写的主张，把观点充分展开成清晰有力的论证，并按任务轻重自动选择**直接编辑、共同立论**或**独立红蓝审查**。
+**见微（`insight`）** 是一个独立、跨宿主的研究写作与立论 Skill：帮你从专业直觉、文献和已有材料中提炼值得写的主张，把观点充分展开成清晰有力的论证，并按任务轻重自动选择**直接编辑、共同立论**或**独立红蓝审查**。英文写作与中译英时自动按需加载母语顶刊级英文学术表达层，纯中文任务零额外开销。
 
 无需安装 `research-collab` 其余 Skills，无外部插件或 MCP 硬依赖，兼容 Codex、Claude Code、Antigravity、Cursor、DeepSeek Harness 及纯聊天会话。
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/architecture-dark.svg" />
   <source media="(prefers-color-scheme: light)" srcset="assets/architecture-light.svg" />
-  <img alt="见微 Insight V2.4 架构图" src="assets/architecture-light.svg" width="100%" />
+  <img alt="见微 Insight V2.5 架构图" src="assets/architecture-light.svg" width="100%" />
 </picture>
 
 > 本 README 面向试用者与维护者；Agent 的运行契约以 [SKILL.md](SKILL.md) 及 `references/` 为准。
@@ -27,7 +27,9 @@
 直接复制下面这段发给你的 Agent（具备终端与文件读写权限）：
 
 ```text
-请从 https://github.com/Fona1347/research-collab 只安装 `skills/insight` 这一个 skill（不要安装该仓库的其他 skills，也不要安装额外依赖或 MCP）：先检查当前 Agent 宿主、操作系统及本地 skills 目录，只把 `skills/insight` 安装到当前宿主可识别的目录中（保留我已有配置；若遇到项目级/用户级目录选择或同名冲突再问我），装完校验文件完整，并告诉我安装路径、当前宿主的调用方式，以及 1 个可以直接发给你的最小试用示例。
+insight skill 辅助科研写作与立论，从文献和直觉中探索值得发展的观点、展开成清晰有力的论证，并做论证修复与反 AI 防御性写作润色，让表达更开放、具体、少绕弯。
+
+请从 https://github.com/Fona1347/research-collab 只安装 `skills/insight` 到当前工具的 skills 目录并验证可用（临时目录拉取、不装其他 skills 和依赖、不覆盖已有配置，遇目录选择或冲突先问我，装完告诉我怎么调用）。
 ```
 
 也可以在克隆本仓库后，用内置脚本安装到任意目标 Skills 目录（Python 3.11+）：
@@ -42,27 +44,29 @@ python scripts/skills.py check --skill insight --skills-root "<你的 skills 绝
 
 ## 4 大核心场景动态演示
 
-以下演示均取材受控对比素材，覆盖轻量润色、Idea 探索、硬伤拦截与双体裁交付，**全程输出连贯学术段落而非分块要点**：
+以下演示覆盖「从直觉找观点 → 把一句话展开成完整论证 → 去掉防御腔 → 拦截并修好数据漏洞」四个高频场景，**全程输出连贯学术段落而非分块要点**：
 
-### 场景 01 · 论文 Discussion 反防御润色（轻量编辑 · 零提问直出）
-按句子功能删掉空泛“可能 / 局限 / 初步参考”套话，一字不改原始数值与适用边界。
+### 场景 01 · 一个模糊直觉，变成立得住的主张
+给它你的直觉和几篇文献，它先对照前作找出真正新的地方，你选定方向后它写成立论段落。
 
-![场景 01 · 论文 Discussion 反防御润色](assets/01-anti-defensive-polish.gif)
+![场景 01 · 一个模糊直觉，变成立得住的主张](assets/01-idea-exploration.gif)
 
-### 场景 02 · 科研 Idea 探索与从零立论（共同立论 · 一次一题）
-从模糊直觉推演 3 条分化主线，未获作者拍板前严格暂停动笔；选定方向后流式写出连贯立论正文。
+### 场景 02 · 一句干巴巴的话，展开成完整论证
+把“可能有帮助”这类空泛表述，展开成有主张、有证据、有机理、有反例、有边界的连贯段落，同时不夸大证据强度。
 
-![场景 02 · 科研 Idea 探索与从零立论](assets/02-idea-exploration.gif)
+![场景 02 · 一句干巴巴的话，展开成完整论证](assets/02-argument-expansion.gif)
 
-### 场景 03 · 实验数据硬伤拦截与防越权代写（局部论证修复）
-面对端到端耗时算反与统计不显著硬伤，拒绝用备注掩盖错误正文，也不擅自替作者篡改立场代写终稿。
+### 场景 03 · 去掉防御腔，数字一个不动
+删掉“尚存局限”“初步参考”这类客套话，原始数值和适用条件原样保留。
 
-![场景 03 · 实验数据硬伤拦截与防越权代写](assets/03-flaw-interception.gif)
+![场景 03 · 去掉防御腔，数字一个不动](assets/03-anti-defensive-polish.gif)
 
-### 场景 04 · 独立审查与双体裁交付（地理遥感实证）
-同套已批准观测数据一键区分交付：内部审阅稿将审计说明集中文末；正式投稿稿将空间形态边界自然融入正文，零 AI 局限八股、零审计标签。
+### 场景 04 · 论证有漏洞，先指出来，再帮你修好
+发现数据算反或结果不显著，不用备注糊弄过去，也不擅自替你改主线；你定好方向后，它写出站得住的结果段。
 
-![场景 04 · 独立审查与双体裁交付](assets/04-dual-genre-delivery.gif)
+![场景 04 · 论证有漏洞，先指出来，再帮你修好](assets/04-flaw-repair.gif)
+
+> **关于内部讨论稿与正式投稿稿的分流**：面向重大投稿或复杂立论时，见微还支持先做独立的立论与挑刺、等你拍板后再动笔；需要内部审阅时，证据出处与待核对事项集中放在文末，切到正式投稿稿后则将适用边界自然融入正文，不留任何内部标记或 AI 局限八股（完整路由见顶部架构图）。
 
 ---
 
@@ -87,6 +91,7 @@ python scripts/skills.py check --skill insight --skills-root "<你的 skills 绝
 | --- | --- | --- | --- |
 | 入口分流 | [SKILL.md](SKILL.md) | 始终加载 | 按改动范围、主张成熟度、实质分歧决定工作量，含非实验范式豁免 |
 | 表达与体裁 | [references/expression.md](references/expression.md) | 所有路线 | 按句子功能校准中英文表达、算式/方向复核、区分内部审阅与正式投稿体裁 |
+| 英文学术表达 | [references/english-prose.md](references/english-prose.md) | 交付含英文时 | 英文编辑深度、信息流、证据强度动词、防译文腔与 6 学科期刊语体（纯中文任务不加载） |
 | 发现与论证 | [references/argument.md](references/argument.md) | 扩写 / 修复 / 立论 | 直觉具体化、跨学科范式校准、连接理由、段落展开与紧缩候选交付 |
 | 文献立论 | [references/literature.md](references/literature.md) | 文献找观点 / 展望 | 对照最接近前作、识别推断增量、无检索防幻觉门禁与 PRISMA 边界 |
 | 主线程协调 | [references/coordination.md](references/coordination.md) | 立论 / 分歧 / 审查 | 维护有效决定、待答事项、压缩稳健性与版本边界 |

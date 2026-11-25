@@ -1,9 +1,9 @@
 ---
 name: insight
-description: 帮助用户发展直觉，从文献和材料中发现值得写的观点，充分展开论证并减少防御性表达。用于共同立论、研究展望、扩写与学术编辑。按任务选择直接编辑、局部协商或独立红蓝审查。 Use for research outlooks, literature-grounded claims, argument development, argument repair, and anti-defensive academic editing.
+description: 帮助用户发展直觉，从文献和材料中发现值得写的观点，充分展开论证并减少防御性表达。用于共同立论、研究展望、扩写与学术编辑。按任务选择直接编辑、局部协商或独立红蓝审查。 Use for research outlooks, literature-grounded claims, argument development, argument repair, anti-defensive academic editing, native-level English academic prose, and Chinese-to-English manuscript translation.
 ---
 
-# 见微 · V2.4
+# 见微 · V2.5
 
 帮助用户把尚未说清的直觉发展为值得表达的主张，让证据、机制或严密推演推进文章。
 
@@ -33,6 +33,8 @@ description: 帮助用户发展直觉，从文献和材料中发现值得写的�
 ## 通用表达基座
 
 所有路线读取 [表达与保真](references/expression.md)，据用户给定的范围和体裁交付。保留原意、主张前提和证据强度。内部审阅稿可分列必要的审计说明，正式稿将读者所需的限制放在体裁惯用的位置。
+
+交付语言含英文（英文润色、中译英、英文成稿或双语稿的英文部分）时，另读 [英文学术表达](references/english-prose.md)；纯中文任务不加载。与用户交流默认沿用用户的语言。
 
 ## 发现与论证
 

@@ -11,7 +11,7 @@
 | sci-plot | standalone skill module | Current working source and bundled src runtime |
 | zotero-literature-note | standalone skill module | Public-ready canonical Skill and its copyright notice |
 | literature-fulltext-acquisition | standalone skill module | Experimental Skill and guarded wrapper; upstream runtimes excluded |
-| insight | standalone skill module | V2.4 source, including non-experimental paradigm calibration, bundled decision-interaction rules, and its [method attribution](../skills/insight/references/sources.md) |
+| insight | standalone skill module | V2.5 source, including on-demand English academic prose (`references/english-prose.md`), non-experimental paradigm calibration, bundled decision-interaction rules, and its [method attribution](../skills/insight/references/sources.md) |
 
 Standalone development histories remain separate from this collection. Exact local paths,
 private migration logs, and local workspace fixtures are intentionally excluded.

@@ -22,7 +22,7 @@
 | 未提出的更强命题、假想误解、重复限定、身份声明、预防性免责 | 省略，不把它们批量挪到块里 |
 | 使核心主张失效的错误或反证 | 修正或撤回主张；需要选择新主线时询问，不能靠块兜底 |
 
-正文优先回答“是什么、为何如此、如何推出、因此有何意义”。真正的适用条件写成具体范围，避免每段重复“并非适用于所有情况”。英文写作同样按句子功能校准，保留准确标定证据强度的审慎表达（如 *suggests / is consistent with / under the tested regime / within experimental uncertainty*），删去低信息防御套话（如 *it should perhaps be noted that / we humbly acknowledge / far from perfect / may not apply to all / further studies are needed*）。有用的对照与真实负面结果可直接陈述；积极描写指正面推进论证，不意味着只允许好消息。
+正文优先回答“是什么、为何如此、如何推出、因此有何意义”。真正的适用条件写成具体范围，避免每段重复“并非适用于所有情况”。英文写作同样按句子功能校准，保留准确标定证据强度的审慎表达（如 *suggests / is consistent with / under the tested regime / within experimental uncertainty*），删去低信息防御套话（如 *it should perhaps be noted that / we humbly acknowledge / far from perfect / may not apply to all / further studies are needed*）；英文句法、证据强度动词与期刊语体细则见 [英文学术表达](english-prose.md)（仅在英文交付时加载）。有用的对照与真实负面结果可直接陈述；积极描写指正面推进论证，不意味着只允许好消息。
 
 不自动在段尾添加无依据的“未来研究方向”套话：纯数学推导不补写数值实验或实测验证要求（若原稿误含“无需/仍需实验验证”，应予删改或转为说明理论扩展所需前提，而非反向索要实验）；未设定量或干预目标的质性研究不擅补总体发生率测量或对照干预建议；仅在任务明确要求展望且符合该学科范式时写出具体可做的下一步。
 
@@ -44,6 +44,8 @@
 
 > **修改说明｜事实修正**
 > 原数值 X 按给定输入应为 Y，正文已修正。
+
+英文内部稿使用对应英文块标题（`> **Audit note | non-blocking**` / `> **Edit note | factual correction**`，见 `english-prose.md` §7），不混用中文标题。
 
 内部备注通常每项 1–3 句，没有新增说明时省略。涉及即时执行的必要条件随操作给出。来源原话另标“原文引用”并给出处。
 
