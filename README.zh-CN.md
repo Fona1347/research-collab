@@ -64,7 +64,7 @@ Codex 从项目的 `.agents/skills` 加载技能。CLI/IDE 可用 `$技能名` �
 | 从 Sciverse 语料获取证据段落或结构化阅读 | [sciverse-research](skills/sciverse-research/SKILL.md) | 带来源位置和完整性状态的证据 |
 | 读懂一篇论文及其证据边界 | [paper-deep-reading](skills/paper-deep-reading/SKILL.md) | 读者报告与权威工作产物 |
 | 发展科研观点或修改论证 | [insight（见微）](skills/insight/README.md) | 基于证据的主张、修订后的文本，或独立审查与裁决后成稿 |
-| 规范学术 Markdown 引用、悬停跳转脚注与原文超链接 | [typora-citation](skills/typora-citation/README.md) | 严格首次出现 `1..N` 脚注（`[^1]`）、可配默认学术格式（默认 IEEE，支持 Nature/APA/GB-T 7714/ACS/Vancouver/Chicago）、末尾可点开超链接与脚本质检 |
+| 规范学术 Markdown 引用、跳转脚注与原文超链接 | [md-citation](skills/md-citation/README.md) | 严格首次出现 `1..N` GFM 脚注（`[^1]`，含 B–F 兼容模板）、可配默认学术格式（默认 IEEE，支持 Nature/APA/GB-T 7714/ACS/Vancouver/Chicago）、末尾可点开超链接与脚本质检 |
 | 从 Zotero 条目制作 Markdown 阅读笔记 | [zotero-literature-note](skills/zotero-literature-note/SKILL.md) | 可追溯的笔记与图片 |
 | 比较研究方向、论证已选接口或审计现有方案 | [research-opportunity-mapper](skills/research-opportunity-mapper/SKILL.md) | 路线判断、验证计划与决策记录 |
 | 快速探索研究机会 | [research-opportunity-mapper-quick](skills/research-opportunity-mapper-quick/SKILL.md) | 轻量机会地图 |

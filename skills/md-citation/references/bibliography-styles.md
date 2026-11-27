@@ -1,6 +1,6 @@
 # Multi-Style Academic Bibliography Rules & Clickable Source Links
 
-`typora-citation` supports **7 academic bibliography styles** (`ieee` built-in default, user-configurable via `config/local.json` or `.typora-citation.json`) plus **verified trailing clickable hyperlinks** (`[DOI](...)`, `[arXiv](...)`, `[Website](...)`, or custom label).
+`md-citation` supports **7 academic bibliography styles** (`ieee` built-in default, user-configurable via `config/local.json` or `.md-citation.json`) plus **verified trailing clickable hyperlinks** (`[DOI](...)`, `[arXiv](...)`, `[Website](...)`, or custom label).
 
 ---
 
@@ -50,7 +50,7 @@ Matches Chinese national academic, thesis, and doctoral proposal standards (`--p
 
 ---
 
-## 3. Nature Portfolio (`--bib-style nature`, `--preset typora-nature`)
+## 3. Nature Portfolio (`--bib-style nature`, `--preset md-nature`)
 
 - **Authors**: `Surname, I. I.` up to **5 authors** with `&` before the last; 6+ authors collapse to `First, I. I. *et al.*`.
 - **Journal Template**: No quotes around article title, abbreviated italic journal, **bold** volume, pages/article number, year in parentheses:
@@ -58,7 +58,7 @@ Matches Chinese national academic, thesis, and doctoral proposal standards (`--p
 
 ---
 
-## 4. APA 7th Edition (`--bib-style apa`, `--preset typora-apa`)
+## 4. APA 7th Edition (`--bib-style apa`, `--preset md-apa`)
 
 - **Authors**: `Surname, I. I.`, up to 20 authors with `, & ` before the final author (or first author `et al.` when truncated).
 - **Journal Template**: Year in parentheses after authors, sentence-case title without quotes, *italicized full journal name*, *italicized volume*(issue), pages:
@@ -67,7 +67,7 @@ Matches Chinese national academic, thesis, and doctoral proposal standards (`--p
 
 ---
 
-## 5. Vancouver / ICMJE (`--bib-style vancouver`, `--preset typora-vancouver`)
+## 5. Vancouver / ICMJE (`--bib-style vancouver`, `--preset md-vancouver`)
 
 Standard biomedical and clinical style:
 - **Authors**: `Surname II` (compact initials without periods/spaces), up to 6 authors then `et al.`.
@@ -76,7 +76,7 @@ Standard biomedical and clinical style:
 
 ---
 
-## 6. American Chemical Society (`--bib-style acs`, `--preset typora-acs`)
+## 6. American Chemical Society (`--bib-style acs`, `--preset md-acs`)
 
 Widely used in chemistry, materials science, and nanotechnology:
 - **Authors**: Semicolon-separated `Surname, I. I.; Surname2, I.`.
@@ -85,7 +85,7 @@ Widely used in chemistry, materials science, and nanotechnology:
 
 ---
 
-## 7. Chicago 17th Bibliography (`--bib-style chicago`, `--preset typora-chicago`)
+## 7. Chicago 17th Bibliography (`--bib-style chicago`, `--preset md-chicago`)
 
 - **Authors**: First author inverted (`Surname, Given`), subsequent authors normal order (`Given Surname`), `, and ` before final author.
 - **Journal Template**: Quoted title with period inside closing quote, *italicized full journal*, `vol, no. issue (year): pages`:

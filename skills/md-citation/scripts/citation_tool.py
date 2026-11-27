@@ -51,12 +51,12 @@ SUPPORTED_BIB_STYLES: tuple[str, ...] = (
 SUPPORTED_LINK_MODES: tuple[str, ...] = ("auto", "off")
 
 PRESETS: dict[str, dict[str, Any]] = {
-    "typora-ieee": {"scheme": "A", "bib_style": "ieee", "link_mode": "auto"},
-    "typora-nature": {"scheme": "A", "bib_style": "nature", "link_mode": "auto"},
-    "typora-apa": {"scheme": "A", "bib_style": "apa", "link_mode": "auto"},
-    "typora-vancouver": {"scheme": "A", "bib_style": "vancouver", "link_mode": "auto"},
-    "typora-acs": {"scheme": "A", "bib_style": "acs", "link_mode": "auto"},
-    "typora-chicago": {"scheme": "A", "bib_style": "chicago", "link_mode": "auto"},
+    "md-ieee": {"scheme": "A", "bib_style": "ieee", "link_mode": "auto"},
+    "md-nature": {"scheme": "A", "bib_style": "nature", "link_mode": "auto"},
+    "md-apa": {"scheme": "A", "bib_style": "apa", "link_mode": "auto"},
+    "md-vancouver": {"scheme": "A", "bib_style": "vancouver", "link_mode": "auto"},
+    "md-acs": {"scheme": "A", "bib_style": "acs", "link_mode": "auto"},
+    "md-chicago": {"scheme": "A", "bib_style": "chicago", "link_mode": "auto"},
     "cn-proposal": {"scheme": "E", "bib_style": "gbt7714", "link_mode": "off", "heading": "## 参考文献"},
 }
 
@@ -70,7 +70,8 @@ BUILTIN_DEFAULTS: dict[str, Any] = {
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 SKILL_CONFIG_PATH = SKILL_ROOT / "config" / "local.json"
-WORKSPACE_CONFIG_NAME = ".typora-citation.json"
+WORKSPACE_CONFIG_NAME = ".md-citation.json"
+LEGACY_WORKSPACE_CONFIG_NAME = ".typora-citation.json"
 
 # ---------------------------------------------------------------------------
 # Standard IEEE Journal Abbreviation Lookup (Physics, Materials, ECE, CS/AI, Bio)
@@ -283,9 +284,10 @@ def _validate_config_payload(data: dict[str, Any], origin: str) -> dict[str, Any
 def find_workspace_config(start_dir: Path) -> Path | None:
     cur = start_dir.resolve()
     while True:
-        candidate = cur / WORKSPACE_CONFIG_NAME
-        if candidate.is_file():
-            return candidate
+        for fname in (WORKSPACE_CONFIG_NAME, LEGACY_WORKSPACE_CONFIG_NAME):
+            candidate = cur / fname
+            if candidate.is_file():
+                return candidate
         if (cur / ".git").exists() or cur.parent == cur:
             return None
         cur = cur.parent
@@ -1630,7 +1632,7 @@ def fetch_crossref_metadata(doi: str, timeout: float = 8.0) -> dict[str, Any] | 
     req = urllib.request.Request(
         url,
         headers={
-            "User-Agent": "TyporaCitationSkill/2.0 (Academic Markdown Verification; mailto:research@example.org)",
+            "User-Agent": "MdCitationSkill/2.0 (Academic Markdown Verification; mailto:research@example.org)",
             "Accept": "application/json",
         },
     )
@@ -2550,7 +2552,7 @@ def cmd_verify(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(description="Typora & Academic Markdown Citation Engine")
+    p = argparse.ArgumentParser(description="Academic Markdown Citation Engine (md-citation)")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     p_cfg = sub.add_parser("config", help="View, set, or reset persistent default citation settings")

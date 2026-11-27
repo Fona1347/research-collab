@@ -57,7 +57,7 @@ def main():
         ("zotero", "zotero", [pwsh, "-NoProfile", "-File", str(tests / "zotero-literature-note/validate-skill.ps1")]),
         ("acquisition", "acquisition-guards", [sys.executable, "-m", "unittest", "discover", "-s", str(tests / "literature-fulltext-acquisition"), "-p", "test_guards.py", "-v"]),
         ("acquisition", "acquisition-runtime", [pwsh, "-NoProfile", "-File", str(tests / "literature-fulltext-acquisition/smoke.ps1")]),
-        ("citation", "typora-citation", [sys.executable, "-m", "unittest", "discover", "-s", str(tests / "typora-citation"), "-v"]),
+        ("citation", "md-citation", [sys.executable, "-m", "unittest", "discover", "-s", str(tests / "md-citation"), "-v"]),
     ]
     quick = args.quick_validator or Path.home() / ".codex/skills/.system/skill-creator/scripts/quick_validate.py"
     if quick.is_file():

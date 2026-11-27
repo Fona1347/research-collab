@@ -1,14 +1,15 @@
-# Typora & Markdown Citation Schemes (`A`–`F`) & User Default Configuration
+# Academic Markdown Citation Schemes (`A`–`F`) & User Default Configuration
 
 All numbered schemes (`A`–`E`) enforce **strict order-of-first-appearance numbering (`1, 2, ..., N`)** from top to bottom, left to right across body prose and tables.
 
 ---
 
-## Scheme A (Default): Native Hoverable Jump-and-Return Footnotes `[^1]`
+## Scheme A (Default): Standard GFM Jump-and-Return Footnotes `[^1]`
 
-Best for **Antigravity responses** and **Typora reading/writing**:
-- In **Antigravity**: inline `[^1]` renders cleanly inside the Agent's answer, clicking jumps directly to the full citation at the bottom, clicking the trailing `[DOI]`/`[Website]` link opens the original paper, and clicking `↩` returns straight to the sentence you were reading.
-- In **Typora**: hovering over `[^1]` pops up a floating preview card showing the full formatted reference, clicking jumps to the bottom, and `↩` jumps back.
+Best for **GFM-footnote-enabled environments** (**Google Antigravity**, **Typora**, **Obsidian**, **GitHub / GitLab**, and `remark-gfm` web renderers):
+- **In Antigravity / Obsidian / GitHub**: inline `[^1]` renders as a clean superscript link; clicking jumps directly to the bottom citation, clicking the trailing `[DOI]`/`[Website]` link opens the original paper, and clicking `↩` returns straight to the exact sentence.
+- **In Typora**: additionally shows a floating hover preview card on `[^1]`.
+- **Fallback for other hosts**: if the target chat UI or plain editor does not render GFM footnotes (e.g., default ChatGPT/Claude/Cursor chat panes without footnote extensions), switch in one command to Scheme `B` (`[[1]](#ref-1)`) or Scheme `E` (`[1]`, `[2–4]`).
 
 ### Syntax Rules
 - **Single citation**: `[^1]`
@@ -103,7 +104,7 @@ For external `pandoc --citeproc --csl=ieee.csl` compilation into Word (`.docx`) 
 
 ---
 
-## Persistent User Defaults (`config/local.json` & `.typora-citation.json`)
+## Persistent User Defaults (`config/local.json` & `.md-citation.json`)
 
 Users can customize the default bibliography style, inline scheme, trailing link mode, link label, or heading without passing CLI flags on every call:
 
@@ -118,5 +119,5 @@ Users can customize the default bibliography style, inline scheme, trailing link
 ```
 
 - **Personal skill-wide default**: `<skill_dir>/config/local.json` (created/updated via `citation_tool.py config --set-bib-style <style>`; preserved across `research-collab` updates and excluded from public packages).
-- **Per-project default**: `.typora-citation.json` in a research workspace root (`citation_tool.py config --scope workspace --set-bib-style nature`).
+- **Per-project default**: `.md-citation.json` in a research workspace root (`citation_tool.py config --scope workspace --set-bib-style nature`; `.typora-citation.json` is also recognized as a legacy fallback).
 - **One-off override**: CLI flags (`--bib-style`, `--scheme`, `--link-mode`, `--no-links`, `--link-label`, `--preset`) always override stored defaults.

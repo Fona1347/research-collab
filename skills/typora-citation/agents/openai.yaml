@@ -1,4 +1,0 @@
-interface:
-  display_name: "Typora & Academic Citation"
-  short_description: "Markdown 学术引用格式化：原生悬停跳转脚注 [^1]、多学术格式可配默认（IEEE/Nature/APA/GB-T 7714/ACS/Vancouver/Chicago）、末尾可点开超链接与确定性校验"
-  default_prompt: "使用 typora-citation 将文档或回答中的文献引用统一规范为按首次出现顺序编号的原生悬停跳转脚注 [^1] + 用户默认学术格式（内置默认 IEEE，支持自由切换与持久化设置），并在每条参考文献末尾附带可点击的原文超链接，最后通过确定性脚本校验。"

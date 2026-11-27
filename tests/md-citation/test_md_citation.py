@@ -8,7 +8,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
-TOOL = ROOT / "skills" / "typora-citation" / "scripts" / "citation_tool.py"
+TOOL = ROOT / "skills" / "md-citation" / "scripts" / "citation_tool.py"
 
 SYNTHETIC_BIB = r"""
 @article{Cover1965,
@@ -90,9 +90,9 @@ flowchart LR
 """
 
 
-class TyporaCitationTests(unittest.TestCase):
+class MdCitationTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.temp = tempfile.TemporaryDirectory(prefix="typora-citation-")
+        self.temp = tempfile.TemporaryDirectory(prefix="md-citation-")
         self.work = Path(self.temp.name)
         self.bib_path = self.work / "refs.bib"
         self.bib_path.write_text(SYNTHETIC_BIB, encoding="utf-8", newline="\n")
@@ -189,7 +189,7 @@ class TyporaCitationTests(unittest.TestCase):
         self.assertNotIn("[arXiv](https://arxiv.org/", nolink_text)
 
     def test_persistent_config_defaults_and_cli_override(self) -> None:
-        cfg_file = self.work / ".typora-citation.json"
+        cfg_file = self.work / ".md-citation.json"
         self.run_cli(
             "config",
             "--path",

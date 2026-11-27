@@ -1,13 +1,13 @@
-# Typora & Academic Markdown Citation (`typora-citation`)
+# Academic Markdown Citation (`md-citation`)
 
-Format, convert, renumber, enrich, and audit academic citations in Markdown—built for **Antigravity chat, Typora, and multi-venue academic publishing** with zero third-party Python dependencies.
+Format, convert, renumber, enrich, and audit academic citations in Markdown—with zero third-party Python dependencies, designed for **GFM-footnote hosts (Google Antigravity, Typora, Obsidian, GitHub/GitLab)** and **compatible fallback schemes (`B`–`F`)** everywhere else.
 
-## Why Researchers & Students Love It
+## Key Capabilities
 
-- **Interactive Jump-and-Return in Antigravity & Typora**: Default **Scheme A** (`[^1]`) renders superscript footnotes directly inside Agent responses and Typora notes—click to jump to the reference, click the trailing hyperlink to open the original paper, and click `↩` to return to the exact sentence.
+- **GFM Jump-and-Return Footnotes + Multi-Host Fallback**: Defaults to standard GFM footnotes (**Scheme A**, `[^1]`), which render clickable superscript jump-to-bottom and `↩` return links in Google Antigravity, Typora, Obsidian, and GitHub/GitLab. In chat or editor environments without GFM footnote rendering, switch in one command to flat anchors (`[[1]](#ref-1)`), hover reference links (`[[1]][ref-1]`), superscript anchors, plain brackets (`[1]`, `[2–4]`), or Pandoc `[@key]` + `.bib`.
 - **7 Academic Bibliography Styles with User-Configurable Default**: Built-in default is official **IEEE (`ieee`)**, and you can switch per run or persist your own default across **IEEE**, **GB/T 7714-2015 (`gbt7714`)**, **Nature (`nature`)**, **APA 7th (`apa`)**, **Vancouver (`vancouver`)**, **ACS (`acs`)**, and **Chicago 17th (`chicago`)**.
 - **Clickable Trailing Source Hyperlinks**: Automatically appends a verified clickable link (`[DOI](https://doi.org/...)`, `[arXiv](https://arxiv.org/abs/...)`, or `[Website](https://...)`) at the end of each reference entry, with customizable link text (e.g., `--link-label "Website Connection"` or `--link-label "原文链接"`) and one-flag opt-out (`--no-links`) for print-ready drafts.
-- **Strict `1..N` First-Appearance Renumbering & QA**: Re-indexes edited drafts automatically, switches losslessly across Schemes `A`–`F` (including Pandoc `[@key]` + `.bib`), checks DOI-suffix-as-article-number hallucinations, and protects `$math$`, inline code, headings, and `mermaid` blocks.
+- **Strict `1..N` First-Appearance Renumbering & Deterministic QA**: Re-indexes edited drafts automatically, switches losslessly across Schemes `A`–`F` and all 7 styles, checks DOI-suffix-as-article-number hallucinations and DOI/link mismatches, and protects `$math$`, inline code, headings, and `mermaid` blocks.
 
 ## Quick Start
 
@@ -24,8 +24,9 @@ python scripts/citation_tool.py resolve --bib refs.bib --out refs_master.json
 python scripts/citation_tool.py render draft.md --refs refs_master.json -o output.md
 
 # Convert an existing document to another style or scheme
-python scripts/citation_tool.py convert output.md -o output_apa.md --preset typora-apa
+python scripts/citation_tool.py convert output.md -o output_apa.md --preset md-apa
 python scripts/citation_tool.py convert output.md -o proposal.md --preset cn-proposal
+python scripts/citation_tool.py convert output.md -o compat_flat.md --scheme B
 
 # Deterministic QA check
 python scripts/citation_tool.py verify output.md --scheme A
@@ -35,7 +36,7 @@ python scripts/citation_tool.py verify output.md --scheme A
 
 1. Explicit CLI flags (`--preset`, `--scheme`, `--bib-style`, `--link-mode` / `--no-links`, `--link-label`, `--heading`)
 2. Explicit `--config <path>`
-3. Project-level `.typora-citation.json` (auto-discovered upward from the input file or working directory)
+3. Project-level `.md-citation.json` (auto-discovered upward from the input file or working directory)
 4. Skill-level `config/local.json` (see [config/local.example.json](config/local.example.json); preserved across `research-collab` updates and excluded from public packages)
 5. Built-in defaults: `Scheme A`, `ieee`, `link_mode=auto`, `link_label=auto`
 
