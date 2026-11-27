@@ -36,10 +36,15 @@ Built-in defaults apply unless overridden by the user's persistent config (`conf
 | **Prose Integration** | **Mode 1 (Rigorous Academic)**: Auto-match ZH/EN narrative syntax (`某某等指出……[^1]`) when writing or asked to polish | **Mode 2 (Lightweight Preserve)**: Zero prose wording changes; replace/renumber markers & bottom list only | [academic-prose-rules.md](./references/academic-prose-rules.md) |
 | **Metadata Resolution** | **Offline-First + Crossref Fallback**: Document/`.bib`/`.json` first -> Crossref/DOI REST API (`--online`) -> `[待核实]` | Strict offline mode by default (only queries Crossref when `--online` is explicitly passed) | [bibliography-styles.md](./references/bibliography-styles.md) |
 
-### Host Rendering Compatibility Note
+### Output Target Split & Host Rendering Compatibility Note
 
-- **GFM Footnote Rendering (`Scheme A`, `[^1]`)**: Supported natively with superscript jump-to-bottom and `↩` return in **Google Antigravity**, **Typora**, **Obsidian**, **GitHub / GitLab**, and `remark-gfm`-enabled web renderers.
-- **Hosts Without GFM Footnote Support** *(e.g., plain terminal output, default ChatGPT/Claude/Cursor chat panes without footnote plugins)*: Switch cleanly in one command to **Scheme B** (`[[1]](#ref-1)`), **Scheme D** (superscript anchor), **Scheme E** (`[1]`, `[2–4]`), or **Scheme F** (`[@key]` + `.bib`).
+- **Standalone `.md` Files & Artifacts (Default)**: Keep bare sequential IDs (`[^1]`, `#ref-1`; default `--id-prefix ""`).
+- **Shared-DOM Chat Replies** *(e.g., multi-turn replies in Google Antigravity, LobeChat, or GitHub comment threads where multiple turns share one HTML DOM)*:
+  - Do **not** reuse bare `[^1]` or `#ref-1` across turns in the same chat page—their compiled DOM IDs (`#fn-1`, `#ref-1`) collide and jump to an earlier turn.
+  - When using the CLI, run `--preset chat-gfm` or `--id-prefix auto` (alias `--fn-prefix auto`) to emit a compact unique per-turn prefix (e.g., `[^c8k2p9a-1]` in Scheme A, or `#ref-c8k2p9a-1` in Schemes B–D). `remark-gfm` still displays clean superscript `1, 2, 3...` visually.
+  - When replying directly in chat without calling Python, pick a short lowercase turn prefix ending in `-` (e.g., `[^t0418-1]` or `[^r2-1]`) consistently across that single reply. Converting a prefixed chat reply back into a standalone `.md` file via `citation_tool.py convert` (without `--id-prefix`) strips the prefix cleanly back to bare `[^1]`.
+- **GFM Footnote Rendering (`Scheme A`, `[^1]`)**: Supported natively with superscript jump-to-bottom and `↩` return in **Google Antigravity**, **Typora**, **Obsidian**, **GitHub / GitLab**, **LobeChat**, and `remark-gfm`-enabled web renderers. *(Note: a unique prefix resolves cross-turn jump collisions 100%, while whether the jumped-to line lands centered in the viewport depends on the host UI's native `#id` scroll behavior, e.g., `scrollIntoView({ block: 'center' })`, which Markdown/Skill cannot control.)*
+- **Hosts Without GFM Footnote Support** *(e.g., plain terminal output, default ChatGPT/Copilot/Cursor chat panes without footnote plugins)*: Switch cleanly in one command to **Scheme B** (`[[1]](#ref-1)`), **Scheme D** (superscript anchor), **Scheme E** (`[1]`, `[2–4]`), or **Scheme F** (`[@key]` + `.bib`).
 
 ### Setting or Checking the User's Default Citation Style
 
@@ -98,15 +103,16 @@ python "<skill_dir>/scripts/citation_tool.py" resolve --bib refs.bib --out refs_
 
 # 2. Render a draft containing [^R001] / [@Key] placeholders (uses configured default: built-in Scheme A + IEEE + clickable links)
 python "<skill_dir>/scripts/citation_tool.py" render input_draft.md --refs refs_master.json -o output.md
+python "<skill_dir>/scripts/citation_tool.py" render input_draft.md --bib refs.bib -o chat_reply.md --preset chat-gfm   # unique per-turn prefix for shared-DOM chat
 python "<skill_dir>/scripts/citation_tool.py" render input_draft.md --bib refs.bib -o output_nature.md --bib-style nature --link-label "Website Connection"
 
 # 3. Renumber an edited Markdown file OR switch between Schemes (A-F) and Styles (ieee/gbt7714/nature/apa/vancouver/acs/chicago)
-python "<skill_dir>/scripts/citation_tool.py" convert report.md -o report_renumbered.md
+python "<skill_dir>/scripts/citation_tool.py" convert report.md -o report_renumbered.md               # also strips chat prefixes back to clean [^1]
 python "<skill_dir>/scripts/citation_tool.py" convert report.md -o report_apa.md --preset md-apa
 python "<skill_dir>/scripts/citation_tool.py" convert report.md -o proposal_clean.md --preset cn-proposal
 python "<skill_dir>/scripts/citation_tool.py" convert report.md -o ieee_flat.md --scheme B --no-links
 
-# 4. Run deterministic QA audit (1..N bijection, first-appearance order, link integrity, punctuation, math/table safety)
+# 4. Run deterministic QA audit (1..N bijection, uniform prefix, first-appearance order, link integrity, punctuation, math/table safety)
 python "<skill_dir>/scripts/citation_tool.py" verify output.md --scheme A
 ```
 

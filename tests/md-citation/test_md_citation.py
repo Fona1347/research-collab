@@ -315,6 +315,112 @@ class MdCitationTests(unittest.TestCase):
         res_dup = self.run_cli("verify", str(bad_dup), "--scheme", "A", expect_rc=1)
         self.assertIn("Duplicate trailing Markdown hyperlinks", res_dup.stderr)
 
+    def test_chat_id_prefix_isolation_roundtrip_and_qa(self) -> None:
+        # 1. --preset chat-gfm generates unique prefixes across consecutive turns and respects workspace bib_style
+        cfg_file = self.work / ".md-citation.json"
+        self.run_cli("config", "--path", str(cfg_file), "--set-bib-style", "nature")
+        try:
+            chat1 = self.work / "chat_turn1.md"
+            chat2 = self.work / "chat_turn2.md"
+            p1 = self.run_cli("render", str(self.draft_path), "--bib", str(self.bib_path), "-o", str(chat1), "--preset", "chat-gfm")
+            p2 = self.run_cli("render", str(self.draft_path), "--bib", str(self.bib_path), "-o", str(chat2), "--preset", "chat-gfm")
+            self.assertIn("IdPrefix=c", p1.stdout)
+            self.assertIn("IdPrefix=c", p2.stdout)
+
+            t1 = chat1.read_text(encoding="utf-8")
+            t2 = chat2.read_text(encoding="utf-8")
+            # Workspace default bib_style (nature) preserved under chat-gfm
+            self.assertIn("*Nat. Commun.* **16**, 4201 (2025).", t1)
+            # Extract generated prefixes and assert they differ
+            m1 = next(line for line in t1.splitlines() if line.startswith("[^") and "]: " in line)
+            m2 = next(line for line in t2.splitlines() if line.startswith("[^") and "]: " in line)
+            pref1 = m1.split("]:", 1)[0][2:-1]
+            pref2 = m2.split("]:", 1)[0][2:-1]
+            self.assertNotEqual(pref1, pref2)
+            self.run_cli("verify", str(chat1), "--scheme", "A")
+            self.run_cli("verify", str(chat2), "--scheme", "A")
+
+            # 2. Converting prefixed chat reply to standalone file strips prefix cleanly back to bare [^1]
+            disk_md = self.work / "saved_to_disk.md"
+            self.run_cli("convert", str(chat1), "-o", str(disk_md), "--scheme", "A")
+            disk_text = disk_md.read_text(encoding="utf-8")
+            self.assertIn("[^1]: ", disk_text)
+            self.assertNotIn(pref1, disk_text)
+            self.run_cli("verify", str(disk_md), "--scheme", "A")
+        finally:
+            cfg_file.unlink(missing_ok=True)
+
+        # 3. Unified --id-prefix across Schemes B, C, D (auto-normalizes 't3' -> 't3-') + clean stripping back to bare
+        for sch, expected_inline, expected_anchor in (
+            ("B", "[[1]](#ref-t3-1)", '<a id="ref-t3-1"></a>[1]'),
+            ("C", "[[1]][ref-t3-1]", '[ref-t3-1]: #ref-t3-1 "'),
+            ("D", "<sup>[[1]](#ref-t3-1)</sup>", '<a id="ref-t3-1"></a>[1]'),
+        ):
+            out_pref = self.work / f"chat_scheme_{sch}.md"
+            self.run_cli(
+                "render",
+                str(self.draft_path),
+                "--bib",
+                str(self.bib_path),
+                "-o",
+                str(out_pref),
+                "--scheme",
+                sch,
+                "--id-prefix",
+                "t3",
+            )
+            txt = out_pref.read_text(encoding="utf-8")
+            self.assertIn(expected_inline, txt)
+            self.assertIn(expected_anchor, txt)
+            self.run_cli("verify", str(out_pref), "--scheme", sch, "--id-prefix", "t3")
+
+            restored = self.work / f"restored_scheme_{sch}.md"
+            self.run_cli("convert", str(out_pref), "-o", str(restored), "--scheme", sch)
+            rtxt = restored.read_text(encoding="utf-8")
+            self.assertNotIn("ref-t3-", rtxt)
+            self.assertIn('<a id="ref-1"></a>[1]', rtxt)
+            self.run_cli("verify", str(restored), "--scheme", sch)
+
+        # 4. Negative QA checks on prefixed Scheme A footnotes (zero false positive on valid hyphenated prefix!)
+        pref_a = self.work / "valid_t3_A.md"
+        self.run_cli(
+            "render",
+            str(self.draft_path),
+            "--bib",
+            str(self.bib_path),
+            "-o",
+            str(pref_a),
+            "--scheme",
+            "A",
+            "--fn-prefix",
+            "t3-",
+        )
+        good_t3 = pref_a.read_text(encoding="utf-8")
+
+        # 4a. Mixed prefix in body ([^t3-1] mixed with bare [^2])
+        mixed_body = self.work / "bad_mixed_body.md"
+        mixed_body.write_text(good_t3.replace("[^t3-2]", "[^2]", 1), encoding="utf-8", newline="\n")
+        res_mix = self.run_cli("verify", str(mixed_body), "--scheme", "A", expect_rc=1)
+        self.assertIn("Footnote prefix mismatch", res_mix.stderr)
+
+        # 4b. Invalid range on prefixed footnote ([^t3-1-2])
+        bad_rng = self.work / "bad_pref_range.md"
+        bad_rng.write_text(good_t3.replace("[^t3-1][^t3-3][^t3-4]", "[^t3-1-3]"), encoding="utf-8", newline="\n")
+        res_rng = self.run_cli("verify", str(bad_rng), "--scheme", "A", expect_rc=1)
+        self.assertIn("Invalid range/comma footnote syntax", res_rng.stderr)
+
+        # 4c. Post-CJK punctuation with prefixed footnote (。[^t3-1])
+        bad_cjk = self.work / "bad_pref_cjk.md"
+        bad_cjk.write_text(good_t3.replace("[^t3-1]。", "。[^t3-1]"), encoding="utf-8", newline="\n")
+        res_cjk = self.run_cli("verify", str(bad_cjk), "--scheme", "A", expect_rc=1)
+        self.assertIn("AFTER Chinese punctuation", res_cjk.stderr)
+
+        # 4d. Heading citation with prefixed footnote
+        bad_hdr = self.work / "bad_pref_hdr.md"
+        bad_hdr.write_text(good_t3.replace("## 1. Overview", "## 1. Overview [^t3-1]"), encoding="utf-8", newline="\n")
+        res_hdr = self.run_cli("verify", str(bad_hdr), "--scheme", "A", expect_rc=1)
+        self.assertIn("Markdown heading", res_hdr.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()

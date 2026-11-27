@@ -22,11 +22,12 @@ python scripts/citation_tool.py resolve --bib refs.bib --out refs_master.json
 
 # Render a draft with [^Key] or [@Key] placeholders
 python scripts/citation_tool.py render draft.md --refs refs_master.json -o output.md
+python scripts/citation_tool.py render draft.md --bib refs.bib -o chat_reply.md --preset chat-gfm  # unique per-turn prefix for shared-DOM chat
 
-# Convert an existing document to another style or scheme
+# Convert an existing document to another style or scheme (also strips chat prefixes back to bare [^1])
 python scripts/citation_tool.py convert output.md -o output_apa.md --preset md-apa
 python scripts/citation_tool.py convert output.md -o proposal.md --preset cn-proposal
-python scripts/citation_tool.py convert output.md -o compat_flat.md --scheme B
+python scripts/citation_tool.py convert output.md -o compat_flat.md --scheme B --id-prefix auto
 
 # Deterministic QA check
 python scripts/citation_tool.py verify output.md --scheme A

@@ -104,6 +104,20 @@ For external `pandoc --citeproc --csl=ieee.csl` compilation into Word (`.docx`) 
 
 ---
 
+## Shared-DOM Chat Isolation (`--id-prefix` / `--preset chat-gfm`)
+
+When multiple replies share a single HTML DOM (such as multi-turn conversations in Google Antigravity, LobeChat, or GitHub comment threads), bare `[^1]` and `#ref-1` IDs collide across turns so clicking a footnote can jump to an earlier reply.
+
+- **Standalone files (default)**: `--id-prefix ""` produces clean `[^1]` and `#ref-1`.
+- **Shared-DOM chat replies**: Pass `--preset chat-gfm` or `--id-prefix auto` (alias `--fn-prefix auto`) or a custom short prefix like `--id-prefix t3` (auto-normalized to `t3-`).
+  - **Scheme A**: `[^c8k2p9a-1]` / `[^c8k2p9a-1]: ...` *(GFM still displays superscript `1, 2, 3...` visually)*
+  - **Schemes B & D**: `[[1]](#ref-c8k2p9a-1)` / `<a id="ref-c8k2p9a-1"></a>[1] ...`
+  - **Scheme C**: `[[1]][ref-c8k2p9a-1]` / `[ref-c8k2p9a-1]: #ref-c8k2p9a-1 "..."`
+- **Saving chat replies to disk**: Running `citation_tool.py convert chat_reply.md -o paper_note.md` (without `--id-prefix`) automatically strips the prefix back to bare `[^1]` / `#ref-1`.
+- **QA verification**: `verify` auto-detects and enforces one uniform prefix across every body citation and bottom definition (or validates against an explicit `--id-prefix`), rejecting mixed bare/prefixed tags while keeping all range, heading, math, and CJK punctuation checks active.
+
+---
+
 ## Persistent User Defaults (`config/local.json` & `.md-citation.json`)
 
 Users can customize the default bibliography style, inline scheme, trailing link mode, link label, or heading without passing CLI flags on every call:

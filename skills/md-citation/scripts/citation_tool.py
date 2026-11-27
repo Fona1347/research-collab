@@ -28,7 +28,9 @@ import dataclasses
 import html
 import json
 import re
+import secrets
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -57,6 +59,7 @@ PRESETS: dict[str, dict[str, Any]] = {
     "md-vancouver": {"scheme": "A", "bib_style": "vancouver", "link_mode": "auto"},
     "md-acs": {"scheme": "A", "bib_style": "acs", "link_mode": "auto"},
     "md-chicago": {"scheme": "A", "bib_style": "chicago", "link_mode": "auto"},
+    "chat-gfm": {"scheme": "A", "link_mode": "auto", "id_prefix": "auto"},
     "cn-proposal": {"scheme": "E", "bib_style": "gbt7714", "link_mode": "off", "heading": "## 参考文献"},
 }
 
@@ -72,6 +75,56 @@ SKILL_ROOT = Path(__file__).resolve().parents[1]
 SKILL_CONFIG_PATH = SKILL_ROOT / "config" / "local.json"
 WORKSPACE_CONFIG_NAME = ".md-citation.json"
 LEGACY_WORKSPACE_CONFIG_NAME = ".typora-citation.json"
+
+_BASE36_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz"
+ID_PREFIX_PART_RE = r"(?:[a-z][a-z0-9_-]*[-_])?"
+ID_PREFIX_STRICT_RE = re.compile(r"^[a-z][a-z0-9_-]*[-_]$")
+
+
+def _to_base36(num: int) -> str:
+    if num <= 0:
+        return "0"
+    chars: list[str] = []
+    n = num
+    while n:
+        n, rem = divmod(n, 36)
+        chars.append(_BASE36_ALPHABET[rem])
+    return "".join(reversed(chars))
+
+
+def generate_chat_id_prefix() -> str:
+    """Generate a compact, monotonic-time + random prefix (e.g. 'c8k2p9a-') for shared-DOM chat isolation."""
+    ts_ms = time.time_ns() // 1_000_000
+    ts_part = _to_base36(ts_ms % (36**4)).rjust(4, "0")
+    rand_part = secrets.token_hex(1)
+    return f"c{ts_part}{rand_part}-"
+
+
+def normalize_id_prefix(raw: str | None) -> str:
+    """Normalize an explicit or 'auto' DOM-isolation prefix to lowercase ending in '-' or '_'."""
+    if raw is None:
+        return ""
+    s = raw.strip()
+    if not s:
+        return ""
+    if s.lower() == "auto":
+        return generate_chat_id_prefix()
+    low = s.lower()
+    if not re.fullmatch(r"[a-z][a-z0-9_-]*", low):
+        raise ValueError(
+            f"Invalid --id-prefix '{raw}': must start with a letter and contain only [a-z0-9_-]."
+        )
+    if not low.endswith(("-", "_")):
+        low += "-"
+    return low
+
+
+def split_prefixed_num(token: str) -> tuple[str, int] | None:
+    """Split 'c8k2p9a-12' -> ('c8k2p9a-', 12) or '12' -> ('', 12); return None if invalid."""
+    m = re.fullmatch(rf"({ID_PREFIX_PART_RE})(\d+)", token.strip())
+    if not m:
+        return None
+    return m.group(1), int(m.group(2))
 
 # ---------------------------------------------------------------------------
 # Standard IEEE Journal Abbreviation Lookup (Physics, Materials, ECE, CS/AI, Bio)
@@ -1805,7 +1858,11 @@ def split_body_and_ref_section(md_text: str) -> tuple[list[str], str, list[str]]
     idx = len(lines) - 1
     while idx >= 0:
         s = lines[idx].strip()
-        if s == "" or re.match(r"^\[\^[^\]]+\]:\s+", s) or re.match(r"^\[ref-\d+\]:\s+#ref-\d+", s):
+        if (
+            s == ""
+            or re.match(r"^\[\^[^\]]+\]:\s+", s)
+            or re.match(rf"^\[ref-{ID_PREFIX_PART_RE}\d+\]:\s+#ref-{ID_PREFIX_PART_RE}\d+", s)
+        ):
             tail_defs_start = idx
             idx -= 1
         else:
@@ -1831,14 +1888,14 @@ def parse_existing_ref_section(ref_lines: list[str]) -> dict[str, RefRecord]:
         s = raw.strip()
         if not s or s == "---":
             continue
-        if re.match(r"^\[(?:ref-)?\d+\]:\s*#ref-\d+", s):
+        if re.match(rf"^\[(?:ref-{ID_PREFIX_PART_RE})?\d+\]:\s*#ref-{ID_PREFIX_PART_RE}\d+", s):
             continue
         m_a = re.match(r"^\[\^([^\]]+)\]:\s+(.+)$", s)
         if m_a:
             k, body = m_a.group(1).strip(), m_a.group(2).strip()
             records[k] = parse_formatted_ref_line(k, body)
             continue
-        m_b = re.match(r'^(?:<a\s+id="ref-\d+"\s*>\s*</a>\s*)?\[(\d+)\]\s+(.+)$', s)
+        m_b = re.match(rf'^(?:<a\s+id="ref-{ID_PREFIX_PART_RE}\d+"\s*>\s*</a>\s*)?\[(\d+)\]\s+(.+)$', s)
         if m_b:
             k, body = m_b.group(1).strip(), m_b.group(2).strip()
             records[k] = parse_formatted_ref_line(k, body)
@@ -1863,15 +1920,17 @@ def mask_line_protected(line: str) -> tuple[str, list[str]]:
     s = re.sub(r"(?<!\\)\$[^\$\n]+?(?<!\\)\$", stash, s)
     s = re.sub(r"!\[[^\]]*\]\([^)]*\)", stash, s)
 
+    ref_link_pat = re.compile(rf"^\[\[\d+\]\]\(#ref-{ID_PREFIX_PART_RE}\d+\)$")
+
     def stash_non_ref_link(m: re.Match) -> str:
         full = m.group(0)
-        if re.match(r"^\[\[\d+\]\]\(#ref-\d+\)$", full):
+        if ref_link_pat.match(full):
             return full
         idx = len(vault)
         vault.append(full)
         return f"\x00P{idx}\x00"
 
-    s = re.sub(r"(?:\[\[\d+\]\]\(#ref-\d+\)|\[[^\]]+\]\([^)]*\))", stash_non_ref_link, s)
+    s = re.sub(rf"(?:\[\[\d+\]\]\(#ref-{ID_PREFIX_PART_RE}\d+\)|\[[^\]]+\]\([^)]*\))", stash_non_ref_link, s)
     return s, vault
 
 
@@ -1902,10 +1961,10 @@ def expand_num_spec(spec: str) -> list[str]:
 
 
 CLUSTER_MASTER_RE = re.compile(
-    r"""
-    (?P<schemeD><sup>\s*\[\[\d+\]\]\(\#ref-\d+\)(?:\s*(?:[–\-—]|,\s*)\[\[\d+\]\]\(\#ref-\d+\))*\s*</sup>)
-    | (?P<schemeB>\[\[\d+\]\]\(\#ref-\d+\)(?:\s*(?:[–\-—]|,\s*)\[\[\d+\]\]\(\#ref-\d+\))*)
-    | (?P<schemeC>\[\[\d+\]\]\[(?:ref-)?\d+\](?:\s*(?:[–\-—]|,\s*)\[\[\d+\]\]\[(?:ref-)?\d+\])*)
+    rf"""
+    (?P<schemeD><sup>\s*\[\[\d+\]\]\(\#ref-{ID_PREFIX_PART_RE}\d+\)(?:\s*(?:[–\-—]|,\s*)\[\[\d+\]\]\(\#ref-{ID_PREFIX_PART_RE}\d+\))*\s*</sup>)
+    | (?P<schemeB>\[\[\d+\]\]\(\#ref-{ID_PREFIX_PART_RE}\d+\)(?:\s*(?:[–\-—]|,\s*)\[\[\d+\]\]\(\#ref-{ID_PREFIX_PART_RE}\d+\))*)
+    | (?P<schemeC>\[\[\d+\]\]\[(?:ref-{ID_PREFIX_PART_RE})?\d+\](?:\s*(?:[–\-—]|,\s*)\[\[\d+\]\]\[(?:ref-{ID_PREFIX_PART_RE})?\d+\])*)
     | (?P<schemeA>(?:\[\^[A-Za-z0-9_.:-]+\])+)
     | (?P<pandoc>\[@[A-Za-z0-9_.:-]+(?:\s*;\s*@[A-Za-z0-9_.:-]+)*\])
     | (?P<schemeE>(?<![!\[\^\\])\[\d+(?:\s*[–\-—]\s*\d+)?(?:\s*,\s*\d+(?:\s*[–\-—]\s*\d+)?)*\](?!\s*[\(\[:]))
@@ -1922,11 +1981,11 @@ def parse_cluster_keys(m: re.Match, known_keys: set[str] | None = None) -> list[
     if m.group("schemeD") or m.group("schemeB"):
         raw = m.group("schemeD") or m.group("schemeB")
         stripped = re.sub(r"</?sup>", "", raw)
-        stripped = re.sub(r"\[\[(\d+)\]\]\(#ref-\d+\)", r"\1", stripped)
+        stripped = re.sub(rf"\[\[(\d+)\]\]\(#ref-{ID_PREFIX_PART_RE}\d+\)", r"\1", stripped)
         return expand_num_spec(stripped)
     if m.group("schemeC"):
         raw = m.group("schemeC")
-        stripped = re.sub(r"\[\[(\d+)\]\]\[(?:ref-)?\d+\]", r"\1", raw)
+        stripped = re.sub(rf"\[\[(\d+)\]\]\[(?:ref-{ID_PREFIX_PART_RE})?\d+\]", r"\1", raw)
         return expand_num_spec(stripped)
     if m.group("schemeE"):
         inner = m.group("schemeE")[1:-1]
@@ -1958,10 +2017,11 @@ def format_inline_cluster(
     nums: list[int],
     scheme: str,
     citekeys: dict[int, str] | None = None,
+    id_prefix: str = "",
 ) -> str:
     scheme = scheme.upper()
     if scheme == "A":
-        return "".join(f"[^{n}]" for n in nums)
+        return "".join(f"[^{id_prefix}{n}]" for n in nums)
 
     if scheme == "F":
         assert citekeys is not None
@@ -1973,33 +2033,33 @@ def format_inline_cluster(
         parts = []
         for a, b in runs:
             if a == b:
-                parts.append(f"[[{a}]](#ref-{a})")
+                parts.append(f"[[{a}]](#ref-{id_prefix}{a})")
             elif b == a + 1:
-                parts.append(f"[[{a}]](#ref-{a}), [[{b}]](#ref-{b})")
+                parts.append(f"[[{a}]](#ref-{id_prefix}{a}), [[{b}]](#ref-{id_prefix}{b})")
             else:
-                parts.append(f"[[{a}]](#ref-{a})–[[{b}]](#ref-{b})")
+                parts.append(f"[[{a}]](#ref-{id_prefix}{a})–[[{b}]](#ref-{id_prefix}{b})")
         return ", ".join(parts)
 
     if scheme == "C":
         parts = []
         for a, b in runs:
             if a == b:
-                parts.append(f"[[{a}]][ref-{a}]")
+                parts.append(f"[[{a}]][ref-{id_prefix}{a}]")
             elif b == a + 1:
-                parts.append(f"[[{a}]][ref-{a}], [[{b}]][ref-{b}]")
+                parts.append(f"[[{a}]][ref-{id_prefix}{a}], [[{b}]][ref-{id_prefix}{b}]")
             else:
-                parts.append(f"[[{a}]][ref-{a}]–[[{b}]][ref-{b}]")
+                parts.append(f"[[{a}]][ref-{id_prefix}{a}]–[[{b}]][ref-{id_prefix}{b}]")
         return ", ".join(parts)
 
     if scheme == "D":
         parts = []
         for a, b in runs:
             if a == b:
-                parts.append(f"[[{a}]](#ref-{a})")
+                parts.append(f"[[{a}]](#ref-{id_prefix}{a})")
             elif b == a + 1:
-                parts.append(f"[[{a}]](#ref-{a}),[[{b}]](#ref-{b})")
+                parts.append(f"[[{a}]](#ref-{id_prefix}{a}),[[{b}]](#ref-{id_prefix}{b})")
             else:
-                parts.append(f"[[{a}]](#ref-{a})–[[{b}]](#ref-{b})")
+                parts.append(f"[[{a}]](#ref-{id_prefix}{a})–[[{b}]](#ref-{id_prefix}{b})")
         return f"<sup>{','.join(parts)}</sup>"
 
     if scheme == "E":
@@ -2062,6 +2122,7 @@ def transform_markdown_citations(
     fix_punctuation: bool = True,
     link_mode: str = "auto",
     link_label: str = "auto",
+    id_prefix: str = "",
 ) -> tuple[str, dict[int, RefRecord], dict[int, str]]:
     """
     Transform and renumber a Markdown document strictly in 1..N first-appearance order.
@@ -2070,6 +2131,7 @@ def transform_markdown_citations(
     scheme = scheme.upper()
     bib_style = bib_style.lower()
     link_mode = link_mode.lower()
+    norm_prefix = normalize_id_prefix(id_prefix)
     body_lines, detected_heading, ref_lines = split_body_and_ref_section(md_text)
 
     pool: dict[str, RefRecord] = {}
@@ -2141,7 +2203,7 @@ def transform_markdown_citations(
                 if nid not in mapped:
                     mapped.append(nid)
             mapped.sort()
-            rendered = format_inline_cluster(mapped, scheme=scheme, citekeys=citekeys)
+            rendered = format_inline_cluster(mapped, scheme=scheme, citekeys=citekeys, id_prefix=norm_prefix)
             c_idx = len(cluster_tokens)
             cluster_tokens.append(rendered)
             return f"\x01C{c_idx}\x01"
@@ -2175,13 +2237,13 @@ def transform_markdown_citations(
         entry_str = format_record(rec, bib_style=bib_style, link_mode=link_mode, link_label=link_label)
 
         if scheme == "A":
-            ref_entries.append(f"[^{idx}]: {entry_str}")
+            ref_entries.append(f"[^{norm_prefix}{idx}]: {entry_str}")
         elif scheme in ("B", "D"):
-            ref_entries.append(f'<a id="ref-{idx}"></a>[{idx}] {entry_str}')
+            ref_entries.append(f'<a id="ref-{norm_prefix}{idx}"></a>[{idx}] {entry_str}')
         elif scheme == "C":
-            ref_entries.append(f'<a id="ref-{idx}"></a>[{idx}] {entry_str}')
+            ref_entries.append(f'<a id="ref-{norm_prefix}{idx}"></a>[{idx}] {entry_str}')
             tip = make_hover_tooltip(rec, entry_str)
-            tooltip_defs.append(f'[ref-{idx}]: #ref-{idx} "{tip}"')
+            tooltip_defs.append(f'[ref-{norm_prefix}{idx}]: #ref-{norm_prefix}{idx} "{tip}"')
         elif scheme == "E":
             ref_entries.append(f"[{idx}] {entry_str}")
 
@@ -2196,9 +2258,15 @@ def transform_markdown_citations(
 # ---------------------------------------------------------------------------
 # Deterministic QA Verification Engine (`verify`)
 # ---------------------------------------------------------------------------
-def verify_markdown_citations(md_path: Path, scheme: str = "A", allow_crlf: bool = False) -> list[str]:
+def verify_markdown_citations(
+    md_path: Path,
+    scheme: str = "A",
+    allow_crlf: bool = False,
+    id_prefix: str | None = None,
+) -> list[str]:
     errors: list[str] = []
     scheme = scheme.upper()
+    expected_prefix = normalize_id_prefix(id_prefix) if id_prefix is not None else None
     raw = md_path.read_bytes()
     if not allow_crlf and b"\r\n" in raw:
         errors.append("CRLF line endings detected; expected UTF-8 LF.")
@@ -2207,31 +2275,49 @@ def verify_markdown_citations(md_path: Path, scheme: str = "A", allow_crlf: bool
     body_lines, _, ref_lines = split_body_and_ref_section(text)
 
     def_nums: list[int] = []
+    def_prefixes: list[str] = []
     prev_was_def = False
     for rline in ref_lines:
         s = rline.strip()
         if not s or s == "---":
             prev_was_def = False
             continue
-        if re.match(r"^\[(?:ref-)?\d+\]:\s*#ref-\d+", s):
+        if re.match(rf"^\[(?:ref-{ID_PREFIX_PART_RE})?\d+\]:\s*#ref-{ID_PREFIX_PART_RE}\d+", s):
             continue
 
         m_def = None
+        parsed_prefix = ""
+        parsed_num: int | None = None
+        entry_body = ""
         if scheme == "A":
-            m_def = re.match(r"^\[\^(\d+)\]:\s+(.+)$", s)
+            m_def = re.match(rf"^\[\^({ID_PREFIX_PART_RE})(\d+)\]:\s+(.+)$", s)
+            if m_def:
+                parsed_prefix, parsed_num, entry_body = m_def.group(1), int(m_def.group(2)), m_def.group(3)
         elif scheme in ("B", "C", "D"):
-            m_def = re.match(r'^<a\s+id="ref-(\d+)"\s*>\s*</a>\[(\d+)\]\s+(.+)$', s)
-            if m_def and m_def.group(1) != m_def.group(2):
-                errors.append(f"Ref line: anchor id ref-{m_def.group(1)} != label [{m_def.group(2)}].")
+            m_def = re.match(rf'^<a\s+id="ref-({ID_PREFIX_PART_RE})(\d+)"\s*>\s*</a>\[(\d+)\]\s+(.+)$', s)
+            if m_def:
+                parsed_prefix, anchor_num, label_num, entry_body = (
+                    m_def.group(1),
+                    int(m_def.group(2)),
+                    int(m_def.group(3)),
+                    m_def.group(4),
+                )
+                parsed_num = anchor_num
+                if anchor_num != label_num:
+                    errors.append(f"Ref line: anchor id ref-{parsed_prefix}{anchor_num} != label [{label_num}].")
         elif scheme == "E":
             m_def = re.match(r"^\[(\d+)\]\s+(.+)$", s)
+            if m_def:
+                parsed_num, entry_body = int(m_def.group(1)), m_def.group(2)
 
-        if m_def:
+        if m_def and parsed_num is not None:
             if scheme == "A" and prev_was_def:
-                errors.append(f"Ref entry [^{m_def.group(1)}]: missing blank line before footnote definition (breaks Typora card isolation).")
-            num = int(m_def.group(1))
-            entry_body = m_def.group(m_def.lastindex or 2)
+                errors.append(
+                    f"Ref entry [^{parsed_prefix}{parsed_num}]: missing blank line before footnote definition (breaks hover-card isolation)."
+                )
+            num = parsed_num
             def_nums.append(num)
+            def_prefixes.append(parsed_prefix)
             prev_was_def = True
 
             # Check malformed empty trailing link `[Label]()` or non-http(s) link
@@ -2267,6 +2353,19 @@ def verify_markdown_citations(md_path: Path, scheme: str = "A", allow_crlf: bool
     if def_nums != expected:
         errors.append(f"Reference definitions are not strictly sequential 1..{len(def_nums)}: got {def_nums[:15]}...")
 
+    # Determine and enforce a single uniform ID prefix across all definitions (Schemes A-D)
+    effective_prefix = expected_prefix if expected_prefix is not None else (def_prefixes[0] if def_prefixes else "")
+    if scheme in ("A", "B", "C", "D") and def_prefixes:
+        unique_prefixes = sorted(set(def_prefixes))
+        if expected_prefix is not None and unique_prefixes != [expected_prefix]:
+            errors.append(
+                f"Reference definition prefix mismatch: expected '{expected_prefix}', found {unique_prefixes}."
+            )
+        elif len(unique_prefixes) > 1:
+            errors.append(
+                f"Mixed reference ID prefixes in bibliography definitions: {unique_prefixes} (must use one uniform prefix)."
+            )
+
     known_set = {str(x) for x in def_nums}
     first_seen: list[int] = []
     seen_set: set[int] = set()
@@ -2274,6 +2373,14 @@ def verify_markdown_citations(md_path: Path, scheme: str = "A", allow_crlf: bool
     in_fence = False
     fence_lang = ""
     in_math_block = False
+
+    fn_token_re = rf"\[\^{ID_PREFIX_PART_RE}\d+\]"
+    invalid_range_re = re.compile(
+        rf"\[\^{re.escape(effective_prefix)}\d+\s*[-–—,]\s*(?:{re.escape(effective_prefix)})?\d+\]"
+    )
+    post_cjk_re = re.compile(
+        rf"[，。；：！？]\s*(?:{fn_token_re}|\[\[\d+\]\]|<sup>\[\[\d+\]\]|\[\d+(?:\s*[–\-—,]\s*\d+)*\](?!\s*[\(\[:]))"
+    )
 
     for line_no, line in enumerate(body_lines, start=1):
         stripped = line.lstrip()
@@ -2299,40 +2406,72 @@ def verify_markdown_citations(md_path: Path, scheme: str = "A", allow_crlf: bool
             continue
 
         if re.match(r"^\s*#{1,6}\s+", line):
-            if re.search(r"\[\^\d+\]|\[\[\d+\]\]", line):
+            if re.search(rf"{fn_token_re}|\[\[\d+\]\]", line):
                 errors.append(f"L{line_no}: Citation marker placed inside Markdown heading.")
             continue
 
         for m_math in re.finditer(r"(?<!\\)\$([^\$\n]+?)(?<!\\)\$", line):
-            if re.search(r"\[\^\d+\]", m_math.group(1)):
+            if re.search(fn_token_re, m_math.group(1)):
                 errors.append(f"L{line_no}: Footnote marker placed inside inline $math$.")
 
         masked, _ = mask_line_protected(line)
 
         if re.search(r"\[\^R\d+\]", masked):
             errors.append(f"L{line_no}: Leftover temporary placeholder [^Rxxx].")
-        if scheme == "A" and re.search(r"\[\^\d+\s*[-–—,]\s*\d+\]", masked):
-            errors.append(f"L{line_no}: Invalid range/comma footnote syntax in Scheme A (must use separate [^a][^b]).")
+        if scheme == "A" and invalid_range_re.search(masked):
+            errors.append(
+                f"L{line_no}: Invalid range/comma footnote syntax in Scheme A (must use separate [^{effective_prefix}a][^{effective_prefix}b])."
+            )
 
         if re.search(r"（\s*）|\(\s*\)|。。|，，|；；", masked):
             errors.append(f"L{line_no}: Empty parentheses or doubled punctuation scar detected.")
 
-        if re.search(
-            r"[，。；：！？]\s*(?:\[\^\d+\]|\[\[\d+\]\]|<sup>\[\[\d+\]\]|\[\d+(?:\s*[–\-—,]\s*\d+)*\](?!\s*[\(\[:]))",
-            masked,
-        ):
+        if post_cjk_re.search(masked):
             errors.append(f"L{line_no}: Citation placed AFTER Chinese punctuation instead of before.")
 
         for m in CLUSTER_MASTER_RE.finditer(masked):
             keys = parse_cluster_keys(m, known_keys=known_set if scheme == "E" else None)
             if not keys:
                 continue
+
+            # For Schemes B/C/D, verify inline anchor prefixes & label-target match
+            if scheme in ("B", "D") and (m.group("schemeB") or m.group("schemeD")):
+                raw_cluster = m.group("schemeB") or m.group("schemeD")
+                for lbl_n, anc_p, anc_n in re.findall(rf"\[\[(\d+)\]\]\(#ref-({ID_PREFIX_PART_RE})(\d+)\)", raw_cluster):
+                    if anc_p != effective_prefix:
+                        errors.append(
+                            f"L{line_no}: Inline anchor prefix '{anc_p}' != expected '{effective_prefix}' in {raw_cluster}."
+                        )
+                    if lbl_n != anc_n:
+                        errors.append(f"L{line_no}: Inline anchor label [{lbl_n}] != target #ref-{anc_p}{anc_n}.")
+            elif scheme == "C" and m.group("schemeC"):
+                raw_cluster = m.group("schemeC")
+                for lbl_n, anc_p, anc_n in re.findall(rf"\[\[(\d+)\]\]\[ref-({ID_PREFIX_PART_RE})(\d+)\]", raw_cluster):
+                    if anc_p != effective_prefix:
+                        errors.append(
+                            f"L{line_no}: Inline reference-link prefix '{anc_p}' != expected '{effective_prefix}' in {raw_cluster}."
+                        )
+                    if lbl_n != anc_n:
+                        errors.append(f"L{line_no}: Inline reference-link label [{lbl_n}] != target ref-{anc_p}{anc_n}.")
+
             nums_in_cluster: list[int] = []
             for k in keys:
-                if not k.isdigit():
-                    errors.append(f"L{line_no}: Non-numeric citation key '{k}' in numbered Scheme {scheme}.")
-                    continue
-                val = int(k)
+                if scheme == "A":
+                    parsed = split_prefixed_num(k)
+                    if parsed is None:
+                        errors.append(f"L{line_no}: Invalid Scheme A footnote key '{k}'.")
+                        continue
+                    k_prefix, val = parsed
+                    if k_prefix != effective_prefix:
+                        errors.append(
+                            f"L{line_no}: Footnote prefix mismatch on '[^{k}]' (expected prefix '{effective_prefix}')."
+                        )
+                        continue
+                else:
+                    if not k.isdigit():
+                        errors.append(f"L{line_no}: Non-numeric citation key '{k}' in numbered Scheme {scheme}.")
+                        continue
+                    val = int(k)
                 nums_in_cluster.append(val)
                 if val not in seen_set:
                     seen_set.add(val)
@@ -2450,7 +2589,7 @@ def cmd_resolve(args: argparse.Namespace) -> int:
     return 0
 
 
-def resolve_effective_options(args: argparse.Namespace, start_dir: Path) -> tuple[str, str, str | None, str, str]:
+def resolve_effective_options(args: argparse.Namespace, start_dir: Path) -> tuple[str, str, str | None, str, str, str]:
     """Merge builtin -> skill local.json -> workspace -> --config -> --preset -> explicit CLI flags."""
     cfg, _ = load_effective_config(
         start_dir=start_dir,
@@ -2461,15 +2600,21 @@ def resolve_effective_options(args: argparse.Namespace, start_dir: Path) -> tupl
     link_mode = cfg["link_mode"]
     link_label = cfg["link_label"]
     heading = cfg["heading"]
+    id_prefix = ""
 
     preset_name = getattr(args, "preset", None)
     if preset_name:
         preset = PRESETS[preset_name]
-        scheme = preset["scheme"]
-        bib_style = preset["bib_style"]
-        link_mode = preset["link_mode"]
+        if "scheme" in preset:
+            scheme = preset["scheme"]
+        if "bib_style" in preset:
+            bib_style = preset["bib_style"]
+        if "link_mode" in preset:
+            link_mode = preset["link_mode"]
         if "heading" in preset:
             heading = preset["heading"]
+        if "id_prefix" in preset:
+            id_prefix = preset["id_prefix"]
 
     if getattr(args, "scheme", None) is not None:
         scheme = args.scheme.upper()
@@ -2483,14 +2628,17 @@ def resolve_effective_options(args: argparse.Namespace, start_dir: Path) -> tupl
         link_label = args.link_label.strip()
     if getattr(args, "heading", None) is not None:
         heading = args.heading
+    if getattr(args, "id_prefix", None) is not None:
+        id_prefix = args.id_prefix
 
-    return scheme, bib_style, heading, link_mode, link_label
+    norm_prefix = normalize_id_prefix(id_prefix)
+    return scheme, bib_style, heading, link_mode, link_label, norm_prefix
 
 
 def cmd_render_or_convert(args: argparse.Namespace) -> int:
     in_path = Path(args.input)
     out_path = Path(args.output) if args.output else in_path
-    scheme, bib_style, heading, link_mode, link_label = resolve_effective_options(args, start_dir=in_path.parent)
+    scheme, bib_style, heading, link_mode, link_label, id_prefix = resolve_effective_options(args, start_dir=in_path.parent)
 
     md_text = in_path.read_text(encoding="utf-8").replace("\r\n", "\n")
     ext_pool = load_ref_pool(
@@ -2507,6 +2655,7 @@ def cmd_render_or_convert(args: argparse.Namespace) -> int:
         fix_punctuation=not args.no_fix_punctuation,
         link_mode=link_mode,
         link_label=link_label,
+        id_prefix=id_prefix,
     )
 
     out_path.write_text(rendered, encoding="utf-8", newline="\n")
@@ -2518,16 +2667,17 @@ def cmd_render_or_convert(args: argparse.Namespace) -> int:
         print(f"[OK] Exported Scheme F Pandoc Markdown -> {out_path} + companion BibTeX -> {bib_out} ({len(new_records)} refs)")
         return 0
 
-    errs = verify_markdown_citations(out_path, scheme=scheme)
+    errs = verify_markdown_citations(out_path, scheme=scheme, id_prefix=id_prefix)
     if errs:
         print(f"[WARN] Rendered {out_path} ({len(new_records)} refs), but QA reported {len(errs)} issue(s):", file=sys.stderr)
         for e in errs[:20]:
             print(f"  - {e}", file=sys.stderr)
         return 1
 
+    prefix_info = f" | IdPrefix={id_prefix}" if id_prefix else ""
     print(
         f"[OK] Formatted {out_path} | Scheme={scheme} | BibStyle={bib_style} | "
-        f"Links={link_mode}({link_label}) | UniqueRefs={len(new_records)} | QA=PASS (0 errors)"
+        f"Links={link_mode}({link_label}){prefix_info} | UniqueRefs={len(new_records)} | QA=PASS (0 errors)"
     )
     return 0
 
@@ -2541,7 +2691,12 @@ def cmd_verify(args: argparse.Namespace) -> int:
             explicit_config=Path(args.config) if getattr(args, "config", None) else None,
         )
         scheme = cfg["default_scheme"]
-    errs = verify_markdown_citations(md_path, scheme=scheme, allow_crlf=args.allow_crlf)
+    errs = verify_markdown_citations(
+        md_path,
+        scheme=scheme,
+        allow_crlf=args.allow_crlf,
+        id_prefix=getattr(args, "id_prefix", None),
+    )
     if errs:
         print(f"[FAIL] {md_path} ({len(errs)} error(s)):", file=sys.stderr)
         for e in errs:
@@ -2589,6 +2744,13 @@ def build_parser() -> argparse.ArgumentParser:
         sp.add_argument("--link-mode", default=None, choices=list(SUPPORTED_LINK_MODES), help="Trailing clickable link mode (auto|off)")
         sp.add_argument("--no-links", action="store_true", help="Shorthand for --link-mode off")
         sp.add_argument("--link-label", default=None, help="Trailing clickable link text ('auto', 'Website', 'Website Connection', etc.)")
+        sp.add_argument(
+            "--id-prefix",
+            "--fn-prefix",
+            dest="id_prefix",
+            default=None,
+            help="Unique DOM-ID prefix for shared-DOM chat replies ('auto' or custom e.g. 't3-'; empty for standalone files)",
+        )
         sp.add_argument("--heading", default=None, help="Custom reference section heading")
         sp.add_argument("--no-fix-punctuation", action="store_true", help="Disable moving citations before CJK punctuation")
         sp.set_defaults(func=cmd_render_or_convert)
@@ -2596,6 +2758,13 @@ def build_parser() -> argparse.ArgumentParser:
     p_ver = sub.add_parser("verify", help="Run deterministic QA checks on a formatted Markdown file")
     p_ver.add_argument("input", help="Markdown file to audit")
     p_ver.add_argument("--scheme", default=None, choices=["A", "B", "C", "D", "E", "F", "a", "b", "c", "d", "e", "f"])
+    p_ver.add_argument(
+        "--id-prefix",
+        "--fn-prefix",
+        dest="id_prefix",
+        default=None,
+        help="Optional expected ID prefix (auto-detects single uniform prefix when omitted)",
+    )
     p_ver.add_argument("--config", help="Optional explicit config JSON")
     p_ver.add_argument("--allow-crlf", action="store_true")
     p_ver.set_defaults(func=cmd_verify)
