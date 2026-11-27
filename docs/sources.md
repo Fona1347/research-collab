@@ -12,6 +12,7 @@
 | zotero-literature-note | standalone skill module | Public-ready canonical Skill and its copyright notice |
 | literature-fulltext-acquisition | standalone skill module | Experimental Skill and guarded wrapper; upstream runtimes excluded |
 | insight | standalone skill module | V2.5 source, including on-demand English academic prose (`references/english-prose.md`), non-experimental paradigm calibration, bundled decision-interaction rules, and its [method attribution](../skills/insight/references/sources.md) |
+| typora-citation | standalone skill module | V2.0 dependency-free academic Markdown citation engine (`scripts/citation_tool.py`), 7 bibliography styles with persistent user-configurable defaults, verified trailing clickable source links, Schemes A–F conversion, and synthetic regression tests |
 
 Standalone development histories remain separate from this collection. Exact local paths,
 private migration logs, and local workspace fixtures are intentionally excluded.

@@ -1,6 +1,6 @@
 # Research Collab
 
-把文献发现、论文阅读、研究方向判断、科研写作、科研绘图与汇报衔接起来的 **10 个科研 Skill**。每个 Skill 都可以单独调用，保留可追溯的来源、判断依据和产物。
+把文献发现、论文阅读、研究方向判断、科研写作、学术引用排版、科研绘图与汇报衔接起来的 **11 个科研 Skill**。每个 Skill 都可以单独调用，保留可追溯的来源、判断依据和产物。
 
 [English](README.md) · [维护与安装](docs/maintenance.md) · [来源与依赖](docs/sources.md) · [兼容性与验证边界](docs/compatibility.md)
 
@@ -39,7 +39,7 @@ python scripts/skills.py install --skills-root "$skillsDir"
 python scripts/skills.py check --skills-root "$skillsDir"
 ```
 
-这会安装全部 10 个 Skill，包含实验性的全文获取适配器；不会安装 Python 依赖、注册 MCP 或开启研究任务。只想试用一个时，在上述安装和检查命令中加 `--skill paper-deep-reading`。如果已有安装出现冲突，按[首次接管说明](docs/maintenance.md#adopt-an-existing-installation)核对差异，保留本地修改。
+这会安装全部 11 个 Skill，包含实验性的全文获取适配器；不会安装 Python 依赖、注册 MCP 或开启研究任务。只想试用一个时，在上述安装和检查命令中加 `--skill paper-deep-reading`。如果已有安装出现冲突，按[首次接管说明](docs/maintenance.md#adopt-an-existing-installation)核对差异，保留本地修改。
 
 ### 2. 开始第一次阅读
 
@@ -64,6 +64,7 @@ Codex 从项目的 `.agents/skills` 加载技能。CLI/IDE 可用 `$技能名` �
 | 从 Sciverse 语料获取证据段落或结构化阅读 | [sciverse-research](skills/sciverse-research/SKILL.md) | 带来源位置和完整性状态的证据 |
 | 读懂一篇论文及其证据边界 | [paper-deep-reading](skills/paper-deep-reading/SKILL.md) | 读者报告与权威工作产物 |
 | 发展科研观点或修改论证 | [insight（见微）](skills/insight/README.md) | 基于证据的主张、修订后的文本，或独立审查与裁决后成稿 |
+| 规范学术 Markdown 引用、悬停跳转脚注与原文超链接 | [typora-citation](skills/typora-citation/README.md) | 严格首次出现 `1..N` 脚注（`[^1]`）、可配默认学术格式（默认 IEEE，支持 Nature/APA/GB-T 7714/ACS/Vancouver/Chicago）、末尾可点开超链接与脚本质检 |
 | 从 Zotero 条目制作 Markdown 阅读笔记 | [zotero-literature-note](skills/zotero-literature-note/SKILL.md) | 可追溯的笔记与图片 |
 | 比较研究方向、论证已选接口或审计现有方案 | [research-opportunity-mapper](skills/research-opportunity-mapper/SKILL.md) | 路线判断、验证计划与决策记录 |
 | 快速探索研究机会 | [research-opportunity-mapper-quick](skills/research-opportunity-mapper-quick/SKILL.md) | 轻量机会地图 |

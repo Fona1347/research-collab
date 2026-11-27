@@ -16,6 +16,7 @@ Installing a Skill does not install its dependencies or grant data/service acces
 | zotero-literature-note | 0.3.0-beta | Selected Zotero item/connector; authorized parser as needed | Release payload, references, policy/templates (PowerShell 7) |
 | literature-fulltext-acquisition | Experimental adapter; existing upstream lock | Windows + PowerShell 7, configured tools and entitlement | Fake-executable guards; configured runtime help only, no live retrieval |
 | insight | V2.5 | Primarily targets experimental, computational, and quantitative empirical research; humanities, law, pure math, and qualitative tasks include paradigm exemptions and favor lightweight editing / dual-genre delivery. Loads `references/english-prose.md` on demand for English or Chinese-to-English deliverables (zero overhead for Chinese tasks). Complete independent review requires subagents with fresh histories; decision prompts use bundled `references/decision-interaction.md`. | Package inventory and internal links |
+| typora-citation | 2.0.0 | Pure Python 3.10+ stdlib (zero external packages); optional `--online` Crossref REST lookup for missing fields; persists user defaults in skill `config/local.json` or project `.typora-citation.json` | Multi-style formatting (7 styles), clickable link emission/integrity, persistent config precedence, Schemes A–F round-trip, anti-hallucination QA |
 
 Historical version labels describe lineage, not new releases. Without an independent
 semantic version, use the collection commit. Sci-Plot's patch records executable
@@ -30,8 +31,8 @@ permission, no research credentials, and pinned official
 runners install declared test dependencies; local validation/install never does.
 
 `python scripts/validate.py --component NAME` accepts `collection`, `reading`,
-`presentation`, `mapper`, `quick`, `lookup`, `sciverse`, `plot`, `zotero` or
-`acquisition`. Default: all. Mapper integration automatically uses the sibling
+`presentation`, `mapper`, `quick`, `lookup`, `sciverse`, `plot`, `zotero`,
+`acquisition` or `citation`. Default: all. Mapper integration automatically uses the sibling
 canonical checker; `ROM_CANONICAL_CHECKER` is an explicit override. Missing
 PowerShell 7 blocks a selected PowerShell check with a reason. Unconfigured live
 acquisition and absent real history are skips, not successful live checks.

@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--component", action="append", choices=("collection", "reading", "presentation", "mapper", "quick", "lookup", "sciverse", "plot", "zotero", "acquisition"))
+    parser.add_argument("--component", action="append", choices=("collection", "reading", "presentation", "mapper", "quick", "lookup", "sciverse", "plot", "zotero", "acquisition", "citation"))
     parser.add_argument("--plot-python", default=sys.executable)
     parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--quick-validator", type=Path)
@@ -29,7 +29,7 @@ def main():
     env.setdefault("ROM_CANONICAL_CHECKER", str(ROOT / "skills/paper-deep-reading/scripts/check_canonical.py"))
     mapper = ROOT / "skills/research-opportunity-mapper"
     tests = ROOT / "tests"
-    selected = args.component or ["collection", "reading", "presentation", "mapper", "quick", "lookup", "sciverse", "plot", "zotero", "acquisition"]
+    selected = args.component or ["collection", "reading", "presentation", "mapper", "quick", "lookup", "sciverse", "plot", "zotero", "acquisition", "citation"]
     if "mapper" in selected:
         sys.path.insert(0, str(tests))
         from mapper_synthetic_workspace import seed
@@ -57,6 +57,7 @@ def main():
         ("zotero", "zotero", [pwsh, "-NoProfile", "-File", str(tests / "zotero-literature-note/validate-skill.ps1")]),
         ("acquisition", "acquisition-guards", [sys.executable, "-m", "unittest", "discover", "-s", str(tests / "literature-fulltext-acquisition"), "-p", "test_guards.py", "-v"]),
         ("acquisition", "acquisition-runtime", [pwsh, "-NoProfile", "-File", str(tests / "literature-fulltext-acquisition/smoke.ps1")]),
+        ("citation", "typora-citation", [sys.executable, "-m", "unittest", "discover", "-s", str(tests / "typora-citation"), "-v"]),
     ]
     quick = args.quick_validator or Path.home() / ".codex/skills/.system/skill-creator/scripts/quick_validate.py"
     if quick.is_file():
